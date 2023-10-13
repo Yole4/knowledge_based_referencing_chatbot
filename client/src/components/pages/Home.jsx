@@ -14,7 +14,7 @@ function Home() {
     const [onSearch, setOnSearch] = useState(false); // search
     const [isOpenLogin, setIsOpenLogin] = useState(false); // login popup
     const [isOpenRegister, setIsOpenRegister] = useState(false); // register popup
-    const [menuBar, setMenuBar] = useState(true); // right menu bar
+    const [menuBar, setMenuBar] = useState(false); // right menu bar
 
     return (
         <>
