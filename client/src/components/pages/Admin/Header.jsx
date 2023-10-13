@@ -22,10 +22,6 @@ function Header() {
                     <li className="nav-item d-none d-sm-inline-block">
                         <span style={{ cursor: 'pointer' }} className="nav-link">Home</span>
                     </li>
-                    {/* =============================================================== PUBLICIZE RESEARCH ================================================================================== */}
-                    <li className="nav-item d-none d-sm-inline-block">
-                        <span style={{ cursor: 'pointer' }} className="nav-link">Research & Extension Programs</span>
-                    </li>
                 </ul>
                 {/* Right navbar links */}
                 <ul className="navbar-nav ml-auto">

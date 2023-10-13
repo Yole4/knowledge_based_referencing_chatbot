@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import '../assets/css/CSS.css';
+import { useNavigate } from 'react-router-dom';
 
 //images
 import logo from '../assets/images/logo.png';
@@ -11,11 +12,30 @@ import { IoMenuSharp } from 'react-icons/io5';
 import { ImSearch } from 'react-icons/im';
 
 function Home() {
+    const navigate = useNavigate();
 
     const [onSearch, setOnSearch] = useState(false); // search
     const [isOpenLogin, setIsOpenLogin] = useState(false); // login popup
     const [isOpenRegister, setIsOpenRegister] = useState(false); // register popup
     const [menuBar, setMenuBar] = useState(false); // right menu bar
+
+    // -------------------------------------      LOGIN    ----------------------------------------    
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        if (!username && !password){
+            alert("Field Must Not Empty!");
+        }else{
+            if (username === "admin" && password === "admin123"){
+                navigate('/dashboard');
+            }else{
+                alert("Username and password is incorrect!");
+            }
+        }
+    }
 
     return (
         <>
@@ -183,15 +203,15 @@ function Home() {
                         <AiOutlineCloseCircle size={30} />
                     </div>
 
-                    <form >
+                    <form onSubmit={handleLogin}>
                         <div className='form-div'>
                             <label htmlFor="">Username</label>
-                            <input type="text" className='form-control' placeholder='Username' />
+                            <input type="text" className='form-control' value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Username' />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
                             <label htmlFor="">Password</label>
-                            <input type="password" className='form-control' placeholder='*********' />
+                            <input type="password" className='form-control' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='*********' />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>

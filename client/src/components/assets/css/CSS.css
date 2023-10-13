@@ -227,6 +227,32 @@
     display: none;
 }
 
+.search-bar{
+    position: absolute;
+    right: 55px;
+    margin-top: -10px;
+    cursor: pointer;
+}
+
+.search-bar:hover{
+    color: blue;
+}
+
+.search-input{
+    position: absolute;
+    right: 55px;
+    margin-top: 12px;
+    width: 200px;
+    height: 40px;
+    padding: 10px;
+    border-radius: 5px;
+    border-color: rgb(49, 166, 174);
+}
+
+.search-input:hover{
+    border-color: rgb(49, 166, 174);
+}
+
 
 
 
@@ -237,32 +263,6 @@
 @media screen and (max-width: 900px) {
     .navbar-header{
         display: none;
-    }
-
-    .search-bar{
-        position: absolute;
-        right: 55px;
-        margin-top: -10px;
-        cursor: pointer;
-    }
-
-    .search-bar:hover{
-        color: blue;
-    }
-
-    .search-input{
-        position: absolute;
-        right: 55px;
-        margin-top: 12px;
-        width: 200px;
-        height: 40px;
-        padding: 10px;
-        border-radius: 5px;
-        border-color: rgb(49, 166, 174);
-    }
-
-    .search-input:hover{
-        border-color: rgb(49, 166, 174);
     }
 
     .menu-bar{

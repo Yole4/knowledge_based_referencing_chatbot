@@ -13,6 +13,7 @@ import givenImage from '../../assets/images/given image.png';
 import logo from '../../assets/images/logo.png';
 
 function SideBar() {
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -37,7 +38,7 @@ function SideBar() {
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item has-treeview" style={{cursor: 'pointer'}}>
+                            <li className="nav-item has-treeview" onClick={() => navigate('/archive-list')} style={{cursor: 'pointer'}}>
                                 <span className="nav-link span-cursor">
                                     <i><FiArchive /></i>
                                     <p style={{ marginLeft: '10px' }}>
@@ -46,7 +47,7 @@ function SideBar() {
                                 </span>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item has-treeview" style={{cursor: 'pointer'}}>
+                            <li className="nav-item has-treeview" onClick={() => navigate('/student-list')} style={{cursor: 'pointer'}}>
                                 <span className="nav-link span-cursor">
                                     <i><FaUsers /></i>
                                     <p style={{ marginLeft: '10px' }}>
@@ -61,7 +62,7 @@ function SideBar() {
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item has-treeview" style={{cursor: 'pointer'}}>
+                            <li className="nav-item has-treeview" onClick={() => navigate('/department-list')} style={{cursor: 'pointer'}}>
                                 <span className="nav-link span-cursor">
                                     <i><FaThList /></i>
                                     <p style={{ marginLeft: '10px' }}>
@@ -70,7 +71,7 @@ function SideBar() {
                                 </span>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item has-treeview" style={{cursor: 'pointer'}}>
+                            <li className="nav-item has-treeview" onClick={() => navigate('/curriculumn-list')} style={{cursor: 'pointer'}}>
                                 <span className="nav-link span-cursor">
                                     <i><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
@@ -78,7 +79,7 @@ function SideBar() {
                                     </p>
                                 </span>
                             </li>
-                            <li className="nav-item has-treeview" style={{cursor: 'pointer'}}>
+                            <li className="nav-item has-treeview" onClick={() => navigate('/users-list')} style={{cursor: 'pointer'}}>
                                 <span className="nav-link span-cursor">
                                     <i><FaUsersCog /></i>
                                     <p style={{ marginLeft: '10px' }}>
@@ -86,7 +87,7 @@ function SideBar() {
                                     </p>
                                 </span>
                             </li>
-                            <li className="nav-item has-treeview" style={{cursor: 'pointer'}}>
+                            <li className="nav-item has-treeview" onClick={() => navigate('/settings')} style={{cursor: 'pointer'}}>
                                 <span className="nav-link span-cursor">
                                     <i><IoSettingsOutline /></i>
                                     <p style={{ marginLeft: '10px' }}>
