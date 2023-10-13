@@ -6,20 +6,24 @@ import BackendURL from '../backend url/BackendURL';
 // images
 import givenImage from '../../assets/images/given image.png';
 
+// react icons
+import { AiOutlineHome } from "react-icons/ai";
+
 function Header() {
+    const navigate = useNavigate();
 
     // get backend URL
     const backendUrl = BackendURL();
 
     return (
         <div>
-            <nav className="main-header navbar navbar-expand navbar-primary navbar-dark">
+            <nav className="main-header navbar navbar-expand navbar-primary navbar-dark bg-navy">
                 {/* Left navbar links */}
                 <ul className="navbar-nav">
                     <li className="nav-item">
                         <a className="nav-link" data-widget="pushmenu" href="#" role="button"><i className="fas fa-bars" /></a>
                     </li>
-                    <li className="nav-item d-none d-sm-inline-block">
+                    <li className="nav-item d-none d-sm-inline-block" onClick={() => navigate('/')}>
                         <span style={{ cursor: 'pointer' }} className="nav-link">Home</span>
                     </li>
                 </ul>
@@ -67,6 +71,9 @@ function Header() {
                         <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                             <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                 Profile
+                            </a>
+                            <a className="dropdown-item" onClick={() => navigate('/')} data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiOutlineHome size={18} style={{color: 'black', fontWeight: 'bold'}} /></i>
+                                Home
                             </a>
                             <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                                 Change Password

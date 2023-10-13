@@ -26,12 +26,12 @@ function Home() {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        if (!username && !password){
+        if (!username && !password) {
             alert("Field Must Not Empty!");
-        }else{
-            if (username === "admin" && password === "admin123"){
+        } else {
+            if (username === "admin" && password === "admin123") {
                 navigate('/dashboard');
-            }else{
+            } else {
                 alert("Username and password is incorrect!");
             }
         }
@@ -41,22 +41,80 @@ function Home() {
         <>
             <div className="wrapper" onClick={() => setOnSearch(false)}>
                 {/* Navbar */}
-                <nav className="bg-navy w-100 px-2 py-1 position-fixed top-0" id="login-nav">
-                    <div className="d-flex justify-content-between w-100">
-                        <div>
-                            <span className="mr-2  text-white"><i className="fa fa-phone mr-1" /> 09854698789</span>
-                        </div>
-                        {/* <div style={{ cursor: 'pointer' }}>
-                            <span className="mx-2">Howdy, admin</span>
-                            <span className="mx-2"><img src={givenImage} alt="User Avatar" style={{ height: '30px', borderRadius: '50%' }} id="student-img-avatar" /></span>
-                        </div> */}
-                        <div style={{ cursor: 'pointer' }} onClick={() => setIsOpenLogin(true)}>
-                            <a href="#" class="mx-2 text-light me-2">Signin/Login</a>
-                            <span className="mx-2"><img src={givenImage} alt="User Avatar" style={{ height: '30px', borderRadius: '50%' }} id="student-img-avatar" /></span>
-                        </div>
-                    </div>
+                <nav className="main-header navbar navbar-expand navbar-primary navbar-dark bg-navy" style={{ width: '100%', marginLeft: '0', zIndex: '51' }}>
+                    {/* Left navbar links */}
+                    <ul className="navbar-nav">
+                        <li className="nav-item d-sm-inline-block" onClick={() => navigate('/')}>
+                            <span class="mr-2  text-white"><i class="fa fa-phone mr-1"></i> 09854698789 / 78945632</span>
+                        </li>
+                    </ul>
+                    {/* Right navbar links */}
+                    <ul className="navbar-nav ml-auto">
+                        {/* Messages Dropdown Menu */}
+                        <li className="nav-item dropdown">
+                            <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <a href="#" className="dropdown-item">
+                                    {/* Message Start */}
+                                    {/* Message End */}
+                                </a>
+                                <div className="dropdown-divider" />
+                                <a href="#" className="dropdown-item dropdown-footer">See All Messages</a>
+                            </div>
+                        </li>
+                        {/* Notifications Dropdown Menu */}
+                        {/* // ================================================================= NOTIFICATION =============================================================================== */}
+                        {/* <li className="nav-item dropdown">
+                            <a className="nav-link" data-toggle="dropdown" href="#">
+                                <i className="far fa-bell" />
+                                <span className="badge badge-warning navbar-badge">1</span>
+                            </a>
+                            <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <span className="dropdown-item dropdown-header">1 Notification</span>
+
+
+                                <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
+                                    <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>asdasd </p>
+                                    <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>date</p>
+                                </div>
+
+                                <div className="dropdown-divider" />
+                                <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
+                            </div>
+                        </li> */}
+                        
+                        {/* Admin Profile */}
+                        <li className="nav-item dropdown no-arrow">
+                            <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onClick={(e) => {e.stopPropagation(); setIsOpenLogin(isOpenLogin ? false: true)}}>
+                                <span className="mr-2 d-none d-lg-inline text-gray-600 small">Signin/Login</span>
+                                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
+                            </a>
+                        </li>
+
+                        {/* <li className="nav-item dropdown no-arrow">
+                            <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span className="mr-2 d-none d-lg-inline text-gray-600 small">fullname</span>
+                                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
+                            </a>
+                            
+                            <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
+                                    Profile
+                                </a>
+                                <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i class="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Dashboard
+                                </a>
+                                <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+                                    Change Password
+                                </a>
+                                <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }}>
+                                    <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
+                                    Logout
+                                </a>
+                            </div>
+                        </li> */}
+                    </ul>
                 </nav>
-                <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0' }}>
+                <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0', marginTop: '0', zIndex: '50' }}>
                     <div className="container">
                         <a href="./" className="navbar-brand">
                             <img src={logo} alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
@@ -281,7 +339,7 @@ function Home() {
             <div onClick={() => { setMenuBar(false); setOnSearch(false) }} className='popup' style={{ visibility: menuBar ? 'visible' : 'hidden' }} >
                 <div className="right-bar-body bg-navy" style={{ animation: menuBar ? 'slideLeft 0.3s linear' : '' }} onClick={(e) => e.stopPropagation()}>
                     <AiOutlineClose size={25} />
-                    <ul className="navbar-nav" style={{color: 'white'}}>
+                    <ul className="navbar-nav" style={{ color: 'white' }}>
                         <li className="">
                             <a href="./" className="nav-link active">Home</a>
                         </li>

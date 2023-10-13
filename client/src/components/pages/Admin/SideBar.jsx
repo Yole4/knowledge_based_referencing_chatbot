@@ -38,62 +38,70 @@ function SideBar() {
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item has-treeview" onClick={() => navigate('/archive-list')} style={{cursor: 'pointer'}}>
-                                <span className="nav-link span-cursor">
-                                    <i><FiArchive /></i>
+                            <li className="nav-item dropdown">
+                                <a href="#" onClick={() => navigate('/dashboard')} className="nav-link nav-home">
+                                    <i className="nav-icon fas fa-tachometer-alt"></i>
+                                    <p>
+                                        Dashboard
+                                    </p>
+                                </a>
+                            </li>
+                            <li className="nav-item dropdown" onClick={() => navigate('/archive-list')} style={{ cursor: 'pointer' }}>
+                                <a className="nav-link nav-home">
+                                    <i className="nav-icon"><FiArchive /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Archive List
                                     </p>
-                                </span>
+                                </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item has-treeview" onClick={() => navigate('/student-list')} style={{cursor: 'pointer'}}>
-                                <span className="nav-link span-cursor">
-                                    <i><FaUsers /></i>
+                            <li className="nav-item dropdown" onClick={() => navigate('/student-list')} style={{ cursor: 'pointer' }}>
+                                <a className="nav-link nav-home">
+                                    <i className="nav-icon"><FaUsers /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Student List
                                     </p>
-                                </span>
+                                </a>
                             </li>
                         </ul>
                     </nav>
-                    <p className='nav-link span-cursor' style={{ marginLeft: '', fontSize: '18px', color: 'whitesmoke', marginBottom: '-10px' }}><span>Maintenance</span></p>
+                    <p className='nav-link nav-home' style={{ marginLeft: '', fontSize: '18px', color: 'whitesmoke', marginBottom: '-10px' }}><span>Maintenance</span></p>
 
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item has-treeview" onClick={() => navigate('/department-list')} style={{cursor: 'pointer'}}>
-                                <span className="nav-link span-cursor">
-                                    <i><FaThList /></i>
+                            <li className="nav-item dropdown" onClick={() => navigate('/department-list')} style={{ cursor: 'pointer' }}>
+                                <a className="nav-link nav-home">
+                                    <i className="nav-icon"><FaThList /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Department List
                                     </p>
-                                </span>
+                                </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item has-treeview" onClick={() => navigate('/curriculumn-list')} style={{cursor: 'pointer'}}>
-                                <span className="nav-link span-cursor">
-                                    <i><RiNewspaperLine /></i>
+                            <li className="nav-item dropdown" onClick={() => navigate('/curriculumn-list')} style={{ cursor: 'pointer' }}>
+                                <a className="nav-link nav-home">
+                                    <i className="nav-icon"><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Curriculumn List
                                     </p>
-                                </span>
+                                </a>
                             </li>
-                            <li className="nav-item has-treeview" onClick={() => navigate('/users-list')} style={{cursor: 'pointer'}}>
-                                <span className="nav-link span-cursor">
-                                    <i><FaUsersCog /></i>
+                            <li className="nav-item dropdown" onClick={() => navigate('/users-list')} style={{ cursor: 'pointer' }}>
+                                <a className="nav-link nav-home">
+                                    <i className="nav-icon"><FaUsersCog /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         User List
                                     </p>
-                                </span>
+                                </a>
                             </li>
-                            <li className="nav-item has-treeview" onClick={() => navigate('/settings')} style={{cursor: 'pointer'}}>
-                                <span className="nav-link span-cursor">
-                                    <i><IoSettingsOutline /></i>
+                            <li className="nav-item dropdown" onClick={() => navigate('/settings')} style={{ cursor: 'pointer' }}>
+                                <a className="nav-link nav-home">
+                                    <i className="nav-icon"><IoSettingsOutline /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         settings
                                     </p>
-                                </span>
+                                </a>
                             </li>
                         </ul>
                     </nav>

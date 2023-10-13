@@ -5,10 +5,12 @@ import { FaThList, FaUsers, FaUsersSlash } from "react-icons/fa";
 import { RiNewspaperLine } from "react-icons/ri";
 import { FiArchive } from "react-icons/fi";
 import { TbArchiveOff } from "react-icons/tb";
+import { useNavigate } from 'react-router-dom';
 // import { TbArchiveOff } from "react-icons/tb";
 
 
 function Dashboard() {
+    const navigate = useNavigate();
     return (
         <div className="content-wrapper">
             <div className="content-header">
@@ -38,7 +40,7 @@ function Dashboard() {
                                 <div className="icon">
                                     <i><FaThList /></i>
                                 </div>
-                                <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right" /></a>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/department-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                         <div className="col-lg-3 col-6">
@@ -50,19 +52,19 @@ function Dashboard() {
                                 <div className="icon">
                                     <i><RiNewspaperLine /></i>
                                 </div>
-                                <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right" /></a>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/curriculumn-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-warning">
                                 <div className="inner">
                                     <h3>4</h3>
-                                    <p>User Registrations</p>
+                                    <p>Verified Student</p>
                                 </div>
                                 <div className="icon">
                                     <i><FaUsers /></i>
                                 </div>
-                                <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right" /></a>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/student-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                         <div className="col-lg-3 col-6">
@@ -74,7 +76,7 @@ function Dashboard() {
                                 <div className="icon">
                                     <i><FaUsersSlash /></i>
                                 </div>
-                                <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right" /></a>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/student-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                         <div className="col-lg-3 col-6">
@@ -86,7 +88,7 @@ function Dashboard() {
                                 <div className="icon">
                                     <i><FiArchive /></i>
                                 </div>
-                                <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right" /></a>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/archive-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                         <div className="col-lg-3 col-6">
@@ -98,7 +100,7 @@ function Dashboard() {
                                 <div className="icon">
                                     <i><TbArchiveOff /></i>
                                 </div>
-                                <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right" /></a>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/archive-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                     </div>

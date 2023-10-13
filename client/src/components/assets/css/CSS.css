@@ -79,10 +79,6 @@
     padding: 1em 1.5em !important;
 }
 
-#top-Nav {
-    top: 4em;
-}
-
 .text-sm .layout-navbar-fixed .wrapper .main-header~.content-wrapper,
 .layout-navbar-fixed .wrapper .main-header.text-sm~.content-wrapper {
     margin-top: calc(3.6) !important;
