@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
+import '../assets/css/CSS.css';
 
 //images
 import logo from '../assets/images/logo.png';
-import '../assets/css/CSS.css';
+import givenImage from '../assets/images/given image.png';
 
 // react icons
 import { AiOutlineCloseCircle, AiOutlineClose } from 'react-icons/ai';
@@ -27,18 +28,18 @@ function Home() {
                         </div>
                         {/* <div style={{ cursor: 'pointer' }}>
                             <span className="mx-2">Howdy, admin</span>
-                            <span className="mx-2"><img src="http://localhost/otas/uploads/student-1.png?v=1639202560" alt="User Avatar" style={{ height: '30px', borderRadius: '50%' }} id="student-img-avatar" /></span>
+                            <span className="mx-2"><img src={givenImage} alt="User Avatar" style={{ height: '30px', borderRadius: '50%' }} id="student-img-avatar" /></span>
                         </div> */}
                         <div style={{ cursor: 'pointer' }} onClick={() => setIsOpenLogin(true)}>
                             <a href="#" class="mx-2 text-light me-2">Signin/Login</a>
-                            <span className="mx-2"><img src="http://localhost/otas/uploads/student-1.png?v=1639202560" alt="User Avatar" style={{ height: '30px', borderRadius: '50%' }} id="student-img-avatar" /></span>
+                            <span className="mx-2"><img src={givenImage} alt="User Avatar" style={{ height: '30px', borderRadius: '50%' }} id="student-img-avatar" /></span>
                         </div>
                     </div>
                 </nav>
                 <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0' }}>
                     <div className="container">
                         <a href="./" className="navbar-brand">
-                            <img src="http://localhost/otas/uploads/logo-JRMSU.png" alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
+                            <img src={logo} alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
                             <span>JRMSU</span>
                         </a>
                         <button className="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
