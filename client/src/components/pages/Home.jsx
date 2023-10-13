@@ -5,7 +5,7 @@ import logo from '../assets/images/logo.png';
 import '../assets/css/CSS.css';
 
 // react icons
-import { AiOutlineCloseCircle } from 'react-icons/ai';
+import { AiOutlineCloseCircle, AiOutlineClose } from 'react-icons/ai';
 import { IoMenuSharp } from 'react-icons/io5';
 import { ImSearch } from 'react-icons/im';
 
@@ -14,6 +14,7 @@ function Home() {
     const [onSearch, setOnSearch] = useState(false); // search
     const [isOpenLogin, setIsOpenLogin] = useState(false); // login popup
     const [isOpenRegister, setIsOpenRegister] = useState(false); // register popup
+    const [menuBar, setMenuBar] = useState(true); // right menu bar
 
     return (
         <>
@@ -45,6 +46,7 @@ function Home() {
                         </button>
                         <div className="collapse navbar-collapse order-3" id="navbarCollapse">
                             {/* Left navbar links */}
+                            {/* <ul className="navbar-nav responsive-header"> */}
                             <ul className="navbar-nav navbar-header">
                                 <li className="nav-item">
                                     <a href="./" className="nav-link active">Home</a>
@@ -121,13 +123,9 @@ function Home() {
                         </div>
                         {/* Right navbar links */}
                         <div className="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-                            <ImSearch size={20} className='search-bar' />
-                            <IoMenuSharp className="menu-bar" size={30}/>
-                            <div className="position-relative">
-                                <div className="position-absolute" style={{ display: onSearch ? 'block' : 'none', transition: '5s' }} onClick={(e) => e.stopPropagation()}>
-                                    <input style={{ width: '200px', marginLeft: '-200px', marginTop: '43px' }} type="search" id="search-input" className="form-control rounded-0" required placeholder="Search..." />
-                                </div>
-                            </div>
+                            <ImSearch size={20} className='search-bar' onClick={(e) => { e.stopPropagation(); setOnSearch(onSearch ? false : true) }} />
+                            <input onClick={(e) => e.stopPropagation()} placeholder='Search...' className='search-input' type="text" style={{ display: onSearch ? 'block' : 'none' }} />
+                            <IoMenuSharp onClick={(e) => { e.stopPropagation(); setMenuBar(true) }} className="menu-bar" size={30} />
                         </div>
                     </div>
                 </nav>
@@ -137,7 +135,7 @@ function Home() {
                     <div id="header" className="shadow mb-4">
                         <div className="d-flex justify-content-center h-100 w-100 align-items-center flex-column px-3">
                             <h1 className="w-100 text-center site-title" style={{ marginBottom: '20px' }}>A thesis and capstone archiving system  with integrated knowledge-based referencing chatbot</h1>
-                            <a href="./?page=projects" className="btn btn-lg btn-light rounded-pill w-25" id="enrollment"><b>Explore Projects</b></a>
+                            <a href="./?page=projects" className="btn btn-lg btn-light rounded-pill explore" id="enrollment"><b>Explore Projects</b></a>
                         </div>
                     </div>
                     {/* Main content */}
@@ -200,7 +198,7 @@ function Home() {
                         </div>
 
                     </form>
-                    <div style={{marginTop: '10px', textAlign: 'center'}} className='forgot-password'>
+                    <div style={{ marginTop: '10px', textAlign: 'center' }} className='forgot-password'>
                         <span>Forgot Password?</span>
                     </div>
 
@@ -256,6 +254,86 @@ function Home() {
                     <div style={{ textAlign: 'center', marginTop: '10px' }}>
                         <span>Already have account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenLogin(true); setIsOpenRegister(false) }} >Login</a></span>
                     </div>
+                </div>
+            </div>
+
+            <div onClick={() => { setMenuBar(false); setOnSearch(false) }} className='popup' style={{ visibility: menuBar ? 'visible' : 'hidden' }} >
+                <div className="right-bar-body bg-navy" style={{ animation: menuBar ? 'slideLeft 0.3s linear' : '' }} onClick={(e) => e.stopPropagation()}>
+                    <AiOutlineClose size={25} />
+                    <ul className="navbar-nav" style={{color: 'white'}}>
+                        <li className="">
+                            <a href="./" className="nav-link active">Home</a>
+                        </li>
+                        <li className="">
+                            <a href="./?page=projects" className="nav-link ">Projects</a>
+                        </li>
+                        <li className=" dropdown">
+                            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Department</a>
+                            <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
+                                <li>
+                                    <a href="./?page=projects_per_department&id=3" className="dropdown-item">College Of Arts And Sciences</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=4" className="dropdown-item">College Of Business Management And Accountancy</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=5" className="dropdown-item">College Of Computer Studies</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=2" className="dropdown-item">College Of Education</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=6" className="dropdown-item">College Of Engineering</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=1" className="dropdown-item">College Of Industrial Technology</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=7" className="dropdown-item">ColLege Of Maritime</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_department&id=8" className="dropdown-item">College Of Nursing And Allied Services</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li className="nav-item dropdown">
+                            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Courses</a>
+                            <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=3" className="dropdown-item">BEEd</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=7" className="dropdown-item">BS Computer Engineering</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=5" className="dropdown-item">BSBA</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=6" className="dropdown-item">BSCE</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=2" className="dropdown-item">BSCS</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=4" className="dropdown-item">BSEd</a>
+                                </li><li className="dropdown-divider" />
+                                <li>
+                                    <a href="./?page=projects_per_curriculum&id=1" className="dropdown-item">BSIS</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li className="nav-item">
+                            <a href="./?page=about" className="nav-link ">About Us</a>
+                        </li>
+
+                        <li className="nav-item">
+                            <a href="./?page=profile" className="nav-link ">Profile</a>
+                        </li>
+                        <li className="nav-item">
+                            <a href="./?page=submit-archive" className="nav-link ">Submit Thesis/Capstone</a>
+                        </li>
+                    </ul>
+
                 </div>
             </div>
 
