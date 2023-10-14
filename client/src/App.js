@@ -23,7 +23,7 @@ function App() {
 function Main() {
   const location = useLocation();
   const isLogin = location.pathname === '/';
-  const isAdmin = location.pathname === '/dashboard' || location.pathname === '/archive-list' || location.pathname === '/student-list' || location.pathname === '/department-list' || location.pathname === '/curriculumn-list';
+  const isAdmin = location.pathname === '/dashboard' || location.pathname === '/archive-list' || location.pathname === '/student-list' || location.pathname === '/users-list' || location.pathname === '/department-list' || location.pathname === "/settings" || location.pathname === '/curriculumn-list';
 
   return (
     <>

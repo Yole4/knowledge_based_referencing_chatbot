@@ -18,6 +18,9 @@ import { SiCoursera } from 'react-icons/si';
 import { BiSolidUserVoice } from 'react-icons/bi';
 import { PiUploadBold } from 'react-icons/pi';
 import { GoDotFill } from 'react-icons/go';
+import { VscDeviceCamera } from 'react-icons/vsc';
+
+// backend url
 import BackendURL from './backend url/BackendURL';
 
 function Home() {
@@ -29,6 +32,8 @@ function Home() {
     const [isOpenLogin, setIsOpenLogin] = useState(false); // login popup
     const [isOpenRegister, setIsOpenRegister] = useState(false); // register popup
     const [menuBar, setMenuBar] = useState(false); // right menu bar
+    const [isChangePassword, setIsChangePassword] = useState(false); // change password modal
+    const [isProfile, setIsProfile] = useState(false); // profile modal
 
     // -------------- Loading List ----------
     const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +112,53 @@ function Home() {
         }
     }, [token]);
 
+    // -------------------------------------   CHANGE PASSWORD -------------------------------------
+    const [changePass, setChangePass] = useState({
+        username: '',
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+
+    const handleChagePassword = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const userId = userCredentials.id;
+        const changeRequest = { changePass, userId };
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/change-password`, changeRequest, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setIsLoading(false);
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+                setIsChangePassword(false);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
     return (
         <>
             <div className="wrapper" onClick={() => setOnSearch(false)}>
@@ -155,12 +207,12 @@ function Home() {
 
                                 <li className="nav-item dropdown no-arrow">
                                     <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">fullname</span>
-                                        <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
+                                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">{userCredentials && `${userCredentials.firstName} ${userCredentials.middleName} ${userCredentials.lastName}`}</span>
+                                        <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} />
                                     </a>
 
                                     <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                        <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
+                                        <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                             Profile
                                         </a>
                                         {userCredentials && userCredentials.userType === "Admin" && (
@@ -168,7 +220,7 @@ function Home() {
                                                 Dashboard
                                             </a>
                                         )}
-                                        <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+                                        <a className="dropdown-item" data-toggle="modal" onClick={() => setIsChangePassword(true)} data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                                             Change Password
                                         </a>
                                         <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('token'); navigate('/') }}>
@@ -501,6 +553,71 @@ function Home() {
                         </nav>
                     </div>
                 </aside>
+            </div>
+
+            {/* Change Password */}
+            <div className="popup" style={{ visibility: isChangePassword ? 'visible' : 'hidden' }}>
+                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+                    <div className="popup-edit">
+                        <span>Change Password</span>
+                    </div>
+                    <hr />
+                    <form onSubmit={handleChagePassword}>
+                        <div className='form-div'>
+                            <label htmlFor="">Username</label>
+                            <input type="text" value={changePass.username} onChange={(e) => setChangePass((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
+                        </div>
+
+                        <div style={{ marginTop: '15px' }}>
+                            <label htmlFor="">Current Password</label>
+                            <input type="password" value={changePass.currentPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, currentPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                        </div>
+
+                        <div style={{ marginTop: '15px' }}>
+                            <label htmlFor="">New Password</label>
+                            <input type="password" value={changePass.newPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                        </div>
+
+                        <div style={{ marginTop: '15px' }}>
+                            <label htmlFor="">Confirm Password</label>
+                            <input type="password" value={changePass.confirmPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                        </div>
+
+                        <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsChangePassword(false)}>Cancel</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {/* --------   PROFILE ---------- */}
+            <div className="popup" onClick={() => setIsProfile(false)} style={{ visibility: isProfile ? 'visible' : 'hidden' }}>
+                <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProfile ? 'dropBottom .3s linear' : '' }}>
+                    <div className="modal-close" onClick={() => setIsProfile(false)}>
+                        <AiOutlineCloseCircle size={30} />
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <img src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
+                        <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
+                            <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
+                            <input type="file" id="uploadPhoto" style={{ display: 'none' }} />
+                        </label>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div>
+                            <h2 style={{ fontSize: '20px' }}>{userCredentials && `${userCredentials.firstName} ${userCredentials.middleName} ${userCredentials.lastName}`}</h2>
+                        </div>
+                        <div style={{ marginTop: '10px' }}>
+                            <span>{userCredentials && userCredentials.userType}</span>
+                        </div><br />
+                    </div>
+                    <hr />
+                    <div className="form-control" style={{ textAlign: 'center' }}>
+                        <span>Other profile view</span>
+                    </div>
+                </div>
             </div>
 
             {/* fetching data screen */}
