@@ -10,6 +10,7 @@ import CurriculumnList from "./components/pages/Admin/body/CurriculumnList";
 import Home from "./components/pages/Home";
 import UsersList from "./components/pages/Admin/body/UsersList";
 import Settings from "./components/pages/Admin/body/Settings";
+import Undefine from "./components/pages/404/Undefine";
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function Main() {
 
   return (
     <>
-      {!isLogin && (
+      {isAdmin && (
         <>
           <Header />
           <SideBar />
@@ -43,6 +44,9 @@ function Main() {
 
         {/* Home */}
         <Route path="/" element={<Home />} />
+
+        {/* ------ undefine URL -------- */}
+        <Route path='*' element={<Undefine />} />
       </Routes>
     </>
   );

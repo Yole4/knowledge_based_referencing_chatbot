@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import '../assets/css/CSS.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 //images
 import logo from '../assets/images/logo.png';
@@ -17,32 +18,94 @@ import { SiCoursera } from 'react-icons/si';
 import { BiSolidUserVoice } from 'react-icons/bi';
 import { PiUploadBold } from 'react-icons/pi';
 import { GoDotFill } from 'react-icons/go';
+import BackendURL from './backend url/BackendURL';
 
 function Home() {
     const navigate = useNavigate();
+    const backendUrl = BackendURL(); // backend url
+    const token = localStorage.getItem('token'); // token
 
     const [onSearch, setOnSearch] = useState(false); // search
     const [isOpenLogin, setIsOpenLogin] = useState(false); // login popup
     const [isOpenRegister, setIsOpenRegister] = useState(false); // register popup
     const [menuBar, setMenuBar] = useState(false); // right menu bar
 
+    // -------------- Loading List ----------
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isError, setIsError] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
     // -------------------------------------      LOGIN    ----------------------------------------    
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [isLogin, setIsLogin] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
-        if (!username && !password) {
-            alert("Field Must Not Empty!");
-        } else {
-            if (username === "admin" && password === "admin123") {
-                navigate('/dashboard');
+        const requestLogin = { username, password };
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/login`, requestLogin);
+
+            if (response.status === 200) {
+
+                localStorage.setItem('token', response.data.token);
+                setIsLoading(false);
+                setErrorMessage("Login Success!");
+                setIsSuccess(true);
+                setIsOpenLogin(false);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
             } else {
-                alert("Username and password is incorrect!");
+                console.log('Error: ', error);
             }
         }
     }
+
+    // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
+    const [userCredentials, setUserCredentials] = useState([]);
+    // get the credentials
+    useEffect(() => {
+        if (token) {
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await axios.get(`${backendUrl}/api/protected`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        setUserCredentials(response.data.user);
+                        setIsLoading(false);
+                        setIsLogin(true);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    setIsLogin(false);
+                }
+            }
+            fetchData();
+        } else {
+            setIsLogin(false);
+        }
+    }, [token]);
 
     return (
         <>
@@ -68,57 +131,61 @@ function Home() {
                                 <a href="#" className="dropdown-item dropdown-footer">See All Messages</a>
                             </div>
                         </li>
-                        {/* Notifications Dropdown Menu */}
-                        {/* // ================================================================= NOTIFICATION =============================================================================== */}
-                        <li className="nav-item dropdown">
-                            <a className="nav-link" data-toggle="dropdown" href="#">
-                                <i className="far fa-bell" />
-                                <span className="badge badge-warning navbar-badge">1</span>
-                            </a>
-                            <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                                <span className="dropdown-item dropdown-header">1 Notification</span>
+
+                        {isLogin ? (
+                            <>
+                                <li className="nav-item dropdown">
+                                    <a className="nav-link" data-toggle="dropdown" href="#">
+                                        <i className="far fa-bell" />
+                                        <span className="badge badge-warning navbar-badge">1</span>
+                                    </a>
+                                    <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                        <span className="dropdown-item dropdown-header">1 Notification</span>
 
 
-                                <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
-                                    <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>This is the notification message </p>
-                                    <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>date</p>
-                                </div>
+                                        <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
+                                            <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>This is the notification message </p>
+                                            <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>date</p>
+                                        </div>
 
-                                <div className="dropdown-divider" />
-                                <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
-                            </div>
-                        </li>
+                                        <div className="dropdown-divider" />
+                                        <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
+                                    </div>
+                                </li>
 
-                        {/* Admin Profile */}
-                        {/* <li className="nav-item dropdown no-arrow">
-                            <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onClick={(e) => {e.stopPropagation(); setIsOpenLogin(isOpenLogin ? false: true)}}>
-                                <span className="mr-2 d-none d-lg-inline text-gray-600 small">Signin/Login</span>
-                                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
-                            </a>
-                        </li> */}
+                                <li className="nav-item dropdown no-arrow">
+                                    <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">fullname</span>
+                                        <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
+                                    </a>
 
-                        <li className="nav-item dropdown no-arrow">
-                            <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span className="mr-2 d-none d-lg-inline text-gray-600 small">fullname</span>
-                                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
-                            </a>
-
-                            <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
-                                    Profile
+                                    <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                        <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
+                                            Profile
+                                        </a>
+                                        {userCredentials && userCredentials.userType === "Admin" && (
+                                            <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i class="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                                Dashboard
+                                            </a>
+                                        )}
+                                        <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+                                            Change Password
+                                        </a>
+                                        <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('token'); navigate('/') }}>
+                                            <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
+                                            Logout
+                                        </a>
+                                    </div>
+                                </li>
+                            </>
+                        ) : (
+                            < li className="nav-item dropdown no-arrow right-margin" style={{ marginRight: '-10px' }}>
+                                <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onClick={(e) => { e.stopPropagation(); setIsOpenLogin(isOpenLogin ? false : true) }}>
+                                    <span className="mr-2 d-none d-lg-inline text-gray-600 small">Signin/Login</span>
+                                    <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
                                 </a>
-                                <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i class="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Dashboard
-                                </a>
-                                <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
-                                    Change Password
-                                </a>
-                                <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }}>
-                                    <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
-                                    Logout
-                                </a>
-                            </div>
-                        </li>
+                            </li>
+                        )}
                     </ul>
                 </nav>
                 <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0', marginTop: '0', zIndex: '50' }}>
@@ -199,12 +266,11 @@ function Home() {
                                     <a href="./?page=about" className="nav-link ">About Us</a>
                                 </li>
 
-                                <li className="nav-item">
-                                    <a href="./?page=profile" className="nav-link ">Profile</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a href="./?page=submit-archive" className="nav-link ">Submit Thesis/Capstone</a>
-                                </li>
+                                {isLogin && (
+                                    <li className="nav-item">
+                                        <a href="./?page=submit-archive" className="nav-link ">Submit Thesis/Capstone</a>
+                                    </li>
+                                )}
                             </ul>
                         </div>
                         {/* Right navbar links */}
@@ -255,7 +321,7 @@ function Home() {
                             </div>        </div>
                     </section>
                 </div>
-            </div>
+            </div >
 
             <div onClick={() => setIsOpenLogin(false)} className='popup' style={{ visibility: isOpenLogin && !isOpenRegister ? 'visible' : 'hidden' }} >
 
@@ -271,16 +337,16 @@ function Home() {
                     <form onSubmit={handleLogin}>
                         <div className='form-div'>
                             <label htmlFor="">Username</label>
-                            <input type="text" className='form-control' value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Username' />
+                            <input type="text" className='form-control' value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Username' required />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
                             <label htmlFor="">Password</label>
-                            <input type="password" className='form-control' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='*********' />
+                            <input type="password" className='form-control' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='*********' required />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
-                            <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" placeholder='Username' />
+                            <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" />
                         </div>
 
                     </form>
@@ -351,7 +417,7 @@ function Home() {
                         <span className="brand-text font-weight-light">Admin</span>
                     </span>
                     {/* Sidebar */}
-                    <div className="sidebar" style={{height: '100vh', overflow: 'auto'}}>
+                    <div className="sidebar" style={{ height: '100vh', overflow: 'auto' }}>
                         {/* Sidebar user (optional) */}
                         <div className="user-panel mt-3 pb-3 mb-3 d-flex">
                             <div className="image">
@@ -365,16 +431,16 @@ function Home() {
                         <nav className="mt-2" style={{ marginLeft: '10px' }}>
                             <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style={{ paddingRight: '15px' }}>
                                 <li className="nav-item dropdown hover-side" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><AiTwotoneHome size={20} style={{marginTop: '-3px'}}/> Home</a>
+                                    <a className="nav-link"><AiTwotoneHome size={20} style={{ marginTop: '-3px' }} /> Home</a>
                                 </li>
 
                                 <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><TbBulbFilled size={20} style={{marginTop: '-3px'}}/> Projects</a>
+                                    <a className="nav-link"><TbBulbFilled size={20} style={{ marginTop: '-3px' }} /> Projects</a>
                                 </li>
 
                                 <li className=" dropdown" style={{ cursor: 'pointer' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', marginLeft: '15px' }}>
-                                        <a ><FaThList size={17} style={{marginTop: '-3px'}}/> Department</a><span><RiArrowDownSLine size={25} /></span>
+                                        <a ><FaThList size={17} style={{ marginTop: '-3px' }} /> Department</a><span><RiArrowDownSLine size={25} /></span>
                                         {/* <span><RiArrowLeftSLine size={25} /></span> */}
                                     </div>
                                     <ul className="nav nav-pills nav-sidebar flex-column">
@@ -382,15 +448,15 @@ function Home() {
                                             <a className='nav-link nav-home'>
                                                 {/* <i className="nav-icon"><FaUsers /></i> */}
                                                 <p >
-                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> College Of Arts And Sciences
+                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Arts And Sciences
                                                 </p>
                                             </a>
                                         </li>
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px'  }}>
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
                                             <a className='nav-link nav-home'>
                                                 {/* <i className="nav-icon"><FaUsers /></i> */}
                                                 <p >
-                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> College Of Business Management And Accountancy
+                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Business Management And Accountancy
                                                 </p>
                                             </a>
                                         </li>
@@ -399,23 +465,23 @@ function Home() {
 
                                 <li className=" dropdown" style={{ cursor: 'pointer' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', marginLeft: '15px' }}>
-                                        <a ><SiCoursera size={20} style={{marginTop: '-3px'}}/> Courses</a><span><RiArrowDownSLine size={25} /></span>
+                                        <a ><SiCoursera size={20} style={{ marginTop: '-3px' }} /> Courses</a><span><RiArrowDownSLine size={25} /></span>
                                         {/* <span><RiArrowLeftSLine size={25} /></span> */}
                                     </div>
                                     <ul className="nav nav-pills nav-sidebar flex-column">
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px'  }}>
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
                                             <a className='nav-link nav-home'>
                                                 {/* <i className="nav-icon"><FaUsers /></i> */}
                                                 <p >
-                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> Bachelor Of Science In Computer Science
+                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> Bachelor Of Science In Computer Science
                                                 </p>
                                             </a>
                                         </li>
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px'  }}>
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
                                             <a className='nav-link nav-home'>
                                                 {/* <i className="nav-icon"><FaUsers /></i> */}
                                                 <p >
-                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> BSMA
+                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> BSMA
                                                 </p>
                                             </a>
                                         </li>
@@ -423,18 +489,34 @@ function Home() {
                                 </li>
 
                                 <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><BiSolidUserVoice size={20} style={{marginTop: '-3px'}}/> About Us</a>
+                                    <a className="nav-link"><BiSolidUserVoice size={20} style={{ marginTop: '-3px' }} /> About Us</a>
                                 </li>
 
-                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><PiUploadBold size={20} style={{marginTop: '-3px'}}/> Submit Thesis/Capstone</a>
-                                </li>
+                                {isLogin && (
+                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
+                                        <a className="nav-link"><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
+                                    </li>
+                                )}
                             </ul>
                         </nav>
                     </div>
                 </aside>
             </div>
 
+            {/* fetching data screen */}
+            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
+                <div className="modal-pop-up-loading">
+                    <div className="modal-pop-up-loading-spiner"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            {/* Loading div */}
+            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                <div>
+                    <h5>{errorMessage}</h5>
+                </div>
+            </div>
         </>
     );
 }

@@ -78,7 +78,7 @@ function Header() {
                             <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                                 Change Password
                             </a>
-                            <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }}>
+                            <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => {localStorage.removeItem('token'); navigate('/')}}> 
                                 <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
                                 Logout
                             </a>
