@@ -7,9 +7,16 @@ import logo from '../assets/images/logo.png';
 import givenImage from '../assets/images/given image.png';
 
 // react icons
-import { AiOutlineCloseCircle, AiOutlineClose } from 'react-icons/ai';
+import { AiOutlineCloseCircle, AiTwotoneHome } from 'react-icons/ai';
 import { IoMenuSharp } from 'react-icons/io5';
 import { ImSearch } from 'react-icons/im';
+import { RiArrowDownSLine, RiArrowLeftSLine } from 'react-icons/ri';
+import { TbBulbFilled } from 'react-icons/tb';
+import { FaThList } from 'react-icons/fa';
+import { SiCoursera } from 'react-icons/si';
+import { BiSolidUserVoice } from 'react-icons/bi';
+import { PiUploadBold } from 'react-icons/pi';
+import { GoDotFill } from 'react-icons/go';
 
 function Home() {
     const navigate = useNavigate();
@@ -45,7 +52,7 @@ function Home() {
                     {/* Left navbar links */}
                     <ul className="navbar-nav">
                         <li className="nav-item d-sm-inline-block" onClick={() => navigate('/')}>
-                            <span class="mr-2  text-white"><i class="fa fa-phone mr-1"></i> 09854698789 / 78945632</span>
+                            <span class="mr-2  text-white"><i class="fa fa-phone mr-1"></i> 09854698789</span>
                         </li>
                     </ul>
                     {/* Right navbar links */}
@@ -63,7 +70,7 @@ function Home() {
                         </li>
                         {/* Notifications Dropdown Menu */}
                         {/* // ================================================================= NOTIFICATION =============================================================================== */}
-                        {/* <li className="nav-item dropdown">
+                        <li className="nav-item dropdown">
                             <a className="nav-link" data-toggle="dropdown" href="#">
                                 <i className="far fa-bell" />
                                 <span className="badge badge-warning navbar-badge">1</span>
@@ -73,29 +80,29 @@ function Home() {
 
 
                                 <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
-                                    <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>asdasd </p>
+                                    <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>This is the notification message </p>
                                     <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>date</p>
                                 </div>
 
                                 <div className="dropdown-divider" />
                                 <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
                             </div>
-                        </li> */}
-                        
+                        </li>
+
                         {/* Admin Profile */}
-                        <li className="nav-item dropdown no-arrow">
+                        {/* <li className="nav-item dropdown no-arrow">
                             <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onClick={(e) => {e.stopPropagation(); setIsOpenLogin(isOpenLogin ? false: true)}}>
                                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">Signin/Login</span>
                                 <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
                             </a>
-                        </li>
+                        </li> */}
 
-                        {/* <li className="nav-item dropdown no-arrow">
+                        <li className="nav-item dropdown no-arrow">
                             <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">fullname</span>
                                 <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
                             </a>
-                            
+
                             <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                     Profile
@@ -111,7 +118,7 @@ function Home() {
                                     Logout
                                 </a>
                             </div>
-                        </li> */}
+                        </li>
                     </ul>
                 </nav>
                 <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0', marginTop: '0', zIndex: '50' }}>
@@ -128,10 +135,10 @@ function Home() {
                             {/* <ul className="navbar-nav responsive-header"> */}
                             <ul className="navbar-nav navbar-header">
                                 <li className="nav-item">
-                                    <a href="./" className="nav-link active">Home</a>
+                                    <a href="#" className="nav-link active">Home</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href="./?page=projects" className="nav-link ">Projects</a>
+                                    <a href="#" className="nav-link ">Projects</a>
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Department</a>
@@ -337,83 +344,95 @@ function Home() {
             </div>
 
             <div onClick={() => { setMenuBar(false); setOnSearch(false) }} className='popup' style={{ visibility: menuBar ? 'visible' : 'hidden' }} >
-                <div className="right-bar-body bg-navy" style={{ animation: menuBar ? 'slideLeft 0.3s linear' : '' }} onClick={(e) => e.stopPropagation()}>
-                    <AiOutlineClose size={25} />
-                    <ul className="navbar-nav" style={{ color: 'white' }}>
-                        <li className="">
-                            <a href="./" className="nav-link active">Home</a>
-                        </li>
-                        <li className="">
-                            <a href="./?page=projects" className="nav-link ">Projects</a>
-                        </li>
-                        <li className=" dropdown">
-                            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Department</a>
-                            <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
-                                <li>
-                                    <a href="./?page=projects_per_department&id=3" className="dropdown-item">College Of Arts And Sciences</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=4" className="dropdown-item">College Of Business Management And Accountancy</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=5" className="dropdown-item">College Of Computer Studies</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=2" className="dropdown-item">College Of Education</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=6" className="dropdown-item">College Of Engineering</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=1" className="dropdown-item">College Of Industrial Technology</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=7" className="dropdown-item">ColLege Of Maritime</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_department&id=8" className="dropdown-item">College Of Nursing And Allied Services</a>
+                <aside className="main-sidebar sidebar-dark-primary elevation-4 right-bar-body" onClick={(e) => e.stopPropagation()} style={{ animation: menuBar ? 'slideLeft 0.3s linear' : 'slideRight 0.3s linear' }}>
+                    {/* Brand Logo */}
+                    <span className="brand-link span-cursor" style={{ width: '190px' }}>
+                        <img src={logo} alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
+                        <span className="brand-text font-weight-light">Admin</span>
+                    </span>
+                    {/* Sidebar */}
+                    <div className="sidebar" style={{height: '100vh', overflow: 'auto'}}>
+                        {/* Sidebar user (optional) */}
+                        <div className="user-panel mt-3 pb-3 mb-3 d-flex">
+                            <div className="image">
+                                <img style={{ width: 34, height: 34 }} src={givenImage} className="img-profile rounded-circle" />
+                            </div>
+                            <div className="info">
+                                <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>shelo</a>
+                            </div>
+                        </div>
+                        {/* Sidebar Menu */}
+                        <nav className="mt-2" style={{ marginLeft: '10px' }}>
+                            <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style={{ paddingRight: '15px' }}>
+                                <li className="nav-item dropdown hover-side" style={{ cursor: 'pointer' }}>
+                                    <a className="nav-link"><AiTwotoneHome size={20} style={{marginTop: '-3px'}}/> Home</a>
+                                </li>
+
+                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
+                                    <a className="nav-link"><TbBulbFilled size={20} style={{marginTop: '-3px'}}/> Projects</a>
+                                </li>
+
+                                <li className=" dropdown" style={{ cursor: 'pointer' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', marginLeft: '15px' }}>
+                                        <a ><FaThList size={17} style={{marginTop: '-3px'}}/> Department</a><span><RiArrowDownSLine size={25} /></span>
+                                        {/* <span><RiArrowLeftSLine size={25} /></span> */}
+                                    </div>
+                                    <ul className="nav nav-pills nav-sidebar flex-column">
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                            <a className='nav-link nav-home'>
+                                                {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                <p >
+                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> College Of Arts And Sciences
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px'  }}>
+                                            <a className='nav-link nav-home'>
+                                                {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                <p >
+                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> College Of Business Management And Accountancy
+                                                </p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li className=" dropdown" style={{ cursor: 'pointer' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', marginLeft: '15px' }}>
+                                        <a ><SiCoursera size={20} style={{marginTop: '-3px'}}/> Courses</a><span><RiArrowDownSLine size={25} /></span>
+                                        {/* <span><RiArrowLeftSLine size={25} /></span> */}
+                                    </div>
+                                    <ul className="nav nav-pills nav-sidebar flex-column">
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px'  }}>
+                                            <a className='nav-link nav-home'>
+                                                {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                <p >
+                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> Bachelor Of Science In Computer Science
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px'  }}>
+                                            <a className='nav-link nav-home'>
+                                                {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                <p >
+                                                <GoDotFill size={17} style={{marginTop: '-3px'}}/> BSMA
+                                                </p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
+                                    <a className="nav-link"><BiSolidUserVoice size={20} style={{marginTop: '-3px'}}/> About Us</a>
+                                </li>
+
+                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
+                                    <a className="nav-link"><PiUploadBold size={20} style={{marginTop: '-3px'}}/> Submit Thesis/Capstone</a>
                                 </li>
                             </ul>
-                        </li>
-                        <li className="nav-item dropdown">
-                            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Courses</a>
-                            <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=3" className="dropdown-item">BEEd</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=7" className="dropdown-item">BS Computer Engineering</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=5" className="dropdown-item">BSBA</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=6" className="dropdown-item">BSCE</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=2" className="dropdown-item">BSCS</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=4" className="dropdown-item">BSEd</a>
-                                </li><li className="dropdown-divider" />
-                                <li>
-                                    <a href="./?page=projects_per_curriculum&id=1" className="dropdown-item">BSIS</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li className="nav-item">
-                            <a href="./?page=about" className="nav-link ">About Us</a>
-                        </li>
-
-                        <li className="nav-item">
-                            <a href="./?page=profile" className="nav-link ">Profile</a>
-                        </li>
-                        <li className="nav-item">
-                            <a href="./?page=submit-archive" className="nav-link ">Submit Thesis/Capstone</a>
-                        </li>
-                    </ul>
-
-                </div>
+                        </nav>
+                    </div>
+                </aside>
             </div>
 
         </>

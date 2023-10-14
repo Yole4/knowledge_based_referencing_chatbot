@@ -7,7 +7,7 @@ import BackendURL from '../backend url/BackendURL';
 import givenImage from '../../assets/images/given image.png';
 
 // react icons
-import { AiOutlineHome } from "react-icons/ai";
+import { AiTwotoneHome } from "react-icons/ai";
 
 function Header() {
     const navigate = useNavigate();
@@ -52,7 +52,7 @@ function Header() {
 
 
                             <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
-                                <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>asdasd </p>
+                                <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>This is the notification message </p>
                                 <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>date</p>
                             </div>
 
@@ -72,7 +72,7 @@ function Header() {
                             <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                 Profile
                             </a>
-                            <a className="dropdown-item" onClick={() => navigate('/')} data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiOutlineHome size={18} style={{color: 'black', fontWeight: 'bold'}} /></i>
+                            <a className="dropdown-item" onClick={() => navigate('/')} data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{color: 'black', marginTop: '-3px'}} /></i>
                                 Home
                             </a>
                             <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />

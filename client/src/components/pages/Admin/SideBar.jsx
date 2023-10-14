@@ -15,9 +15,118 @@ import logo from '../../assets/images/logo.png';
 function SideBar() {
     const navigate = useNavigate();
 
+    // background color active hover
+    const [dashboardList, setDashBoardList] = useState({
+        dashboard: true,
+        archive: false,
+        student: false,
+        department: false,
+        curriculumn: false,
+        user: false,
+        settings: false
+    });
+
+    // dashboard
+    const dashboard = async () => {
+        navigate('/dashboard');
+        setDashBoardList((prev) => ({
+            dashboard: true,
+            archive: false,
+            student: false,
+            department: false,
+            curriculumn: false,
+            user: false,
+            settings: false
+        }))
+    }
+
+    // archive
+    const archive = async () => {
+        navigate('/archive-list');
+        setDashBoardList((prev) => ({
+            dashboard: false,
+            archive: true,
+            student: false,
+            department: false,
+            curriculumn: false,
+            user: false,
+            settings: false
+        }))
+    }
+
+    // student
+    const student = async () => {
+        navigate('/student-list');
+        setDashBoardList((prev) => ({
+            dashboard: false,
+            archive: false,
+            student: true,
+            department: false,
+            curriculumn: false,
+            user: false,
+            settings: false
+        }))
+    }
+
+    // department
+    const department = async () => {
+        navigate('/department-list');
+        setDashBoardList((prev) => ({
+            dashboard: false,
+            archive: false,
+            student: false,
+            department: true,
+            curriculumn: false,
+            user: false,
+            settings: false
+        }))
+    }
+    // curriculumn
+    const curriculumn = async () => {
+        navigate('/curriculumn-list');
+        setDashBoardList((prev) => ({
+            dashboard: false,
+            archive: false,
+            student: false,
+            department: false,
+            curriculumn: true,
+            user: false,
+            settings: false
+        }))
+    }
+
+    // user
+    const user = async () => {
+        navigate('/users-list');
+        setDashBoardList((prev) => ({
+            dashboard: false,
+            archive: false,
+            student: false,
+            department: false,
+            curriculumn: false,
+            user: true,
+            settings: false
+        }))
+    }
+
+    // settings
+    const settings = async () => {
+        navigate('/settings');
+        setDashBoardList((prev) => ({
+            dashboard: false,
+            archive: false,
+            student: false,
+            department: false,
+            curriculumn: false,
+            user: false,
+            settings: true
+        }))
+    }
+
     return (
         <div>
             <aside className="main-sidebar sidebar-dark-primary elevation-4">
+            <i className='fas fa-times close-button' data-widget="pushmenu" style={{position: 'absolute', top: '17px', right: '20px', fontSize: '27px'}} href="#" role="button"></i>
                 {/* Brand Logo */}
                 <span className="brand-link span-cursor" style={{ width: '190px' }}>
                     <img src={logo} alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
@@ -39,15 +148,15 @@ function SideBar() {
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
                             <li className="nav-item dropdown">
-                                <a href="#" onClick={() => navigate('/dashboard')} className="nav-link nav-home">
+                                <a href="#" onClick={dashboard} className={dashboardList.dashboard ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon fas fa-tachometer-alt"></i>
                                     <p>
                                         Dashboard
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" onClick={() => navigate('/archive-list')} style={{ cursor: 'pointer' }}>
-                                <a className="nav-link nav-home">
+                            <li className="nav-item dropdown" onClick={archive} style={{ cursor: 'pointer' }}>
+                                <a className={dashboardList.archive ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FiArchive /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Archive List
@@ -55,8 +164,8 @@ function SideBar() {
                                 </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item dropdown" onClick={() => navigate('/student-list')} style={{ cursor: 'pointer' }}>
-                                <a className="nav-link nav-home">
+                            <li className="nav-item dropdown" onClick={student} style={{ cursor: 'pointer' }}>
+                                <a className={dashboardList.student ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaUsers /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Student List
@@ -70,8 +179,8 @@ function SideBar() {
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item dropdown" onClick={() => navigate('/department-list')} style={{ cursor: 'pointer' }}>
-                                <a className="nav-link nav-home">
+                            <li className="nav-item dropdown" onClick={department} style={{ cursor: 'pointer' }}>
+                                <a className={dashboardList.department ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaThList /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Department List
@@ -79,24 +188,24 @@ function SideBar() {
                                 </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item dropdown" onClick={() => navigate('/curriculumn-list')} style={{ cursor: 'pointer' }}>
-                                <a className="nav-link nav-home">
+                            <li className="nav-item dropdown" onClick={curriculumn} style={{ cursor: 'pointer' }}>
+                                <a className={dashboardList.curriculumn ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Curriculumn List
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" onClick={() => navigate('/users-list')} style={{ cursor: 'pointer' }}>
-                                <a className="nav-link nav-home">
+                            <li className="nav-item dropdown" onClick={user} style={{ cursor: 'pointer' }}>
+                                <a className={dashboardList.user ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaUsersCog /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         User List
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" onClick={() => navigate('/settings')} style={{ cursor: 'pointer' }}>
-                                <a className="nav-link nav-home">
+                            <li className="nav-item dropdown" onClick={settings} style={{ cursor: 'pointer' }}>
+                                <a className={dashboardList.settings ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><IoSettingsOutline /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         settings
