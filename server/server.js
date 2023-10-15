@@ -2,16 +2,20 @@ const express = require('express');
 const cors = require('cors');
 const Tesseract = require('tesseract.js');
 const fs = require('fs');
+const multer = require('multer');
+const mime = require('mime-types');
 const PDFParser = require('pdf-parse');
 require('dotenv').config();
 const port = process.env.DB_PORT;
 const validator = require('validator');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const sanitizeHtml = require('sanitize-html');
 
 const { sanitizeAndValidate, sanitizeAndValidateArray } = require('./utils/validator and sanitizer/ValidatorAndSanitizer');
 const db = require('./utils/database/DatabaseConnection'); // database
 const { verifyToken } = require('./utils/auth/AuthVerify'); // verify token
+const getCurrentFormattedDate = require('./utils/current date/CurrentData');
 
 const app = express();
 
@@ -23,6 +27,7 @@ app.use(cors({
 }));
 
 const secretKey = process.env.SECRET_KEY; // my secret key
+const currentDate = getCurrentFormattedDate();
 
 // ###################################################################################################################################################################################
 // #####################################################################  PROTECTED SIDE  ############################################################################################
@@ -36,6 +41,72 @@ app.get('/api/protected', verifyToken, (req, res) => {
 // require image folder
 app.use('/assets', express.static('assets'));
 
+// ###################################################################################################################################################################################
+// #####################################################################  REGISTER SIDE  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/register', (req, res) => {
+    const { registerData } = req.body;
+    const givenImage = "assets/image upload/given image.png";
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const registerDataFirstName = sanitizeAndValidate(registerData.firstName, validationRules);
+    const registerDataLastName = sanitizeAndValidate(registerData.lastName, validationRules);
+    const registerDataUsername = sanitizeAndValidate(registerData.username, validationRules);
+    const registerDataPassword = sanitizeAndValidate(registerData.password, validationRules);
+    const registerDataConfirmPassword = sanitizeAndValidate(registerData.confirmPassword, validationRules);
+
+    if (!registerDataFirstName || !registerDataLastName || !registerDataUsername || !registerDataPassword || !registerDataConfirmPassword) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        // check the password and confirm password if equal
+        if (registerDataPassword === registerDataConfirmPassword) {
+            // check the username length
+            if (registerDataUsername.length >= 5) {
+                // check the password length
+                if (registerDataPassword.length >= 7) {
+                    // hash the user password
+                    const hashedPassword = crypto.createHash('sha256').update(registerDataPassword).digest('hex');
+
+                    // register user
+                    const register = `INSERT INTO users (first_name, middle_name, last_name, username, password, image, user_type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                    db.query(register, [registerDataFirstName, registerData.middleName, registerDataLastName, registerDataUsername, hashedPassword, givenImage, "Student"], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            // create token
+                            const fetchData = {
+                                id: results.insertId,
+                                username: registerDataUsername,
+                                firstName: registerDataFirstName,
+                                middleName: registerData.middleName,
+                                lastName: registerDataLastName,
+                                userType: "Student",
+                                image: givenImage
+                            };
+
+                            const token = jwt.sign(fetchData, secretKey);
+
+                            res.status(200).json({ token: token });
+                        }
+                    });
+                } else {
+                    res.status(401).json({ message: "Password must have at least 7 characters!" });
+                }
+            } else {
+                res.status(401).json({ message: "Username must have at least 5 characters!" });
+            }
+        } else {
+            res.status(401).json({ message: "Password and confirm password is not equal!" });
+        }
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  LOGIN SIDE  ############################################################################################
+// ###################################################################################################################################################################################
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -61,7 +132,7 @@ app.post('/api/login', (req, res) => {
                     if (dbPassword === hashedPassword) {
                         const fetchData = {
                             id: results[0].id,
-                            username: results[0].usernameSanitized,
+                            username: results[0].username,
                             firstName: results[0].first_name,
                             middleName: results[0].middle_name,
                             lastName: results[0].last_name,
@@ -79,6 +150,333 @@ app.post('/api/login', (req, res) => {
                 else {
                     res.status(401).json({ message: 'Invalid Username!' });
                 }
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH USER DATA  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/fetch-user', verifyToken, (req, res) => {
+    const { userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+
+    if (!sanitizeUserId) {
+        res.status(401).json({ message: "Invalid Input!" });
+    }
+    else {
+        const select = `SELECT * FROM users WHERE id = ? AND isDelete = ?`;
+        db.query(select, [sanitizeUserId, "not"], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(200).json({ message: results });
+                } else {
+                    res.status(401).json({ message: "No user found!" });
+                }
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  CHANGE PASSWORD SIDE  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/change-password', verifyToken, (req, res) => {
+    const { changePass, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const sanitizeUsername = sanitizeAndValidate(changePass.username, validationRules);
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const sanitizePassword = sanitizeAndValidate(changePass.currentPassword, validationRules);
+    const sanitizeNewPassword = sanitizeAndValidate(changePass.newPassword, validationRules);
+    const sanitizeConfirmPassword = sanitizeAndValidate(changePass.confirmPassword, validationRules);
+
+    if (!sanitizeUserId || !sanitizePassword || !sanitizeNewPassword || !sanitizeConfirmPassword || !sanitizeUsername) {
+        res.status(401).json({ message: "Invalid Input!" });
+    }
+    else {
+        if (sanitizeUsername.length >= 5 && sanitizeUsername.length <= 20) {
+            if (sanitizeNewPassword === sanitizeConfirmPassword) {
+                if (sanitizeNewPassword.length >= 7 && sanitizeNewPassword.length <= 20) {
+                    // select password
+                    const select = `SELECT * FROM users WHERE id = ? AND isDelete = ?`;
+                    db.query(select, [sanitizeUserId, 'not'], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            if (results.length > 0) {
+                                // get db password
+                                const dbPassword = results[0].password;
+                                const dbUsername = results[0].username;
+
+                                // hash current password
+                                const hashedPassword = crypto.createHash('sha256').update(sanitizePassword).digest('hex');
+                                // hash new Password
+                                const hashedNewPassword = crypto.createHash('sha256').update(sanitizeNewPassword).digest('hex');
+
+                                // check the current password and new password
+                                if (dbPassword === hashedPassword) {
+                                    // update database
+                                    const checkUsername = `SELECT * FROM users WHERE username = ? AND id != ?`;
+                                    db.query(checkUsername, [sanitizeUsername, sanitizeUserId], (error, results) => {
+                                        if (error) {
+                                            res.status(401).json({ message: "Server side error!" });
+                                        } else {
+                                            if (results.length > 0) {
+                                                res.status(401).json({ message: "Username already exist!" });
+                                            } else {
+                                                const update = `UPDATE users SET password = ? WHERE id = ?`;
+                                                db.query(update, [hashedNewPassword, sanitizeUserId], (error, results) => {
+                                                    if (error) {
+                                                        res.status(401).json({ message: "Server side error!" });
+                                                    } else {
+                                                        res.status(200).json({ message: "User credentials updated successfully!" });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    res.status(401).json({ message: "Invalid Current Password!" });
+                                }
+                            } else {
+                                res.status(401).json({ message: "Something went wrong!" });
+                            }
+                        }
+                    });
+                } else {
+                    res.status(401).json({ message: "New password must have 7 to 20 characters!" });
+                }
+            } else {
+                res.status(401).json({ message: "New password and confirm password not match!" });
+            }
+        } else {
+            res.status(401).json({ message: "Username must have 5 to 20 characters!" });
+        }
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  AUTO IMAGE UPLOAD  ############################################################################################
+// ###################################################################################################################################################################################
+const imageUpload = multer({
+    dest: 'assets/image upload/',
+});
+
+app.post('/api/auto-image-upload', verifyToken, imageUpload.single('image'), (req, res) => {
+    const { userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+
+    if (!sanitizeUserId) {
+        res.status(401).json({ message: "Invalid Input!" });
+    }
+    else {
+        const originalFileName = req.file.originalname;
+        const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+        const uniqueFilePath = `assets/image upload/${uniqueFileName}`;
+
+        const typeMime = mime.lookup(originalFileName);
+
+        if ((typeMime === 'image/png') || (typeMime === 'image/jpeg')) {
+            fs.rename(req.file.path, uniqueFilePath, (err) => {
+                if (err) {
+                    res.status(401).json({ message: "Error to upload file" });
+                } else {
+                    const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+                    if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                        return res.status(401).send({ message: "Invalid File Name!" });
+                    }
+                    else {
+                        const insert = `UPDATE users SET image = ? WHERE id = ?`;
+                        db.query(insert, [uniqueFilePath, sanitizeUserId], (error, results) => {
+                            if (error) {
+                                res.status(401).json({ message: "Server side error!" });
+                            } else {
+                                res.status(200).json({ message: "Profile image changed!" });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        else {
+            res.status(401).json({ message: "Invalid Image Type!" });
+        }
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH ALL USERS  ############################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-users', verifyToken, (req, res) => {
+
+    const fetchUser = `SELECT * FROM users WHERE user_type = ? AND isDelete = ?`;
+    db.query(fetchUser, ["Student", "not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "405" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "406" });
+            }
+        }
+    });
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH DEPARTMENT  ############################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-department', verifyToken, (req, res) => {
+    const getDepartment = `SELECT * FROM department WHERE isDelete = ?`;
+    db.query(getDepartment, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No department found!" });
+            }
+        }
+    });
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  ADD DEPARTMENT  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/add-department', verifyToken, (req, res) => {
+    const { departmentData, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const departmentDataName = sanitizeAndValidate(departmentData.name, validationRules);
+    const departmentDataStatus = sanitizeAndValidate(departmentData.status, validationRules);
+
+    if (!sanitizeUserId || !departmentDataName || !departmentDataStatus) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const select = `SELECT * FROM department WHERE name = ? AND isDelete = ?`;
+        db.query(select, [departmentDataName, "not"], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "Department is already exist!" });
+                } else {
+                    const addDepartment = `INSERT INTO department (name, status, date) VALUES (?, ?, ?)`;
+                    db.query(addDepartment, [departmentDataName, departmentDataStatus, currentDate], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            // insert notification
+                            const insertNot = `INSERT INTO notifications (notification_type, content, date) VALUES (?, ?, ?)`;
+                            db.query(insertNot, ["Department", `You've successfully added ${departmentDataName}`, currentDate], (error, results) => {
+                                if (error) {
+                                    res.status(401).json({ message: "Server side error!" });
+                                } else {
+                                    res.status(200).json({ message: `${departmentDataName} has been successfully added!` });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  EDIT DEPARTMENT  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/edit-department', verifyToken, (req, res) => {
+    const { editDepartmentData } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const editId = (editDepartmentData.id).toString();
+
+    const editDepartmentDataId = sanitizeAndValidate(editId, validationRules);
+    const editDepartmentDataName = sanitizeAndValidate(editDepartmentData.name, validationRules);
+    const editDepartmentDataStatus = sanitizeAndValidate(editDepartmentData.status, validationRules);
+
+    if (!editDepartmentDataId || !editDepartmentDataName || !editDepartmentDataStatus) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const select = `SELECT * FROM department WHERE name = ? AND isDelete = ? AND id != ?`;
+        db.query(select, [editDepartmentDataName, "not", editDepartmentDataId], (error, results) => {
+            if (error) {
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                if (results.length > 0){
+                    res.status(401).json({message: "Department is already exist!"});
+                }else{
+                    const updateDepartment = `UPDATE department SET name = ?, status = ? WHERE id = ?`;
+                    db.query(updateDepartment, [editDepartmentDataName, editDepartmentDataStatus, editDepartmentDataId], (error, results) => {
+                        if (error) {
+                            res.status(401).json({message: "Server side error!"});
+                        }else{
+                            res.status(200).json({message: `Department has been successfully updated!`});
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  DELETE DEPARTMENT  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/delete-department', verifyToken, (req, res) => {
+    const {deleteDepartment} = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+    const deleteId = (deleteDepartment.id).toString();
+    const deleteDepartmentId = sanitizeAndValidate(deleteId, validationRules);
+    const deleteDepartmentName = sanitizeAndValidate(deleteDepartment.name, validationRules);
+
+    if (!deleteDepartmentId || !deleteDepartmentName){
+        res.status(401).json({message: "Invalid Input!"});
+    }else{
+        const deleteD = `UPDATE department SET isDelete = ? WHERE id = ?`;
+        db.query(deleteD, ["Deleted", deleteDepartmentId], (error, results) => {
+            if (error) {
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                // insert notification
+                const insert = `INSERT INTO notifications (notification_type, content, date) VALUES (?, ?, ?)`;
+                db.query(insert, ["Delete", `You've successfully deleted the ${deleteDepartmentName}`, currentDate], (error, results) => {
+                    if (error) {
+                        res.status(401).json({message: "Server side error!"});
+                    }else{
+                        res.status(200).json({message: `${deleteDepartmentName} has been successfully deleted!`});
+                    }
+                });
             }
         });
     }

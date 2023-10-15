@@ -182,13 +182,13 @@
     position: absolute;
     background: white;
     border-radius: 8px 8px 0 0;
-    width: 400px;
+    width: 430px;
     padding: 20px 20px;
     max-height: 100%;
     overflow-y: auto;
 }
 
-.popup-body label{
+.popup-body label {
     font-size: 15px;
 }
 
@@ -300,27 +300,28 @@
 
 @keyframes spin {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
-  
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 
-  @keyframes animateCenter {
-    0%{
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes animateCenter {
+    0% {
         transform: translate(-50%, -50%) scale(0);
     }
-    100%{
+
+    100% {
         transform: translate(-50%, -50%) scale(1);
     }
-  }
+}
 
-.error-respond{
+.error-respond {
     position: fixed;
     width: 50%;
-    box-shadow: 0px 0px 10px rgb((0,0,0,0.2));
+    box-shadow: 0px 0px 10px rgb((0, 0, 0, 0.2));
     border-radius: 8px;
     padding: 2px;
     transform: translateX(-50%);
@@ -330,22 +331,41 @@
     text-align: center;
     color: rgb(73, 23, 23);
     animation: errorAnimate .5s linear;
-  }
+}
 
-  .error-respond h5{
+.error-respond h5 {
     font-size: 15px;
     color: rgb(0, 0, 0);
-  }
+}
 
-  @keyframes errorAnimate {
+@keyframes errorAnimate {
     0% {
-      transform: translateY(-100%) translateX(-50%);
+        transform: translateY(-100%) translateX(-50%);
     }
-    100% {
-      transform: translateY(0%) translateX(-50%);
-    }
-  }
 
+    100% {
+        transform: translateY(0%) translateX(-50%);
+    }
+}
+
+/* ----------------------------- BANNER DESIGN ------------------------------ */
+.banner-img {
+    object-fit: scale-down;
+    object-position: center center;
+    height: 30vh;
+    width: calc(100%);
+}
+
+.department-modal{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    width: 400px;
+    padding: 20px;
+    border-radius: 4px;
+}
 
 /* ----------------------------------- RESPONSIVE 900px ------------------------- */
 
@@ -403,6 +423,10 @@
         justify-content: space-between;
         align-items: center;
     }
+
+    .error-respond {
+        width: 75%;
+    }
 }
 
 /* ---------------------------------- 500px ------------------------------ */
@@ -412,7 +436,11 @@
         width: 89%;
     }
 
-    .error-respond{
+    .department-modal{
+        width: 96%;
+    }
+
+    .error-respond {
         width: 100%;
     }
 

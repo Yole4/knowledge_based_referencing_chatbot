@@ -22,7 +22,7 @@ function ArchiveList() {
                         <div className="card card-outline card-primary">
                             <div className="card-header" style={{display: 'flex'}}>
                                 <h3 className="card-title" style={{color: 'darkblue', fontWeight: 'bold'}}>List of Thesis Archives</h3>
-                                <input class="form-control " type="search" placeholder="Search" aria-label="Search" style={{width: '200px', paddingLeft: '28px', position: 'absolute', right: '15px', height: '30px', marginTop: '-5px'}} />
+                                <input className="form-control " type="search" placeholder="Search" aria-label="Search" style={{width: '200px', paddingLeft: '28px', position: 'absolute', right: '15px', height: '30px', marginTop: '-5px'}} />
                                 <BiSearch size={20} style={{position: 'absolute', right: '190px'}}/>
                             </div>
                             <div className="card-body" style={{height: 'auto'}}>

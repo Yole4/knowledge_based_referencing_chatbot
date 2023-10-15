@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 // react icons
 import { FaThList, FaUsers, FaUsersSlash } from "react-icons/fa";
@@ -6,11 +7,129 @@ import { RiNewspaperLine } from "react-icons/ri";
 import { FiArchive } from "react-icons/fi";
 import { TbArchiveOff } from "react-icons/tb";
 import { useNavigate } from 'react-router-dom';
+import BackendURL from '../../backend url/BackendURL';
 // import { TbArchiveOff } from "react-icons/tb";
 
 
 function Dashboard() {
+    const backendUrl = BackendURL();
+    const token = localStorage.getItem('token');
     const navigate = useNavigate();
+
+    // --------------------    MOUNT AFTER EXECUTION   ----------------------
+    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
+
+    // -------------- Loading List ----------
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isError, setIsError] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
+    const [userCredentials, setUserCredentials] = useState(null);
+    // get the credentials
+    useEffect(() => {
+        if (token) {
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await axios.get(`${backendUrl}/api/protected`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        const userId = (response.data.user.id).toString();
+
+                        const fetchUserCredentials = async () => {
+                            try {
+                                const response = await axios.post(`${backendUrl}/api/fetch-user`, { userId }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                if (response.status === 200) {
+                                    if (response.data.message[0].user_type !== "Admin") {
+                                        navigate('/');
+                                    }
+                                    else {
+                                        setUserCredentials(response.data.message[0]);
+                                        setIsLoading(false);
+                                    }
+                                }
+                            } catch (error) {
+                                setIsLoading(false);
+                            }
+                        }
+                        fetchUserCredentials();
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    navigate('/');
+                }
+            }
+            fetchData();
+        } else {
+            navigate('/');
+        }
+    }, [token, autoFetchChecker]);
+
+    // ------------------------------   FETCH ALL USERS     -----------------------------------
+    const [usersAccount, setUsersAccount] = useState([]);
+    const [usersAccountSearch, setUsersAccountSearch] = useState('');
+
+    useEffect(() => {
+        const fetchUsersAccount = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-users`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setUsersAccount(response.data.message);
+                    setIsLoading(false);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchUsersAccount();
+    }, []);
+
+    // -----------------------------------------  FETCH DEPARTMENT -------------------------------------------------
+    const [departmentList, setDepartmentList] = useState([]);
+    const [searchDepartment, setSearchDepartment] = useState('');
+
+    useEffect(() => {
+        const fetchDepartment = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-department`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setDepartmentList(response.data.message);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchDepartment();
+    }, []);
+
+    const departmentToSearch = departmentList.filter(item =>
+        item.name.toLowerCase().includes(searchDepartment.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchDepartment.toLocaleLowerCase())
+    );
+
     return (
         <div className="content-wrapper">
             <div className="content-header">
@@ -23,7 +142,7 @@ function Dashboard() {
                 </div>
             </div>
 
-            <div style={{marginLeft: '20px', textAlign: 'center', marginBottom: '20px'}}>
+            <div style={{ marginLeft: '20px', textAlign: 'center', marginBottom: '20px' }}>
                 <h1 className="m-0">Welcome to Thesis and Capstone Archiving System</h1>
                 <hr />
             </div>
@@ -34,7 +153,7 @@ function Dashboard() {
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-info">
                                 <div className="inner">
-                                    <h3>1</h3>
+                                    <h3>{departmentList && departmentList.length}</h3>
                                     <p>Department List</p>
                                 </div>
                                 <div className="icon">
@@ -103,9 +222,37 @@ function Dashboard() {
                                 <a href="#" className="small-box-footer" onClick={() => navigate('/archive-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
+
+                        <div className="col-lg-3 col-6">
+                            <div className="small-box bg-success">
+                                <div className="inner">
+                                    <h3>{usersAccount && usersAccount.length}</h3>
+                                    <p>Users</p>
+                                </div>
+                                <div className="icon">
+                                    <i><FaUsers /></i>
+                                </div>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/users-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
+
+            {/* fetching data screen */}
+            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
+                <div className="modal-pop-up-loading">
+                    <div className="modal-pop-up-loading-spiner"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            {/* Loading div */}
+            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                <div>
+                    <h5>{errorMessage}</h5>
+                </div>
+            </div>
         </div>
 
     )

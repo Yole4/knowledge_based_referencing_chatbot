@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import '../assets/css/CSS.css';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 //images
@@ -25,6 +25,7 @@ import BackendURL from './backend url/BackendURL';
 
 function Home() {
     const navigate = useNavigate();
+    const location = useLocation();
     const backendUrl = BackendURL(); // backend url
     const token = localStorage.getItem('token'); // token
 
@@ -34,6 +35,10 @@ function Home() {
     const [menuBar, setMenuBar] = useState(false); // right menu bar
     const [isChangePassword, setIsChangePassword] = useState(false); // change password modal
     const [isProfile, setIsProfile] = useState(false); // profile modal
+    const [isLogout, setIsLogout] = useState(false);
+
+    // --------------------    MOUNT AFTER EXECUTION   ----------------------
+    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
 
     // -------------- Loading List ----------
     const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +67,8 @@ function Home() {
                 setErrorMessage("Login Success!");
                 setIsSuccess(true);
                 setIsOpenLogin(false);
+                setUsername('');
+                setPassword('');
 
                 setTimeout(() => {
                     setIsSuccess(false);
@@ -82,8 +89,59 @@ function Home() {
         }
     }
 
+    // -------------------------------------      REGISTER    ----------------------------------------    
+    const [registerData, setRegisterData] = useState({
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        username: '',
+        password: '',
+        confirmPassword: ''
+    });
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/register`, { registerData });
+
+            if (response.status === 200) {
+                localStorage.setItem('token', response.data.token);
+                setIsLoading(false);
+                setErrorMessage("Register Success!");
+                setIsSuccess(true);
+                setIsOpenRegister(false);
+                setRegisterData({
+                    firstName: '',
+                    middleName: '',
+                    lastName: '',
+                    username: '',
+                    password: '',
+                    confirmPassword: ''
+                })
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            };
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
     // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
-    const [userCredentials, setUserCredentials] = useState([]);
+    const [userCredentials, setUserCredentials] = useState(null);
     // get the credentials
     useEffect(() => {
         if (token) {
@@ -97,9 +155,29 @@ function Home() {
                     });
 
                     if (response.status === 200) {
-                        setUserCredentials(response.data.user);
-                        setIsLoading(false);
-                        setIsLogin(true);
+
+                        const userId = (response.data.user.id).toString();
+
+                        const fetchUserCredentials = async () => {
+                            try {
+                                const response = await axios.post(`${backendUrl}/api/fetch-user`, { userId }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                if (response.status === 200) {
+                                    setUserCredentials(response.data.message[0]);
+                                    setChangePass((prev) => ({ ...prev, username: response.data.message[0].username }));
+                                    setIsLoading(false);
+                                    setIsLogin(true);
+                                }
+                            } catch (error) {
+                                setIsLoading(false);
+                                setIsLogin(false);
+                            }
+                        }
+                        fetchUserCredentials();
+
                     }
                 } catch (error) {
                     setIsLoading(false);
@@ -110,7 +188,7 @@ function Home() {
         } else {
             setIsLogin(false);
         }
-    }, [token]);
+    }, [token, autoFetchChecker]);
 
     // -------------------------------------   CHANGE PASSWORD -------------------------------------
     const [changePass, setChangePass] = useState({
@@ -124,7 +202,7 @@ function Home() {
         e.preventDefault();
         setIsLoading(true);
 
-        const userId = userCredentials.id;
+        const userId = (userCredentials.id).toString();;
         const changeRequest = { changePass, userId };
 
         try {
@@ -139,6 +217,14 @@ function Home() {
                 setErrorMessage(response.data.message);
                 setIsSuccess(true);
                 setIsChangePassword(false);
+                setAutoFetchChecker(autoFetchChecker ? false : true);
+
+                setChangePass({
+                    username: '',
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
 
                 setTimeout(() => {
                     setIsSuccess(false);
@@ -159,6 +245,58 @@ function Home() {
         }
     };
 
+    // #################################################################  AUTO Profile Upload  ###################################################################
+    const [autoImage, setAutoImage] = useState([]);
+    useEffect(() => {
+        if (autoImage) {
+            if (autoImage.length === 0) {
+                // console.log('nothing change!')
+            }
+            else {
+                setIsLoading(true);
+                const autoUpload = async () => {
+
+                    const requestImageToUpload = new FormData();
+                    requestImageToUpload.append('image', autoImage);
+                    requestImageToUpload.append('userId', userCredentials.id);
+
+                    try {
+                        const response = await axios.post(`${backendUrl}/api/auto-image-upload`, requestImageToUpload, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        if (response.status === 200) {
+                            setIsLoading(false);
+                            setAutoFetchChecker(autoFetchChecker ? false : true);
+
+
+                            setErrorMessage(response.data.message);
+                            setIsSuccess(true);
+
+                            setTimeout(() => {
+                                setIsSuccess(false);
+                            }, 5000);
+                        }
+                    } catch (error) {
+                        setIsLoading(false);
+                        if (error.response && error.response.status === 401) {
+                            setErrorMessage(error.response.data.message);
+                            setIsError(true);
+
+                            setTimeout(() => {
+                                setIsError(false);
+                            }, 5000);
+                        } else {
+                            console.log('Error: ', error);
+                        }
+                    }
+                };
+                autoUpload();
+            }
+        }
+    }, [autoImage]);
+
     return (
         <>
             <div className="wrapper" onClick={() => setOnSearch(false)}>
@@ -167,7 +305,7 @@ function Home() {
                     {/* Left navbar links */}
                     <ul className="navbar-nav">
                         <li className="nav-item d-sm-inline-block" onClick={() => navigate('/')}>
-                            <span class="mr-2  text-white"><i class="fa fa-phone mr-1"></i> 09854698789</span>
+                            <span className="mr-2  text-white"><i className="fa fa-phone mr-1"></i> 09854698789</span>
                         </li>
                     </ul>
                     {/* Right navbar links */}
@@ -207,23 +345,23 @@ function Home() {
 
                                 <li className="nav-item dropdown no-arrow">
                                     <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">{userCredentials && `${userCredentials.firstName} ${userCredentials.middleName} ${userCredentials.lastName}`}</span>
-                                        <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} />
+                                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</span>
+                                        <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials && (userCredentials.image).length > 0 ? `${backendUrl}/${userCredentials.image}` : givenImage} />
                                     </a>
 
                                     <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                         <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                             Profile
                                         </a>
-                                        {userCredentials && userCredentials.userType === "Admin" && (
-                                            <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i class="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        {userCredentials && userCredentials.user_type === "Admin" && (
+                                            <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i className="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                                 Dashboard
                                             </a>
                                         )}
                                         <a className="dropdown-item" data-toggle="modal" onClick={() => setIsChangePassword(true)} data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                                             Change Password
                                         </a>
-                                        <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('token'); navigate('/') }}>
+                                        <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => setIsLogout(true)}>
                                             <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
                                             Logout
                                         </a>
@@ -242,7 +380,7 @@ function Home() {
                 </nav>
                 <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0', marginTop: '0', zIndex: '50' }}>
                     <div className="container">
-                        <a href="./" className="navbar-brand">
+                        <a href="#" onClick={() => navigate('/')} className="navbar-brand">
                             <img src={logo} alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
                             <span>JRMSU</span>
                         </a>
@@ -253,14 +391,14 @@ function Home() {
                             {/* Left navbar links */}
                             {/* <ul className="navbar-nav responsive-header"> */}
                             <ul className="navbar-nav navbar-header">
-                                <li className="nav-item">
-                                    <a href="#" className="nav-link active">Home</a>
+                                <li className="nav-item" onClick={() => navigate('/')}>
+                                    <a href="#" className={location.pathname === '/' ? 'nav-link active' : 'nav-link'}>Home</a>
                                 </li>
-                                <li className="nav-item">
-                                    <a href="#" className="nav-link ">Projects</a>
+                                <li className="nav-item" onClick={() => navigate('/projects')}>
+                                    <a href="#" className={location.pathname === '/projects' ? 'nav-link active' : 'nav-link'}>Projects</a>
                                 </li>
                                 <li className="nav-item dropdown">
-                                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Department</a>
+                                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className={location.pathname === '/department' ? 'nav-link dropdown-toggle active' : 'nav-link dropdown-toggle'} >Department</a>
                                     <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
                                         <li>
                                             <a href="./?page=projects_per_department&id=3" className="dropdown-item">College Of Arts And Sciences</a>
@@ -289,7 +427,7 @@ function Home() {
                                     </ul>
                                 </li>
                                 <li className="nav-item dropdown">
-                                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className="nav-link dropdown-toggle  ">Courses</a>
+                                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className={location.pathname === '/courses' ? 'nav-link dropdown-toggle active' : 'nav-link dropdown-toggle'}>Courses</a>
                                     <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
                                         <li>
                                             <a href="./?page=projects_per_curriculum&id=3" className="dropdown-item">BEEd</a>
@@ -314,13 +452,13 @@ function Home() {
                                         </li>
                                     </ul>
                                 </li>
-                                <li className="nav-item">
-                                    <a href="./?page=about" className="nav-link ">About Us</a>
+                                <li className="nav-item" onClick={() => navigate('/about-us')}>
+                                    <a href="#" className={location.pathname === '/about-us' ? 'nav-link active' : 'nav-link'}>About Us</a>
                                 </li>
 
                                 {isLogin && (
-                                    <li className="nav-item">
-                                        <a href="./?page=submit-archive" className="nav-link ">Submit Thesis/Capstone</a>
+                                    <li className="nav-item" onClick={() => navigate('/submit-project')}>
+                                        <a href="#" className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</a>
                                     </li>
                                 )}
                             </ul>
@@ -333,46 +471,6 @@ function Home() {
                         </div>
                     </div>
                 </nav>
-                {/* /.navbar */}
-                {/* Content Wrapper. Contains page content */}
-                <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0', marginTop: '25px' }}>
-                    <div id="header" className="shadow mb-4">
-                        <div className="d-flex justify-content-center h-100 w-100 align-items-center flex-column px-3">
-                            <h1 className="w-100 text-center site-title" style={{ marginBottom: '20px' }}>A thesis and capstone archiving system  with integrated knowledge-based referencing chatbot</h1>
-                            <a href="./?page=projects" className="btn btn-lg btn-light rounded-pill explore" id="enrollment"><b>Explore Projects</b></a>
-                        </div>
-                    </div>
-                    {/* Main content */}
-                    <section className="content ">
-                        <div className="container">
-                            <div className="col-lg-12 py-5">
-                                <div className="contain-fluid">
-                                    <div className="card card-outline card-navy shadow rounded-0">
-                                        <div className="card-body rounded-0">
-                                            <div className="container-fluid">
-                                                <h3 className="text-center">Welcome</h3>
-                                                <hr />
-                                                <div className="welcome-content">
-                                                    <p style={{ marginRight: 0, marginBottom: 15, marginLeft: 0, padding: 0, textAlign: 'justify' }}>Greetings and
-                                                        welcome to our
-                                                        state-of-the-art electronic archiving system, meticulously designed to cater specifically to the storage and
-                                                        retrieval of both thesis and capstone projects. Our pioneering solution introduces a paradigm shift in conventional
-                                                        archiving methodologies, seamlessly transitioning these scholarly pursuits into a digitized realm for enhanced
-                                                        durability and effortless access. Driven by secure cloud-based infrastructure, intelligent metadata categorization,
-                                                        and advanced search functionalities, our platform empowers researchers, students, and educators to seamlessly tap
-                                                        into an expansive reservoir of invaluable academic insights. By embracing this innovative system, you not only
-                                                        ensure the preservation of intellectual contributions for generations to come but also nurture a collaborative
-                                                        learning environment. Scholars can seamlessly build upon existing research, actively contributing to the dynamic
-                                                        landscape of academic discovery. Embrace the future of research dissemination and scholarly interaction through our
-                                                        electronic archiving system – a testament to the evolving spirit of academic advancement and collective knowledge
-                                                        enrichment.</p>                  </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>        </div>
-                    </section>
-                </div>
             </div >
 
             <div onClick={() => setIsOpenLogin(false)} className='popup' style={{ visibility: isOpenLogin && !isOpenRegister ? 'visible' : 'hidden' }} >
@@ -423,34 +521,39 @@ function Home() {
                         <AiOutlineCloseCircle size={30} />
                     </div>
 
-                    <form >
+                    <form onSubmit={handleRegister}>
                         <div className='form-div'>
                             <label htmlFor="">First Name</label>
-                            <input type="text" className='form-control' placeholder='First Name' />
+                            <input type="text" value={registerData.firstName} onChange={(e) => setRegisterData((prev) => ({ ...prev, firstName: e.target.value }))} className='form-control' placeholder='First Name' required />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
                             <label htmlFor="">Middle Name (Optional)</label>
-                            <input type="text" className='form-control' placeholder='Middle Name' />
+                            <input type="text" value={registerData.middleName} onChange={(e) => setRegisterData((prev) => ({ ...prev, middleName: e.target.value }))} className='form-control' placeholder='Middle Name' />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
                             <label htmlFor="">Last Name</label>
-                            <input type="text" className='form-control' placeholder='Last Name' />
+                            <input type="text" className='form-control' value={registerData.lastName} onChange={(e) => setRegisterData((prev) => ({ ...prev, lastName: e.target.value }))} placeholder='Last Name' required />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
                             <label htmlFor="">Username</label>
-                            <input type="text" className='form-control' placeholder='Username' />
+                            <input type="text" className='form-control' value={registerData.username} onChange={(e) => setRegisterData((prev) => ({ ...prev, username: e.target.value }))} placeholder='Username' required />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
                             <label htmlFor="">Password</label>
-                            <input type="password" className='form-control' placeholder='*********' />
+                            <input type="password" className='form-control' value={registerData.password} onChange={(e) => setRegisterData((prev) => ({ ...prev, password: e.target.value }))} placeholder='*********' required />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
-                            <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" placeholder='Username' />
+                            <label htmlFor="">Confirm Password</label>
+                            <input type="password" className='form-control' value={registerData.confirmPassword} onChange={(e) => setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))} placeholder='*********' required />
+                        </div>
+
+                        <div style={{ marginTop: '20px' }}>
+                            <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" />
                         </div>
 
                     </form>
@@ -466,32 +569,37 @@ function Home() {
                     {/* Brand Logo */}
                     <span className="brand-link span-cursor" style={{ width: '190px' }}>
                         <img src={logo} alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
-                        <span className="brand-text font-weight-light">Admin</span>
+                        <span className="brand-text font-weight-light">{isLogin ? userCredentials && userCredentials.user_type : "JRMSU"}</span>
                     </span>
+
                     {/* Sidebar */}
                     <div className="sidebar" style={{ height: '100vh', overflow: 'auto' }}>
                         {/* Sidebar user (optional) */}
-                        <div className="user-panel mt-3 pb-3 mb-3 d-flex">
-                            <div className="image">
-                                <img style={{ width: 34, height: 34 }} src={givenImage} className="img-profile rounded-circle" />
+
+                        {isLogin && (
+                            <div className="user-panel mt-3 pb-3 mb-3 d-flex" style={{cursor: 'pointer'}} onClick={() => setIsProfile(true)}>
+                                <div className="image">
+                                    <img style={{ width: 34, height: 34 }} src={userCredentials && (userCredentials.image).length > 0 ? `${backendUrl}/${userCredentials.image}` : givenImage} className="img-profile rounded-circle" />
+                                </div>
+                                <div className="info">
+                                    <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>shelo</a>
+                                </div>
                             </div>
-                            <div className="info">
-                                <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>shelo</a>
-                            </div>
-                        </div>
+                        )}
+
                         {/* Sidebar Menu */}
                         <nav className="mt-2" style={{ marginLeft: '10px' }}>
                             <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style={{ paddingRight: '15px' }}>
-                                <li className="nav-item dropdown hover-side" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><AiTwotoneHome size={20} style={{ marginTop: '-3px' }} /> Home</a>
+                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
+                                    <a className={location.pathname === '/' ? 'nav-link hover-side' : 'nav-link'}><AiTwotoneHome size={20} style={{ marginTop: '-3px' }} /> Home</a>
                                 </li>
 
-                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><TbBulbFilled size={20} style={{ marginTop: '-3px' }} /> Projects</a>
+                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/projects')}>
+                                    <a className={location.pathname === '/projects' ? 'nav-link hover-side' : 'nav-link'}><TbBulbFilled size={20} style={{ marginTop: '-3px' }} /> Projects</a>
                                 </li>
 
                                 <li className=" dropdown" style={{ cursor: 'pointer' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', marginLeft: '15px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/department' ? 'hover-side' : ''}>
                                         <a ><FaThList size={17} style={{ marginTop: '-3px' }} /> Department</a><span><RiArrowDownSLine size={25} /></span>
                                         {/* <span><RiArrowLeftSLine size={25} /></span> */}
                                     </div>
@@ -516,7 +624,7 @@ function Home() {
                                 </li>
 
                                 <li className=" dropdown" style={{ cursor: 'pointer' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', marginLeft: '15px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/courses' ? 'hover-side' : ''}>
                                         <a ><SiCoursera size={20} style={{ marginTop: '-3px' }} /> Courses</a><span><RiArrowDownSLine size={25} /></span>
                                         {/* <span><RiArrowLeftSLine size={25} /></span> */}
                                     </div>
@@ -540,13 +648,13 @@ function Home() {
                                     </ul>
                                 </li>
 
-                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                    <a className="nav-link"><BiSolidUserVoice size={20} style={{ marginTop: '-3px' }} /> About Us</a>
+                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/about-us')}>
+                                    <a className={location.pathname === '/about-us' ? 'nav-link hover-side' : 'nav-link'}><BiSolidUserVoice size={20} style={{ marginTop: '-3px' }} /> About Us</a>
                                 </li>
 
                                 {isLogin && (
-                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                        <a className="nav-link"><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
+                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/submit-project')}>
+                                        <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
                                     </li>
                                 )}
                             </ul>
@@ -592,6 +700,25 @@ function Home() {
                 </div>
             </div>
 
+            {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
+            <div className="popup" style={{ visibility: isLogout ? 'visible' : 'hidden' }}>
+                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+                    <div className="popup-edit">
+                        <h5>Logout?</h5>
+                    </div>
+                    <hr />
+                    <div className='form-div'>
+                        <span>Are you sure you wan't to logout?</span>
+                    </div>
+
+                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
+                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false) }}>Yes</button>
+                    </div>
+                </div>
+            </div>
+
             {/* --------   PROFILE ---------- */}
             <div className="popup" onClick={() => setIsProfile(false)} style={{ visibility: isProfile ? 'visible' : 'hidden' }}>
                 <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProfile ? 'dropBottom .3s linear' : '' }}>
@@ -602,15 +729,15 @@ function Home() {
                         <img src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
                         <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
                             <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
-                            <input type="file" id="uploadPhoto" style={{ display: 'none' }} />
+                            <input type="file" id="uploadPhoto" onChange={(e) => setAutoImage(e.target.files[0])} style={{ display: 'none' }} />
                         </label>
                     </div>
                     <div style={{ textAlign: 'center' }}>
                         <div>
-                            <h2 style={{ fontSize: '20px' }}>{userCredentials && `${userCredentials.firstName} ${userCredentials.middleName} ${userCredentials.lastName}`}</h2>
+                            <h2 style={{ fontSize: '20px' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</h2>
                         </div>
                         <div style={{ marginTop: '10px' }}>
-                            <span>{userCredentials && userCredentials.userType}</span>
+                            <span>{userCredentials && userCredentials.user_type}</span>
                         </div><br />
                     </div>
                     <hr />

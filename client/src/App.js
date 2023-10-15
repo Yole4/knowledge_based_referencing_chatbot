@@ -12,6 +12,12 @@ import UsersList from "./components/pages/Admin/body/UsersList";
 import Settings from "./components/pages/Admin/body/Settings";
 import Undefine from "./components/pages/404/Undefine";
 
+// universal page
+import Projects from "./components/pages/universal page/Projects";
+import Welcome from "./components/pages/universal page/Welcome";
+import AboutUs from "./components/pages/universal page/AboutUs";
+import SubmitProject from "./components/pages/universal page/SubmitProject";
+
 function App() {
   return (
     <Router>
@@ -22,7 +28,8 @@ function App() {
 
 function Main() {
   const location = useLocation();
-  const isLogin = location.pathname === '/';
+  // const isLogin = location.pathname === '/';
+  const isUniversal = location.pathname === '/' || location.pathname === '/projects' || location.pathname === '/about-us' || location.pathname === '/submit-project';
   const isAdmin = location.pathname === '/dashboard' || location.pathname === '/archive-list' || location.pathname === '/student-list' || location.pathname === '/users-list' || location.pathname === '/department-list' || location.pathname === "/settings" || location.pathname === '/curriculumn-list';
 
   return (
@@ -31,6 +38,12 @@ function Main() {
         <>
           <Header />
           <SideBar />
+        </>
+      )}
+      {isUniversal && (
+        <>
+          {/* Home */}
+          <Home />
         </>
       )}
       <Routes>
@@ -43,7 +56,10 @@ function Main() {
         <Route path="/settings" element={<Settings />} />
 
         {/* Home */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Welcome />} />
+        <Route path="/projects" element={<Projects />} /> 
+        <Route path="/about-us" element={<AboutUs />} /> 
+        <Route path="/submit-project" element={<SubmitProject />} /> 
 
         {/* ------ undefine URL -------- */}
         <Route path='*' element={<Undefine />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import BackendURL from '../backend url/BackendURL';
 
@@ -14,149 +14,98 @@ import logo from '../../assets/images/logo.png';
 
 function SideBar() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const backendUrl = BackendURL(); // backend URL
+    const token = localStorage.getItem('token');
 
-    // background color active hover
-    const [dashboardList, setDashBoardList] = useState({
-        dashboard: true,
-        archive: false,
-        student: false,
-        department: false,
-        curriculumn: false,
-        user: false,
-        settings: false
-    });
+    // --------------------    MOUNT AFTER EXECUTION   ----------------------
+    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
 
-    // dashboard
-    const dashboard = async () => {
-        navigate('/dashboard');
-        setDashBoardList((prev) => ({
-            dashboard: true,
-            archive: false,
-            student: false,
-            department: false,
-            curriculumn: false,
-            user: false,
-            settings: false
-        }))
-    }
+    // -------------- Loading List ----------
+    const [isLoading, setIsLoading] = useState(false);
 
-    // archive
-    const archive = async () => {
-        navigate('/archive-list');
-        setDashBoardList((prev) => ({
-            dashboard: false,
-            archive: true,
-            student: false,
-            department: false,
-            curriculumn: false,
-            user: false,
-            settings: false
-        }))
-    }
+    // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
+    const [userCredentials, setUserCredentials] = useState(null);
+    // get the credentials
+    useEffect(() => {
+        if (token) {
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await axios.get(`${backendUrl}/api/protected`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
 
-    // student
-    const student = async () => {
-        navigate('/student-list');
-        setDashBoardList((prev) => ({
-            dashboard: false,
-            archive: false,
-            student: true,
-            department: false,
-            curriculumn: false,
-            user: false,
-            settings: false
-        }))
-    }
+                    if (response.status === 200) {
 
-    // department
-    const department = async () => {
-        navigate('/department-list');
-        setDashBoardList((prev) => ({
-            dashboard: false,
-            archive: false,
-            student: false,
-            department: true,
-            curriculumn: false,
-            user: false,
-            settings: false
-        }))
-    }
-    // curriculumn
-    const curriculumn = async () => {
-        navigate('/curriculumn-list');
-        setDashBoardList((prev) => ({
-            dashboard: false,
-            archive: false,
-            student: false,
-            department: false,
-            curriculumn: true,
-            user: false,
-            settings: false
-        }))
-    }
+                        const userId = (response.data.user.id).toString();
 
-    // user
-    const user = async () => {
-        navigate('/users-list');
-        setDashBoardList((prev) => ({
-            dashboard: false,
-            archive: false,
-            student: false,
-            department: false,
-            curriculumn: false,
-            user: true,
-            settings: false
-        }))
-    }
+                        const fetchUserCredentials = async () => {
+                            try {
+                                const response = await axios.post(`${backendUrl}/api/fetch-user`, { userId }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                if (response.status === 200) {
+                                    setUserCredentials(response.data.message[0]);
+                                    setIsLoading(false);
+                                }
+                            } catch (error) {
+                                setIsLoading(false);
 
-    // settings
-    const settings = async () => {
-        navigate('/settings');
-        setDashBoardList((prev) => ({
-            dashboard: false,
-            archive: false,
-            student: false,
-            department: false,
-            curriculumn: false,
-            user: false,
-            settings: true
-        }))
-    }
+                            }
+                        }
+                        fetchUserCredentials();
+
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    navigate('/');
+                }
+            }
+            fetchData();
+        } else {
+            navigate('/');
+        }
+    }, [token, autoFetchChecker]);
 
     return (
         <div>
             <aside className="main-sidebar sidebar-dark-primary elevation-4">
-            <i className='fas fa-times close-button' data-widget="pushmenu" style={{position: 'absolute', top: '17px', right: '20px', fontSize: '27px'}} href="#" role="button"></i>
+                <i className='fas fa-times close-button' data-widget="pushmenu" style={{ position: 'absolute', top: '17px', right: '20px', fontSize: '27px' }} href="#" role="button"></i>
                 {/* Brand Logo */}
                 <span className="brand-link span-cursor" style={{ width: '190px' }}>
                     <img src={logo} alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
-                    <span className="brand-text font-weight-light">Admin</span>
+                    <span className="brand-text font-weight-light">{userCredentials && userCredentials.user_type}</span>
                 </span>
                 {/* Sidebar */}
                 <div className="sidebar">
                     {/* Sidebar user (optional) */}
                     <div className="user-panel mt-3 pb-3 mb-3 d-flex">
                         <div className="image">
-                            <img style={{ width: 34, height: 34 }} src={givenImage} className="img-profile rounded-circle" />
+                            <img style={{ width: 34, height: 34 }} src={userCredentials && (userCredentials.image).length > 0 ? `${backendUrl}/${userCredentials.image}` : givenImage} className="img-profile rounded-circle" />
                         </div>
                         <div className="info">
-                            <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>shelo</a>
+                            <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</a>
                         </div>
                     </div>
                     {/* Sidebar Menu */}
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item dropdown">
-                                <a href="#" onClick={dashboard} className={dashboardList.dashboard ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" onClick={() => navigate('/dashboard')}>
+                                <a href="#" className={location.pathname === '/dashboard' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon fas fa-tachometer-alt"></i>
                                     <p>
                                         Dashboard
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" onClick={archive} style={{ cursor: 'pointer' }}>
-                                <a className={dashboardList.archive ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/archive-list')}>
+                                <a className={location.pathname === '/archive-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FiArchive /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Archive List
@@ -164,8 +113,8 @@ function SideBar() {
                                 </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item dropdown" onClick={student} style={{ cursor: 'pointer' }}>
-                                <a className={dashboardList.student ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/student-list')}>
+                                <a className={location.pathname === '/student-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaUsers /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Student List
@@ -179,8 +128,8 @@ function SideBar() {
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item dropdown" onClick={department} style={{ cursor: 'pointer' }}>
-                                <a className={dashboardList.department ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/department-list')}>
+                                <a className={location.pathname === '/department-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaThList /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Department List
@@ -188,24 +137,24 @@ function SideBar() {
                                 </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item dropdown" onClick={curriculumn} style={{ cursor: 'pointer' }}>
-                                <a className={dashboardList.curriculumn ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/curriculumn-list')}>
+                                <a className={location.pathname === '/curriculumn-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Curriculumn List
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" onClick={user} style={{ cursor: 'pointer' }}>
-                                <a className={dashboardList.user ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/users-list')}>
+                                <a className={location.pathname === '/users-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaUsersCog /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         User List
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" onClick={settings} style={{ cursor: 'pointer' }}>
-                                <a className={dashboardList.settings ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/settings')}>
+                                <a className={location.pathname === '/settings' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><IoSettingsOutline /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         settings
@@ -216,6 +165,14 @@ function SideBar() {
                     </nav>
                 </div>
             </aside>
+
+            {/* fetching data screen */}
+            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
+                <div className="modal-pop-up-loading">
+                    <div className="modal-pop-up-loading-spiner"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
         </div>
     )
 }

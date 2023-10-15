@@ -1,6 +1,262 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+
+import BackendURL from '../../backend url/BackendURL';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function DepartmentList() {
+    const backendUrl = BackendURL();
+    const token = localStorage.getItem('token');
+    const navigate = useNavigate();
+
+    const [isAddDepartment, setIsAddDepartment] = useState(false);
+    const [isEditDepartment, setIsEditDepartment] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
+
+    // --------------------    MOUNT AFTER EXECUTION   ----------------------
+    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
+    const [addDepartmentChecker, setAddDepartmentChecker] = useState(false);
+
+    // -------------- Loading List ----------
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isError, setIsError] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
+    const [userCredentials, setUserCredentials] = useState(null);
+    // get the credentials
+    useEffect(() => {
+        if (token) {
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await axios.get(`${backendUrl}/api/protected`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        const userId = (response.data.user.id).toString();
+
+                        const fetchUserCredentials = async () => {
+                            try {
+                                const response = await axios.post(`${backendUrl}/api/fetch-user`, { userId }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                if (response.status === 200) {
+                                    if (response.data.message[0].user_type !== "Admin") {
+                                        navigate('/');
+                                    }
+                                    else {
+                                        setUserCredentials(response.data.message[0]);
+                                        setIsLoading(false);
+                                    }
+                                }
+                            } catch (error) {
+                                setIsLoading(false);
+                            }
+                        }
+                        fetchUserCredentials();
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    navigate('/');
+                }
+            }
+            fetchData();
+        } else {
+            navigate('/');
+        }
+    }, [token, autoFetchChecker]);
+
+    // -----------------------------------------  ADD DEPARTMENT -------------------------------------------------  
+    const [departmentData, setDepartmentData] = useState({
+        name: '',
+        status: ''
+    });
+
+    const handleAddDepartment = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const userId = (userCredentials.id).toString();
+        const requestToAdd = { departmentData, userId };
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/add-department`, requestToAdd, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setIsLoading(false);
+                setAddDepartmentChecker(addDepartmentChecker ? false : true);
+                setIsAddDepartment(false);
+                setDepartmentData({
+                    name: '',
+                    status: ''
+                });
+
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
+    // -----------------------------------------  FETCH DEPARTMENT -------------------------------------------------
+    const [departmentList, setDepartmentList] = useState([]);
+    const [searchDepartment, setSearchDepartment] = useState('');
+
+    useEffect(() => {
+        const fetchDepartment = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-department`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setDepartmentList(response.data.message);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchDepartment();
+    }, [addDepartmentChecker]);
+
+    const departmentToSearch = departmentList.filter(item =>
+        item.name.toLowerCase().includes(searchDepartment.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchDepartment.toLocaleLowerCase())
+    );
+
+    // ------------------------------- EDIT AND DELETE DEPARTMENT --------------------------------
+    const [editDepartmentData, setEditDepartmentData] = useState({
+        id: '',
+        name: '',
+        status: ''
+    });
+    const [deleteDepartment, setDeleteDepartment] = useState({
+        id: '',
+        name: ''
+    });
+
+    const handleEditDepartment = async (item) => {
+        setIsEditDepartment(true);
+        setEditDepartmentData({
+            id: item.id,
+            name: item.name,
+            status: item.status
+        });
+    };
+
+    const handleDeleteDepartment = async (item) => {
+        setDeleteDepartment({ id: item.id, name: item.name });
+        setIsDelete(true);
+    }
+
+    // ----------------------  EDIT --------------------------
+    const buttonEdit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/edit-department`, { editDepartmentData }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setIsLoading(false);
+                setAddDepartmentChecker(addDepartmentChecker ? false : true);
+                setIsEditDepartment(false);
+
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
+    // --------------  DELETE  -------------------
+    const buttonDelete = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/delete-department`, { deleteDepartment }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setIsLoading(false);
+                setAddDepartmentChecker(addDepartmentChecker ? false : true);
+                setIsDelete(false);
+
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
     return (
         <>
             <div className="content-wrapper">
@@ -20,7 +276,7 @@ function DepartmentList() {
                             <div className="card-header">
                                 <h3 className="card-title">List of Department</h3>
                                 <div className="card-tools">
-                                    <a href="javascript:void(0)" id="create_new" className="btn btn-flat btn-sm btn-primary"><span className="fas fa-plus" />  Add New Department</a>
+                                    <a href="#" className="btn btn-flat btn-sm btn-primary" onClick={() => setIsAddDepartment(true)}><span className="fas fa-plus" />  Add New Department</a>
                                 </div>
                             </div>
                             <div className="card-body">
@@ -29,7 +285,6 @@ function DepartmentList() {
                                         <table className="table table-hover table-striped">
                                             <colgroup>
                                                 <col width="5%" />
-                                                <col width="20%" />
                                                 <col width="20%" />
                                                 <col width="30%" />
                                                 <col width="15%" />
@@ -40,180 +295,37 @@ function DepartmentList() {
                                                     <th>#</th>
                                                     <th>Date Created</th>
                                                     <th>Name</th>
-                                                    <th>Description</th>
                                                     <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td className="text-center">1</td>
-                                                    <td className>2021-12-07 09:34</td>
-                                                    <td>College Of Arts And Sciences</td>
-                                                    <td className="truncate-1">Develop and implement programs in Liberal Arts and Sciences to achieve academic excellence and competencies geared towards the total development of the learners in their specialized fields.</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={3}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={3}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={3}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">2</td>
-                                                    <td className>2021-12-07 09:34</td>
-                                                    <td>College Of Business Management And Accountancy</td>
-                                                    <td className="truncate-1">College of Business Management and Accountancy</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={4}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={4}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={4}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">3</td>
-                                                    <td className>2021-12-07 09:35</td>
-                                                    <td>College Of Computer Studies</td>
-                                                    <td className="truncate-1">Develop creative innovators with the confidence and courage to seize and transform opportunities for the benefit of the society.</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={5}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={5}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={5}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">4</td>
-                                                    <td className>2021-12-07 09:28</td>
-                                                    <td>College Of Education</td>
-                                                    <td className="truncate-1">Implement Teacher Education Programs for the elementary and secondary levels and endeavor to achieve quality and excellence, relevance and responsiveness, equity and access, and efficiency and effectiveness in instruction, research, extension, and production.</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={2}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={2}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={2}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">5</td>
-                                                    <td className>2021-12-07 09:37</td>
-                                                    <td>College Of Engineering</td>
-                                                    <td className="truncate-1">To develop scientific and technical knowledge anchored on sustainable fisheries productivity and promote linkages and networking in the implementation of fisheries programs and projects.</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={6}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={6}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={6}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">6</td>
-                                                    <td className>2021-12-07 09:28</td>
-                                                    <td>College Of Industrial Technology</td>
-                                                    <td className="truncate-1">Develop world-class industrial workers and middle-level managers equipped with scientific knowledge, technological skills, and ethical work values to achieve a desirable quality of life.</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={1}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={1}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={1}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">7</td>
-                                                    <td className>2023-08-24 17:24</td>
-                                                    <td>ColLege Of Maritime</td>
-                                                    <td className="truncate-1">College of blah blah blah blah blah</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={7}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={7}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={7}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-center">8</td>
-                                                    <td className>2023-08-25 17:29</td>
-                                                    <td>College Of Nursing And Allied Services</td>
-                                                    <td className="truncate-1">CNAHS where the aspiring nurse will nurture their skills in treating people who need aid.</td>
-                                                    <td className="text-center">
-                                                        <span className="badge badge-success badge-pill">Active</span>                          </td>
-                                                    <td align="center">
-                                                        <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                            Action
-                                                            <span className="sr-only">Toggle Dropdown</span>
-                                                        </button>
-                                                        <div className="dropdown-menu" role="menu">
-                                                            <a className="dropdown-item view_data" href="javascript:void(0)" data-id={8}><span className="fa fa-eye text-dark" /> View</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item edit_data" href="javascript:void(0)" data-id={8}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                            <div className="dropdown-divider" />
-                                                            <a className="dropdown-item delete_data" href="javascript:void(0)" data-id={8}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+
+                                                {departmentToSearch.length === 0 ? (
+                                                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '20px' }}>
+                                                        <span>No Department found!</span>
+                                                    </div>
+                                                ) : (
+                                                    departmentToSearch.map((item, index) => (
+                                                        <tr>
+                                                            <td className="text-center">{index + 1}</td>
+                                                            <td className>{item.date}</td>
+                                                            <td>{item.name}</td>
+                                                            <td >
+                                                                <span className="badge badge-success badge-pill" style={{ background: item.status === 'Active' ? '' : 'red' }}>{item.status}</span></td>
+                                                            <td style={{ textAlign: 'center' }}>
+                                                                <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                                                                    Action
+                                                                </button>
+                                                                <div className="dropdown-menu" role="menu">
+                                                                    <a className="dropdown-item edit_data" href="#" onClick={() => handleEditDepartment(item)}><span className="fa fa-edit text-primary" /> Edit</a>
+                                                                    <div className="dropdown-divider" />
+                                                                    <a className="dropdown-item delete_data" href="#" onClick={() => handleDeleteDepartment(item)}><span className="fa fa-trash text-danger" /> Delete</a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -223,6 +335,96 @@ function DepartmentList() {
                     </div>
 
                 </section>
+            </div>
+
+            {/* ------------------  ADD DEPARTMENT  --------------------------- */}
+            <div className="popup" style={{ display: isAddDepartment ? 'block' : 'none' }}>
+                <div className='department-modal' style={{ animation: isAddDepartment ? 'animateCenter 0.3s linear' : '' }}>
+                    <h5>Add Department</h5>
+                    <hr />
+                    <div className="container-fluid">
+                        <form onSubmit={handleAddDepartment}>
+                            <div className="form-group">
+                                <label htmlFor="name" className="control-label">Name</label>
+                                <input type="text" className="form-control form-control-border" value={departmentData.name} onChange={(e) => setDepartmentData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Department Name" required />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: '30px' }}>
+                                <label htmlFor className="control-label">Status</label>
+                                <select name="status" id="status" className="form-control form-control-border" value={departmentData.status} onChange={(e) => setDepartmentData((prev) => ({ ...prev, status: e.target.value }))} required>
+                                    <option value="" selected disabled>Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsAddDepartment(false)}>Cancel</button>
+                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {/* -----------------   EDIT DEPARTMENT -------------------- */}
+            <div className="popup" style={{ display: isEditDepartment ? 'block' : 'none' }}>
+                <div className='department-modal' style={{ animation: isEditDepartment ? 'animateCenter 0.3s linear' : '' }}>
+                    <h5>Edit Department</h5>
+                    <hr />
+                    <div className="container-fluid">
+                        <form action id="department-form">
+                            <div className="form-group">
+                                <label htmlFor="name" className="control-label">Name</label>
+                                <input type="text" className="form-control form-control-border" value={editDepartmentData.name} onChange={(e) => setEditDepartmentData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Department Name" required />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: '30px' }}>
+                                <label htmlFor className="control-label">Status</label>
+                                <select name="status" id="status" className="form-control form-control-border" required value={editDepartmentData.status} onChange={(e) => setEditDepartmentData((prev) => ({ ...prev, status: e.target.value }))}>
+                                    <option value="" selected disabled>Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditDepartment(false)}>Cancel</button>
+                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {/* -----------------------DELETE CONFIRMATION---------------------- */}
+            <div className="popup" style={{ visibility: isDelete ? 'visible' : 'hidden' }}>
+                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+                    <div className="popup-edit">
+                        <h5>Delete?</h5>
+                    </div>
+                    <hr />
+                    <div className='form-div'>
+                        <span>Are you sure you wan't to Delete {`${deleteDepartment.name}`}?</span>
+                    </div>
+
+                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
+                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            {/* fetching data screen */}
+            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
+                <div className="modal-pop-up-loading">
+                    <div className="modal-pop-up-loading-spiner"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            {/* Loading div */}
+            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                <div>
+                    <h5>{errorMessage}</h5>
+                </div>
             </div>
         </>
     )
