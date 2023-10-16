@@ -125,10 +125,30 @@ function Dashboard() {
         fetchDepartment();
     }, []);
 
-    const departmentToSearch = departmentList.filter(item =>
-        item.name.toLowerCase().includes(searchDepartment.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchDepartment.toLocaleLowerCase())
-    );
+    // -----------------------------------------  FETCH COURSES -------------------------------------------------
+    const [coursesList, setCoursesList] = useState([]);
+    const [searchCourses, setSearchCourses] = useState('');
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setCoursesList(response.data.message);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchCourses();
+    }, []);
 
     return (
         <div className="content-wrapper">
@@ -153,8 +173,8 @@ function Dashboard() {
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-info">
                                 <div className="inner">
-                                    <h3>{departmentList && departmentList.length}</h3>
-                                    <p>Department List</p>
+                                    <h3>{departmentList && departmentList.filter(item => item.status === 'Active').length}</h3>
+                                    <p>Active Department</p>
                                 </div>
                                 <div className="icon">
                                     <i><FaThList /></i>
@@ -165,9 +185,9 @@ function Dashboard() {
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-success">
                                 <div className="inner">
-                                    <h3>2<sup style={{ fontSize: 20 }}></sup></h3>
-                                    <p>Curriculumn List</p>
-                                </div>
+                                    <h3>{coursesList && coursesList.filter(item => item.status === 'Active').length}<sup style={{ fontSize: 20 }}></sup></h3>
+                                    <p>Active Courses</p>
+                                </div>  
                                 <div className="icon">
                                     <i><RiNewspaperLine /></i>
                                 </div>
@@ -177,8 +197,8 @@ function Dashboard() {
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-warning">
                                 <div className="inner">
-                                    <h3>4</h3>
-                                    <p>Verified Student</p>
+                                    <h3>0</h3>
+                                    <p>Verified User</p>
                                 </div>
                                 <div className="icon">
                                     <i><FaUsers /></i>
@@ -190,7 +210,7 @@ function Dashboard() {
                             <div className="small-box bg-danger">
                                 <div className="inner">
                                     <h3>0</h3>
-                                    <p>Not Verified Student</p>
+                                    <p>Not Verified User</p>
                                 </div>
                                 <div className="icon">
                                     <i><FaUsersSlash /></i>
@@ -201,7 +221,7 @@ function Dashboard() {
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-success">
                                 <div className="inner">
-                                    <h3>1</h3>
+                                    <h3>0</h3>
                                     <p>Verified Archives</p>
                                 </div>
                                 <div className="icon">
@@ -213,7 +233,7 @@ function Dashboard() {
                         <div className="col-lg-3 col-6">
                             <div className="small-box bg-danger">
                                 <div className="inner">
-                                    <h3>1</h3>
+                                    <h3>0</h3>
                                     <p>Not Verified Archives</p>
                                 </div>
                                 <div className="icon">

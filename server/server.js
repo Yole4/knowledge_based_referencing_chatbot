@@ -326,8 +326,8 @@ app.post('/api/auto-image-upload', verifyToken, imageUpload.single('image'), (re
 // ###################################################################################################################################################################################
 app.get('/api/fetch-users', verifyToken, (req, res) => {
 
-    const fetchUser = `SELECT * FROM users WHERE user_type = ? AND isDelete = ?`;
-    db.query(fetchUser, ["Student", "not"], (error, results) => {
+    const fetchUser = `SELECT * FROM users WHERE isDelete = ?`;
+    db.query(fetchUser, ["not"], (error, results) => {
         if (error) {
             res.status(401).json({ message: "405" });
         } else {
@@ -389,8 +389,8 @@ app.post('/api/add-department', verifyToken, (req, res) => {
                             res.status(401).json({ message: "Server side error!" });
                         } else {
                             // insert notification
-                            const insertNot = `INSERT INTO notifications (notification_type, content, date) VALUES (?, ?, ?)`;
-                            db.query(insertNot, ["Department", `You've successfully added ${departmentDataName}`, currentDate], (error, results) => {
+                            const insertNot = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                            db.query(insertNot, [sanitizeUserId, "Department", `You've successfully added ${departmentDataName}`, currentDate], (error, results) => {
                                 if (error) {
                                     res.status(401).json({ message: "Server side error!" });
                                 } else {
@@ -427,17 +427,17 @@ app.post('/api/edit-department', verifyToken, (req, res) => {
         const select = `SELECT * FROM department WHERE name = ? AND isDelete = ? AND id != ?`;
         db.query(select, [editDepartmentDataName, "not", editDepartmentDataId], (error, results) => {
             if (error) {
-                res.status(401).json({message: "Server side error!"});
-            }else{
-                if (results.length > 0){
-                    res.status(401).json({message: "Department is already exist!"});
-                }else{
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "Department is already exist!" });
+                } else {
                     const updateDepartment = `UPDATE department SET name = ?, status = ? WHERE id = ?`;
                     db.query(updateDepartment, [editDepartmentDataName, editDepartmentDataStatus, editDepartmentDataId], (error, results) => {
                         if (error) {
-                            res.status(401).json({message: "Server side error!"});
-                        }else{
-                            res.status(200).json({message: `Department has been successfully updated!`});
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            res.status(200).json({ message: `Department has been successfully updated!` });
                         }
                     });
                 }
@@ -451,7 +451,7 @@ app.post('/api/edit-department', verifyToken, (req, res) => {
 // #####################################################################  DELETE DEPARTMENT  ############################################################################################
 // ###################################################################################################################################################################################
 app.post('/api/delete-department', verifyToken, (req, res) => {
-    const {deleteDepartment} = req.body;
+    const { deleteDepartment } = req.body;
 
     const validationRules = [
         { validator: validator.isLength, options: { min: 1, max: 50 } },
@@ -460,26 +460,375 @@ app.post('/api/delete-department', verifyToken, (req, res) => {
     const deleteDepartmentId = sanitizeAndValidate(deleteId, validationRules);
     const deleteDepartmentName = sanitizeAndValidate(deleteDepartment.name, validationRules);
 
-    if (!deleteDepartmentId || !deleteDepartmentName){
-        res.status(401).json({message: "Invalid Input!"});
-    }else{
+    if (!deleteDepartmentId || !deleteDepartmentName) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
         const deleteD = `UPDATE department SET isDelete = ? WHERE id = ?`;
         db.query(deleteD, ["Deleted", deleteDepartmentId], (error, results) => {
             if (error) {
-                res.status(401).json({message: "Server side error!"});
-            }else{
+                res.status(401).json({ message: "Server side error!" });
+            } else {
                 // insert notification
-                const insert = `INSERT INTO notifications (notification_type, content, date) VALUES (?, ?, ?)`;
-                db.query(insert, ["Delete", `You've successfully deleted the ${deleteDepartmentName}`, currentDate], (error, results) => {
+                const insert = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                db.query(insert, [deleteDepartmentId, "Delete Department", `You've successfully deleted the ${deleteDepartmentName}`, currentDate], (error, results) => {
                     if (error) {
-                        res.status(401).json({message: "Server side error!"});
-                    }else{
-                        res.status(200).json({message: `${deleteDepartmentName} has been successfully deleted!`});
+                        res.status(401).json({ message: "Server side error!" });
+                    } else {
+                        res.status(200).json({ message: `${deleteDepartmentName} has been successfully deleted!` });
                     }
                 });
             }
         });
     }
+});
+
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH COURSES  ############################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-courses', verifyToken, (req, res) => {
+    const getCourses = `SELECT * FROM courses WHERE isDelete = ?`;
+    db.query(getCourses, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No department found!" });
+            }
+        }
+    });
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  ADD COURSE  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/add-courses', verifyToken, (req, res) => {
+    const { courseData, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const courseDataName = sanitizeAndValidate(courseData.name, validationRules);
+    const courseDataStatus = sanitizeAndValidate(courseData.status, validationRules);
+
+    if (!sanitizeUserId || !courseDataName || !courseDataStatus) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const select = `SELECT * FROM courses WHERE course = ? AND isDelete = ?`;
+        db.query(select, [courseDataName, "not"], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "Course is already exist!" });
+                } else {
+                    const addCourse = `INSERT INTO courses (course, status, date) VALUES (?, ?, ?)`;
+                    db.query(addCourse, [courseDataName, courseDataStatus, currentDate], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            // insert notification
+                            const insertNot = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                            db.query(insertNot, [sanitizeUserId, "Department", `You've successfully added ${courseDataName}`, currentDate], (error, results) => {
+                                if (error) {
+                                    res.status(401).json({ message: "Server side error!" });
+                                } else {
+                                    res.status(200).json({ message: `${courseDataName} has been successfully added!` });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  EDIT COURSE  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/edit-courses', verifyToken, (req, res) => {
+    const { editCourseData } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const editId = (editCourseData.id).toString();
+
+    const editCourseDataId = sanitizeAndValidate(editId, validationRules);
+    const editCourseDataName = sanitizeAndValidate(editCourseData.name, validationRules);
+    const editCourseDataStatus = sanitizeAndValidate(editCourseData.status, validationRules);
+
+    if (!editCourseDataId || !editCourseDataName || !editCourseDataStatus) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const select = `SELECT * FROM courses WHERE course = ? AND isDelete = ? AND id != ?`;
+        db.query(select, [editCourseDataName, "not", editCourseDataId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "Department is already exist!" });
+                } else {
+                    const updateCourses = `UPDATE courses SET course = ?, status = ? WHERE id = ?`;
+                    db.query(updateCourses, [editCourseDataName, editCourseDataStatus, editCourseDataId], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            res.status(200).json({ message: `Department has been successfully updated!` });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  DELETE COURSE  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/delete-courses', verifyToken, (req, res) => {
+    const { deleteCourses } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+    const deleteId = (deleteCourses.id).toString();
+    const deleteCoursesId = sanitizeAndValidate(deleteId, validationRules);
+    const deleteCoursesName = sanitizeAndValidate(deleteCourses.name, validationRules);
+
+    if (!deleteCoursesId || !deleteCoursesName) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const deleteC = `UPDATE courses SET isDelete = ? WHERE id = ?`;
+        db.query(deleteC, ["Deleted", deleteCoursesId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                // insert notification
+                const insert = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                db.query(insert, [deleteCoursesId, "Delete Course", `You've successfully deleted the ${deleteCoursesName}`, currentDate], (error, results) => {
+                    if (error) {
+                        res.status(401).json({ message: "Server side error!" });
+                    } else {
+                        res.status(200).json({ message: `${deleteCoursesName} has been successfully deleted!` });
+                    }
+                });
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  EDIT USER  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/edit-user', verifyToken, (req, res) => {
+    const { editUserData } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const deleteId = (editUserData.id).toString();
+    const editUserId = sanitizeAndValidate(deleteId, validationRules);
+    const editUserFirstName = sanitizeAndValidate(editUserData.firstName, validationRules);
+    const editUserLastName = sanitizeAndValidate(editUserData.lastName, validationRules);
+    const editUserUsername = sanitizeAndValidate(editUserData.username, validationRules);
+    const editUserUserType = sanitizeAndValidate(editUserData.userType, validationRules);
+
+    if (!editUserId || !editUserFirstName || !editUserLastName || !editUserUsername || !editUserUserType) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        // check username
+        if (editUserUsername.length >= 5) {
+            const check = `SELECT * FROM users WHERE username = ? AND id != ? AND isDelete = ?`;
+            db.query(check, [editUserUsername, editUserId, "not"], (error, results) => {
+                if (error) {
+                    res.status(401).json({ message: "Server side error!" });
+                } else {
+                    if (results.length > 0) {
+                        res.status(401).json({ message: "Username is already exist!" });
+                    } else {
+                        // update user credentials
+                        const updateUser = `UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, username = ?, user_type = ? WHERE id = ?`;
+                        db.query(updateUser, [editUserFirstName, editUserData.middleName, editUserLastName, editUserUsername, editUserUserType, editUserId], (error, results) => {
+                            if (error) {
+                                res.status(401).json({ message: "Server side error!" });
+                            } else {
+                                res.status(200).json({ message: `User successfully updated!` });
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            res.status(401).json({ message: "Username must have at least 5 characters!" });
+        }
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  DELETE USER  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/delete-user', verifyToken, (req, res) => {
+    const { deleteUser, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const deleteId = (deleteUser.id).toString();
+    const deleteUserId = sanitizeAndValidate(deleteId, validationRules);
+    const deleteUserFirstName = sanitizeAndValidate(deleteUser.firstName, validationRules);
+    const deleteUserLastName = sanitizeAndValidate(deleteUser.lastName, validationRules);
+    const ownerId = sanitizeAndValidate(userId, validationRules);
+
+    if (!deleteId || !deleteUserId || !deleteUserFirstName || !deleteUserLastName || !ownerId) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        // delete user
+        const deleteU = `UPDATE users SET isDelete = ? WHERE id = ?`;
+        db.query(deleteU, ["Deleted", deleteId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                // insert notification
+                const insertNot = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                db.query(insertNot, [ownerId, "Delete User", `You've successfully deleted ${deleteUserFirstName} ${deleteUser.middleName} ${deleteUserLastName}`, currentDate], (error, results) => {
+                    if (error) {
+                        res.status(401).json({ message: "Server side error!" });
+                    } else {
+                        res.status(200).json({ message: `${deleteUserFirstName} ${deleteUser.middleName} ${deleteUserLastName} has been successfully deleted!` });
+                    }
+                });
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH SETTINGS  ############################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-settings', (req, res) => {
+    const getSettings = `SELECT * FROM settings`;
+    db.query(getSettings, (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No Settings data found!" });
+            }
+        }
+    });
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  UPDATE SETTINGS  ############################################################################################
+// ###################################################################################################################################################################################
+const systemImageUpload = multer({
+    dest: 'assets/settings image/',
+});
+
+app.post('/api/update-logo', verifyToken, imageUpload.single('systemLogo'), (req, res) => {
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const originalFileName = req.file.originalname;
+    const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+    const uniqueFilePath = `assets/settings image/${uniqueFileName}`;
+
+    const typeMime = mime.lookup(originalFileName);
+
+    if ((typeMime === 'image/png') || (typeMime === 'image/jpeg')) {
+        fs.rename(req.file.path, uniqueFilePath, (err) => {
+            if (err) {
+                res.status(401).json({ message: "Error to upload file" });
+            } else {
+                const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+                if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                    return res.status(401).send({ message: "Invalid File Name!" });
+                }
+                else {
+                    const insert = `UPDATE settings SET system_logo = ? WHERE id = ?`;
+                    db.query(insert, [uniqueFilePath, '1'], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            res.status(200).json({ message: "System has been changed!" });
+                        }
+                    });
+                }
+            }
+        });
+    }
+    else {
+        res.status(401).json({ message: "Invalid Image Type!" });
+    }
+
+});
+
+app.post('/api/update-cover', verifyToken, imageUpload.single('systemCover'), (req, res) => {
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const originalFileName = req.file.originalname;
+    const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+    const uniqueFilePath = `assets/settings image/${uniqueFileName}`;
+
+    const typeMime = mime.lookup(originalFileName);
+
+    if ((typeMime === 'image/png') || (typeMime === 'image/jpeg')) {
+        fs.rename(req.file.path, uniqueFilePath, (err) => {
+            if (err) {
+                res.status(401).json({ message: "Error to upload file" });
+            } else {
+                const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+                if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                    return res.status(401).send({ message: "Invalid File Name!" });
+                }
+                else {
+                    const insert = `UPDATE settings SET system_cover = ? WHERE id = ?`;
+                    db.query(insert, [uniqueFilePath, '1'], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            res.status(200).json({ message: "System cover photo has been changed!" });
+                        }
+                    });
+                }
+            }
+        });
+    }
+    else {
+        res.status(401).json({ message: "Invalid Image Type!" });
+    }
+
+});
+
+app.post('/api/update-settings', verifyToken, (req, res) => {
+    const {settings} = req.body;
+
+    const update = `UPDATE settings SET system_name = ?, system_short_name = ?, welcome_content = ?, about_us = ?, email = ?, contact_number = ?, address = ?, date = ? WHERE id = ?`;
+    db.query(update, [settings.systemName, settings.systemShortName, settings.welcomeContent, settings.aboutUs, settings.email, settings.contactNumber, settings.address, currentDate, '1'], (error, results) => {
+        if (error) {
+            res.status(401).json({message: "Server side error!"});
+        }else{
+            res.status(200).json({message: "System information has been successfully updated!"});
+        }
+    });
+
 });
 
 // async function extractTextFromPDF(pdfPath) {

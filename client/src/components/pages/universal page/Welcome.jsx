@@ -1,15 +1,73 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import BackendURL from '../backend url/BackendURL';
 
 function Welcome() {
     const navigate = useNavigate();
+    const backendUrl = BackendURL();
+
+    // --------------------------    FETCH SETTINGS   --------------------------
+    const [isLoading, setIsLoading] = useState(false);
+    const [settings, setSettings] = useState({
+        systemName: '',
+        systemShortName: '',
+        welcomeContent: '',
+        aboutUs: '',
+        email: '',
+        contactNumber: '',
+        address: ''
+    });
+
+    const [systemLogo, setSystemLogo] = useState([]);
+    const [systemCover, setSystemCover] = useState([]);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-settings`);
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setSettings({
+                        systemName: response.data.message[0].system_name,
+                        systemShortName: response.data.message[0].system_short_name,
+                        welcomeContent: response.data.message[0].welcome_content,
+                        aboutUs: response.data.message[0].about_us,
+                        email: response.data.message[0].email,
+                        contactNumber: response.data.message[0].contact_number,
+                        address: response.data.message[0].address
+                    });
+                    setSystemCover(response.data.message[0].system_cover);
+                    setSystemLogo(response.data.message[0].system_logo);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchSettings();
+    }, []);
+
+    const [coverUrl, setCoverUrl] = useState('');
+    useEffect(() => {
+        if (systemCover) {
+            const url = `${backendUrl}/${systemCover}`;
+
+            // Replace spaces with '%20'
+            const re = url.replace(/ /g, '%20');
+            setCoverUrl(re);
+        }
+    }, [systemCover]);
     return (
         <>
             {/* Content Wrapper. Contains page content */}
-            <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0'}}>
-                <div id="header" className="shadow mb-4">
+            <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0' }}>
+                <div id="header" style={{ backgroundImage: systemCover && coverUrl ? `url(${coverUrl})` : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center center' }} className="shadow mb-4">
+                    
                     <div className="d-flex justify-content-center h-100 w-100 align-items-center flex-column px-3">
-                        <h1 className="w-100 text-center site-title" style={{ marginBottom: '20px' }}>A thesis and capstone archiving system  with integrated knowledge-based referencing chatbot</h1>
+                        <h1 className="w-100 text-center site-title" style={{ marginBottom: '20px' }}>{settings && settings.systemName}</h1>
                         <a href="#" onClick={() => navigate('/projects')} className="btn btn-lg btn-light rounded-pill explore" id="enrollment"><b>Explore Projects</b></a>
                     </div>
                 </div>
@@ -24,19 +82,7 @@ function Welcome() {
                                             <h3 className="text-center">Welcome</h3>
                                             <hr />
                                             <div className="welcome-content">
-                                                <p style={{ marginRight: 0, marginBottom: 15, marginLeft: 0, padding: 0, textAlign: 'justify' }}>Greetings and
-                                                    welcome to our
-                                                    state-of-the-art electronic archiving system, meticulously designed to cater specifically to the storage and
-                                                    retrieval of both thesis and capstone projects. Our pioneering solution introduces a paradigm shift in conventional
-                                                    archiving methodologies, seamlessly transitioning these scholarly pursuits into a digitized realm for enhanced
-                                                    durability and effortless access. Driven by secure cloud-based infrastructure, intelligent metadata categorization,
-                                                    and advanced search functionalities, our platform empowers researchers, students, and educators to seamlessly tap
-                                                    into an expansive reservoir of invaluable academic insights. By embracing this innovative system, you not only
-                                                    ensure the preservation of intellectual contributions for generations to come but also nurture a collaborative
-                                                    learning environment. Scholars can seamlessly build upon existing research, actively contributing to the dynamic
-                                                    landscape of academic discovery. Embrace the future of research dissemination and scholarly interaction through our
-                                                    electronic archiving system – a testament to the evolving spirit of academic advancement and collective knowledge
-                                                    enrichment.</p>                  </div>
+                                                <p style={{ marginRight: 0, marginBottom: 15, marginLeft: 0, padding: 0, textAlign: 'justify' }}>{settings && settings.welcomeContent}</p></div>
                                         </div>
                                     </div>
                                 </div>
@@ -44,6 +90,14 @@ function Welcome() {
                         </div>
                     </div>
                 </section>
+            </div>
+
+            {/* fetching data screen */}
+            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
+                <div className="modal-pop-up-loading">
+                    <div className="modal-pop-up-loading-spiner"></div>
+                    <p>Loading...</p>
+                </div>
             </div>
         </>
     )

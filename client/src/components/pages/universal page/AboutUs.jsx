@@ -1,9 +1,57 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import BackendURL from '../backend url/BackendURL';
+import axios from 'axios';
 
 function AboutUs() {
+    const backendUrl = BackendURL();
+
+
+    // --------------------------    FETCH SETTINGS   --------------------------
+    const [isLoading, setIsLoading] = useState(false);
+    const [settings, setSettings] = useState({
+        systemName: '',
+        systemShortName: '',
+        welcomeContent: '',
+        aboutUs: '',
+        email: '',
+        contactNumber: '',
+        address: ''
+    });
+
+    const [systemLogo, setSystemLogo] = useState([]);
+    const [systemCover, setSystemCover] = useState([]);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-settings`);
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setSettings({
+                        systemName: response.data.message[0].system_name,
+                        systemShortName: response.data.message[0].system_short_name,
+                        welcomeContent: response.data.message[0].welcome_content,
+                        aboutUs: response.data.message[0].about_us,
+                        email: response.data.message[0].email,
+                        contactNumber: response.data.message[0].contact_number,
+                        address: response.data.message[0].address
+                    });
+                    setSystemCover(response.data.message[0].system_cover);
+                    setSystemLogo(response.data.message[0].system_logo);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchSettings();
+    }, []);
+
     return (
         <>
-            <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0'}}>
+            <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0' }}>
                 {/* Main content */}
                 <section className="content ">
                     <div className="container">
@@ -17,11 +65,11 @@ function AboutUs() {
                                         <div className="card-body rounded-0">
                                             <dl>
                                                 <dt className="text-muted"><i className="fa fa-envelope" /> Email</dt>
-                                                <dd className="pr-4">info@university101.com</dd>
+                                                <dd className="pr-4">{settings && settings.email}</dd>
                                                 <dt className="text-muted"><i className="fa fa-phone" /> Contact #</dt>
-                                                <dd className="pr-4">09854698789 / 78945632</dd>
+                                                <dd className="pr-4">{settings && settings.contactNumber}</dd>
                                                 <dt className="text-muted"><i className="fa fa-map-marked-alt" /> Location</dt>
-                                                <dd className="pr-4">Under the Tree, Here Street, There City, Anywhere 1014</dd>
+                                                <dd className="pr-4">{settings && settings.address}</dd>
                                             </dl>
                                         </div>
                                     </div>
@@ -34,30 +82,7 @@ function AboutUs() {
                                                 <hr className="bg-navy border-navy w-25 border-2" />
                                             </center>
                                             <div>
-                                                <p style={{ marginRight: 0, marginBottom: 15, marginLeft: 0, padding: 0, textAlign: 'justify' }}>
-                                                    Researchers opt to delve into the
-                                                    realm of online thesis archiving systems due to the increasingly pivotal
-                                                    role they play in modern academia. The
-                                                    surging volume of scholarly content necessitates a departure from
-                                                    conventional methods of storing and disseminating
-                                                    theses and dissertations. Scholars, attuned to the evolving landscape,
-                                                    acknowledge the pressing demand for a more
-                                                    refined and accessible approach to ensure the broadest possible
-                                                    dissemination of their invaluable contributions.
-                                                    This topic seamlessly aligns with the ongoing digital paradigm shift in
-                                                    education and research, where virtual
-                                                    platforms present avenues for elevated collaboration, discoverability,
-                                                    and interdisciplinary interaction. Moreover,
-                                                    the conceptualization and materialization of pioneering archiving
-                                                    systems provide researchers an opportunity to
-                                                    leave their mark on technological progress while effectively addressing
-                                                    a pragmatic requirement within the academic
-                                                    sphere. By meticulously exploring the intricacies of designing,
-                                                    implementing, and gauging the impact of online
-                                                    thesis archiving systems, researchers actively propel the advancement of
-                                                    scholarly communication and the
-                                                    safeguarding of intellectual heritage in an era defined by digital
-                                                    innovation.</p>
+                                                <p style={{ marginRight: 0, marginBottom: 15, marginLeft: 0, padding: 0, textAlign: 'justify' }}>{settings && settings.aboutUs}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -66,6 +91,14 @@ function AboutUs() {
                         </div>
                     </div>
                 </section>
+            </div>
+
+            {/* fetching data screen */}
+            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
+                <div className="modal-pop-up-loading">
+                    <div className="modal-pop-up-loading-spiner"></div>
+                    <p>Loading...</p>
+                </div>
             </div>
 
         </>

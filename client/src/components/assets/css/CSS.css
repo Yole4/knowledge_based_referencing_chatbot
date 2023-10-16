@@ -10,7 +10,7 @@
     position: absolute;
     height: calc(100%);
     width: calc(100%);
-    background-image: url("../images/jose.jpg");
+    /* background-image: url("../images/jose.jpg"); */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;

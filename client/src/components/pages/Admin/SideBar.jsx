@@ -117,7 +117,7 @@ function SideBar() {
                                 <a className={location.pathname === '/student-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaUsers /></i>
                                     <p style={{ marginLeft: '10px' }}>
-                                        Student List
+                                        Request User
                                     </p>
                                 </a>
                             </li>
@@ -141,7 +141,7 @@ function SideBar() {
                                 <a className={location.pathname === '/curriculumn-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
-                                        Curriculumn List
+                                        Courses
                                     </p>
                                 </a>
                             </li>

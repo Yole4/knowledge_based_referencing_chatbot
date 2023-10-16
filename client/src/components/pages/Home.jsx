@@ -297,6 +297,48 @@ function Home() {
         }
     }, [autoImage]);
 
+    // --------------------------    FETCH SETTINGS   --------------------------
+    const [settings, setSettings] = useState({
+        systemName: '',
+        systemShortName: '',
+        welcomeContent: '',
+        aboutUs: '',
+        email: '',
+        contactNumber: '',
+        address: ''
+    });
+
+    const [systemLogo, setSystemLogo] = useState([]);
+    const [systemCover, setSystemCover] = useState([]);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-settings`);
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setSettings({
+                        systemName: response.data.message[0].system_name,
+                        systemShortName: response.data.message[0].system_short_name,
+                        welcomeContent: response.data.message[0].welcome_content,
+                        aboutUs: response.data.message[0].about_us,
+                        email: response.data.message[0].email,
+                        contactNumber: response.data.message[0].contact_number,
+                        address: response.data.message[0].address
+                    });
+                    setSystemCover(response.data.message[0].system_cover);
+                    setSystemLogo(response.data.message[0].system_logo);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchSettings();
+    }, []);
+
     return (
         <>
             <div className="wrapper" onClick={() => setOnSearch(false)}>
@@ -305,7 +347,7 @@ function Home() {
                     {/* Left navbar links */}
                     <ul className="navbar-nav">
                         <li className="nav-item d-sm-inline-block" onClick={() => navigate('/')}>
-                            <span className="mr-2  text-white"><i className="fa fa-phone mr-1"></i> 09854698789</span>
+                            <span className="mr-2  text-white"><i className="fa fa-phone mr-1"></i> {settings && settings.contactNumber}</span>
                         </li>
                     </ul>
                     {/* Right navbar links */}
@@ -382,7 +424,7 @@ function Home() {
                     <div className="container">
                         <a href="#" onClick={() => navigate('/')} className="navbar-brand">
                             <img src={logo} alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
-                            <span>JRMSU</span>
+                            <span>{settings && settings.systemShortName}</span>
                         </a>
                         <button className="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon" />
@@ -577,12 +619,12 @@ function Home() {
                         {/* Sidebar user (optional) */}
 
                         {isLogin && (
-                            <div className="user-panel mt-3 pb-3 mb-3 d-flex" style={{cursor: 'pointer'}} onClick={() => setIsProfile(true)}>
+                            <div className="user-panel mt-3 pb-3 mb-3 d-flex" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}>
                                 <div className="image">
                                     <img style={{ width: 34, height: 34 }} src={userCredentials && (userCredentials.image).length > 0 ? `${backendUrl}/${userCredentials.image}` : givenImage} className="img-profile rounded-circle" />
                                 </div>
                                 <div className="info">
-                                    <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>shelo</a>
+                                    <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</a>
                                 </div>
                             </div>
                         )}

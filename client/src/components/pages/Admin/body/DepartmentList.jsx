@@ -302,7 +302,7 @@ function DepartmentList() {
                                             <tbody>
 
                                                 {departmentToSearch.length === 0 ? (
-                                                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '20px' }}>
+                                                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
                                                         <span>No Department found!</span>
                                                     </div>
                                                 ) : (
@@ -386,7 +386,7 @@ function DepartmentList() {
                             </div>
                             <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditDepartment(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Add</button>
+                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
                             </div>
                         </form>
                     </div>

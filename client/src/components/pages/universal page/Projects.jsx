@@ -1,5 +1,9 @@
 import React from 'react'
 
+// images
+import archive3 from '../../assets/images/archive-3.png';
+import archive1 from '../../assets/images/archive-1.png';
+
 function Projects() {
     return (
         <>
@@ -17,7 +21,7 @@ function Projects() {
                                             <a href="./?page=view_archive&id=3" className="text-decoration-none text-dark list-group-item list-group-item-action">
                                                 <div className="row">
                                                     <div className="col-lg-4 col-md-5 col-sm-12 text-center">
-                                                        <img src="http://localhost/otas/uploads/banners/archive-3.png?v=1639377036" className="banner-img img-fluid bg-gradient-dark" alt="Banner Image" />
+                                                        <img src={archive3} className="banner-img img-fluid bg-gradient-dark" alt="Banner Image" />
                                                     </div>
                                                     <div className="col-lg-8 col-md-7 col-sm-12">
                                                         <h3 className="text-navy"><b>Online Point of Sale System for XYZ
@@ -61,7 +65,7 @@ function Projects() {
                                             <a href="./?page=view_archive&id=2" className="text-decoration-none text-dark list-group-item list-group-item-action">
                                                 <div className="row">
                                                     <div className="col-lg-4 col-md-5 col-sm-12 text-center">
-                                                        <img src="http://localhost/otas/uploads/banners/archive-3.png?v=1639212829" className="banner-img img-fluid bg-gradient-dark" alt="Banner Image" />
+                                                        <img src={archive3} className="banner-img img-fluid bg-gradient-dark" alt="Banner Image" />
                                                     </div>
                                                     <div className="col-lg-8 col-md-7 col-sm-12">
                                                         <h3 className="text-navy"><b>Sample 102</b></h3>
@@ -98,7 +102,7 @@ function Projects() {
                                             <a href="./?page=view_archive&id=1" className="text-decoration-none text-dark list-group-item list-group-item-action">
                                                 <div className="row">
                                                     <div className="col-lg-4 col-md-5 col-sm-12 text-center">
-                                                        <img src="http://localhost/otas/uploads/banners/archive-1.png?v=1639208103" className="banner-img img-fluid bg-gradient-dark" alt="Banner Image" />
+                                                        <img src={archive1} className="banner-img img-fluid bg-gradient-dark" alt="Banner Image" />
                                                     </div>
                                                     <div className="col-lg-8 col-md-7 col-sm-12">
                                                         <h3 className="text-navy"><b>Sample Project 101</b></h3>
