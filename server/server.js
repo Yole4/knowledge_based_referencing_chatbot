@@ -67,29 +67,41 @@ app.post('/api/register', (req, res) => {
             if (registerDataUsername.length >= 5) {
                 // check the password length
                 if (registerDataPassword.length >= 7) {
-                    // hash the user password
-                    const hashedPassword = crypto.createHash('sha256').update(registerDataPassword).digest('hex');
-
-                    // register user
-                    const register = `INSERT INTO users (first_name, middle_name, last_name, username, password, image, user_type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                    db.query(register, [registerDataFirstName, registerData.middleName, registerDataLastName, registerDataUsername, hashedPassword, givenImage, "Student"], (error, results) => {
+                    // check username if already exist on database!
+                    const checkUsername = `SELECT * FROM users WHERE username = ? AND isDelete = ?`;
+                    db.query(checkUsername, [registerDataUsername, "not"], (error, results) => {
                         if (error) {
                             res.status(401).json({ message: "Server side error!" });
                         } else {
-                            // create token
-                            const fetchData = {
-                                id: results.insertId,
-                                username: registerDataUsername,
-                                firstName: registerDataFirstName,
-                                middleName: registerData.middleName,
-                                lastName: registerDataLastName,
-                                userType: "Student",
-                                image: givenImage
-                            };
+                            if (results.length > 0) {
+                                res.status(401).json({ message: "Username is already exist!" });
+                            } else {
+                                // hash the user password
+                                const hashedPassword = crypto.createHash('sha256').update(registerDataPassword).digest('hex');
 
-                            const token = jwt.sign(fetchData, secretKey);
+                                // register user
+                                const register = `INSERT INTO users (first_name, middle_name, last_name, username, password, image, user_type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                                db.query(register, [registerDataFirstName, registerData.middleName, registerDataLastName, registerDataUsername, hashedPassword, givenImage, "Student"], (error, results) => {
+                                    if (error) {
+                                        res.status(401).json({ message: "Server side error!" });
+                                    } else {
+                                        // create token
+                                        const fetchData = {
+                                            id: results.insertId,
+                                            username: registerDataUsername,
+                                            firstName: registerDataFirstName,
+                                            middleName: registerData.middleName,
+                                            lastName: registerDataLastName,
+                                            userType: "Student",
+                                            image: givenImage
+                                        };
 
-                            res.status(200).json({ token: token });
+                                        const token = jwt.sign(fetchData, secretKey); // set token no expiration
+
+                                        res.status(200).json({ token: token });
+                                    }
+                                });
+                            }
                         }
                     });
                 } else {
@@ -218,7 +230,7 @@ app.post('/api/change-password', verifyToken, (req, res) => {
                             if (results.length > 0) {
                                 // get db password
                                 const dbPassword = results[0].password;
-                                const dbUsername = results[0].username;
+                                // const dbUsername = results[0].username;
 
                                 // hash current password
                                 const hashedPassword = crypto.createHash('sha256').update(sanitizePassword).digest('hex');
@@ -818,14 +830,14 @@ app.post('/api/update-cover', verifyToken, imageUpload.single('systemCover'), (r
 });
 
 app.post('/api/update-settings', verifyToken, (req, res) => {
-    const {settings} = req.body;
+    const { settings } = req.body;
 
     const update = `UPDATE settings SET system_name = ?, system_short_name = ?, welcome_content = ?, about_us = ?, email = ?, contact_number = ?, address = ?, date = ? WHERE id = ?`;
     db.query(update, [settings.systemName, settings.systemShortName, settings.welcomeContent, settings.aboutUs, settings.email, settings.contactNumber, settings.address, currentDate, '1'], (error, results) => {
         if (error) {
-            res.status(401).json({message: "Server side error!"});
-        }else{
-            res.status(200).json({message: "System information has been successfully updated!"});
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            res.status(200).json({ message: "System information has been successfully updated!" });
         }
     });
 

@@ -18,6 +18,9 @@ import Welcome from "./components/pages/universal page/Welcome";
 import AboutUs from "./components/pages/universal page/AboutUs";
 import SubmitProject from "./components/pages/universal page/SubmitProject";
 
+// chatbot
+import Chatbot from "./components/pages/chatbot/Chatbot";
+
 function App() {
   return (
     <Router>
@@ -38,12 +41,14 @@ function Main() {
         <>
           <Header />
           <SideBar />
+          <Chatbot />
         </>
       )}
       {isUniversal && (
         <>
           {/* Home */}
           <Home />
+          <Chatbot />
         </>
       )}
       <Routes>
@@ -60,6 +65,9 @@ function Main() {
         <Route path="/projects" element={<Projects />} /> 
         <Route path="/about-us" element={<AboutUs />} /> 
         <Route path="/submit-project" element={<SubmitProject />} /> 
+
+        {/* Chatbot */}
+        {/* <Route path="/tcas-chatbot" element={<Chatbot />} />  */}
 
         {/* ------ undefine URL -------- */}
         <Route path='*' element={<Undefine />} />

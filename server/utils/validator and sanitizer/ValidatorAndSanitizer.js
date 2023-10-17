@@ -19,6 +19,7 @@ const sanitizeAndValidate = (input, validationRules) => {
     return sanitizedInput;
 };
 
+// in array
 const sanitizeAndValidateArray = (addStaffAccount, validationRules) => {
     const sanitizedAndValidatedArray = [];
 
