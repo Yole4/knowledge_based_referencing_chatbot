@@ -51,7 +51,7 @@ function AboutUs() {
 
     return (
         <>
-            <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0' }}>
+            <div className="content-wrapper pt-5 about-container" style={{ color: 'black', marginLeft: '0' }}>
                 {/* Main content */}
                 <section className="content ">
                     <div className="container">

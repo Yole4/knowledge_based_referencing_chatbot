@@ -7,7 +7,7 @@ function Chatbot() {
     const [isChatbot, setIsChatbot] = useState(false);
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
-    const [chatbotResponse, setChatbotResponse] = useState("Sorry, I can't assist you today because my programmer is still in the process of enhancing my capabilities. If they make further progress, we can continue the conversation on another day. But in the meantime, if you have any concerns or need assistance, don't forget to keep a smile on your face! Good Luck 😊😉");
+    const [chatbotResponse, setChatbotResponse] = useState("Sorry, I can't assist you today because my programmer is still in the process of enhancing my capabilities. If they make further progress, we can continue the conversation on another day. But in the meantime, if you have any concerns or need assistance, don't forget to keep a smile on your face! Good Luck 😊😉 (Eloy)");
 
     const handleChat = (e) => {
         e.preventDefault();
@@ -51,7 +51,7 @@ function Chatbot() {
                     )}
                 </button>
                 <div className="chatbot" style={{ zIndex: '200', display: isChatbot ? 'block' : 'none', animation: isChatbot ? 'chatbotAnimate 0.5s linear' : '' }}>
-                    <header>
+                    <header className='bg-navy'>
                         <h2>TCAS Chatbot</h2>
                         <span onClick={() => setIsChatbot(false)} className="material-symbols-outlined">close</span>
                     </header>

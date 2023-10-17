@@ -47,7 +47,7 @@ body{
 }
 
 .chatbot header{
-    background: #724ae8;
+    /* background: #724ae8; */
     padding: 13px 0 5px 0;
     position: relative;
     text-align: center;
