@@ -117,7 +117,7 @@ body{
     padding: 5px 20px;
     border-top: 1px solid #ccc;
 }
-.chat-input textarea{
+.chat-input input{
     height: 55px;
     width: 100%;
     border: none;
@@ -137,7 +137,7 @@ body{
     visibility: hidden;
 }
 
-.chat-input textarea:valid ~ span {
+.chat-input input:valid ~ span {
     visibility: visible;
 }
 

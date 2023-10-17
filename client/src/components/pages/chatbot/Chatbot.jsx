@@ -7,6 +7,7 @@ function Chatbot() {
     const [isChatbot, setIsChatbot] = useState(false);
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
+    const [chatbotResponse, setChatbotResponse] = useState("Sorry, I can't assist you today because my programmer is still in the process of enhancing my capabilities. If they make further progress, we can continue the conversation on another day. But in the meantime, if you have any concerns or need assistance, don't forget to keep a smile on your face! Good Luck 😊😉");
 
     const handleChat = (e) => {
         e.preventDefault();
@@ -14,12 +15,18 @@ function Chatbot() {
         // const user = userInput.trim();
         // if (!user) return;
 
-        setMessages([...messages, { userMessage: userInput, botMessage: "Sorry, I can't answer your question at the moment because my programmer is currently busy. If they become available, we can continue the conversation on another day. But anyway, if you have a lot of problems or feel stressed, don't ever forget to smile! 😊😉" }]);
+        setMessages([...messages, { userMessage: userInput, botMessage: "..." }]);
 
         // Simulate a response after a delay
         setTimeout(() => {
-            setMessages([...messages, { botMessage: "Sorry, I can't answer your question at the moment because my programmer is currently busy. If they become available, we can continue the conversation on another day. But anyway, if you have a lot of problems or feel stressed, don't ever forget to smile! 😊😉", userMessage: userInput }]);
-        }, 500);
+            if (userInput.toLowerCase() === "thank you" || userInput.toLowerCase() === "k" || userInput.toLowerCase() === "salamat") {
+                // setChatbotResponse('Your welcome!');
+                setMessages([...messages, { botMessage: "You'r Welcome!", userMessage: userInput }]);
+            }
+            else {
+                setMessages([...messages, { botMessage: chatbotResponse, userMessage: userInput }]);
+            }
+        }, 1000);
 
         setUserInput('');
     };
@@ -53,9 +60,6 @@ function Chatbot() {
                             <span className="material-symbols-outlined">smart_toy</span>
                             <p>Hi there 👋<br />How can I help you today?</p>
                         </li>
-                        <li className="chat outgoing">
-                            <p>Hi there 👋<br />How can I help you today?</p>
-                        </li>
                         {messages && messages.map(item => (
                             <>
                                 <li className='chat outgoing' key={item.id}><p>{item.userMessage}</p></li>
@@ -65,7 +69,7 @@ function Chatbot() {
                     </ul>
                     <div className="chat-input">
                         <form onSubmit={handleChat}>
-                            <textarea placeholder="Enter a message..." required cols={30} rows={2} value={userInput} onChange={(e) => setUserInput(e.target.value)} />
+                            <input placeholder="Enter a message..." value={userInput} onChange={(e) => setUserInput(e.target.value)} required />
                             <span id="send-btn" className="material-symbols-outlined"><button style={{ background: 'transparent', padding: '0', border: '0px solid white' }} type='submit'>Send</button></span>
                         </form>
                     </div>
