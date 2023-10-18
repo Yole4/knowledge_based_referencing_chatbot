@@ -286,16 +286,6 @@ app.post('/api/login', (req, res) => {
 //     const sanitizeFileName = sanitizeAndValidate(filename, validationRules);
 //     const dataId = sanitizeAndValidate(id, validationRules);
 
-const filenamePath = 's.pdf';
-// const filenamePath = path.join('document upload', sanitizeFileName);
-
-processFile(filenamePath, (err, processedArray) => {
-    if (err) {
-        return res.status(401).send('Error processing file');
-    }
-
-    console.log(processedArray);
-});
 // });
 
 // ###################################################################################################################################################################################
