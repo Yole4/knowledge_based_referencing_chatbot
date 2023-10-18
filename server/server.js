@@ -17,6 +17,13 @@ const db = require('./utils/database/DatabaseConnection'); // database
 const { verifyToken } = require('./utils/auth/AuthVerify'); // verify token
 const getCurrentFormattedDate = require('./utils/current date/CurrentData');
 
+// import document checker
+const { processFile } = require('./utils/scan document/ScanDocument');
+// import naive bayes
+const { createChatbot } = require('./utils/scan document/NaiveBayes');
+// import double hashing
+const { createHashTable } = require('./utils/scan document/DoubleHashing');
+
 const app = express();
 
 app.use(express.json());
@@ -28,6 +35,104 @@ app.use(cors({
 
 const secretKey = process.env.SECRET_KEY; // my secret key
 const currentDate = getCurrentFormattedDate();
+
+// ###################################################################################################################################################################################
+// #####################################################################  CHAT REQUEST  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/chat-request', verifyToken, (req, res) => {
+    const { userInput } = req.body;
+
+    if (!userInput) {
+        res.status(404).json('404');
+    }
+
+    const chatRequest = createChatbot();
+
+    const chat = chatRequest(userInput);
+
+    if (chat) {
+        res.status(200).json({ message: chat });
+    } else {
+        res.status(403).json('403');
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  SCAN DOCUMENT  ############################################################################################
+// ###################################################################################################################################################################################
+const documentUpload = multer({
+    dest: 'assets/archive files/',
+});
+
+app.post('/api/submit-archive', verifyToken, documentUpload.single('archiveFile'), (req, res) => {
+    const originalFileName = req.file.originalname;
+
+    const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+    const uniqueFilePath = `assets/archive files/${uniqueFileName}`;
+
+    fs.rename(req.file.path, uniqueFilePath, (err) => {
+        if (err) {
+            res.status(401).json({ message: "Error moving the upload file!" });
+        }
+
+        else {
+            const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+            if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                return res.status(401).send({ message: "Invalid File Name!" });
+            }
+            else {
+                if (req.file.size > 5242880) {
+                    res.status(401).json({ message: "File is too large!" });
+                }
+                else {
+                    // Check if the uploaded file has a PDF or DOCX extension
+                    const mimeType = mime.lookup(sanitizedFileName);
+                    if (mimeType !== 'application/pdf') {
+                        res.status(401).json({ message: "Invalid file type! Accepted file PDF and Docx extension." })
+                    }
+                    else {
+                        let isFound = false;
+                        let foundPage = 0, foundAbstract = '';
+
+                        processFile(uniqueFilePath)
+                            .then(pageTexts => {
+                                pageTexts.forEach((pageText, pageNum) => {
+                                    const pageNumber = pageNum;
+                                    const contentEveryPage = pageText.replace(/\s+/g, ' ');
+
+                                    if ((contentEveryPage).toLowerCase().includes("abstract")) {
+                                        foundPage = pageNumber;
+                                        foundAbstract = contentEveryPage;
+                                        isFound = true;
+                                        return;
+                                    }
+                                });
+
+                                if (isFound) {
+                                    const splitFoundAbstract = foundAbstract.split(/Abstract/i).pop();
+                                    // console.log("\n",splitFoundAbstract, foundPage);
+                                    res.status(200).json({ foundAbstract: splitFoundAbstract, pageNumber: foundPage, fileName: uniqueFilePath });
+                                } else {
+                                    // Remove the file
+                                    fs.unlink(uniqueFilePath, (err) => {
+                                        if (err) {
+                                            console.error('Error deleting file:', err);
+                                        }
+                                    });
+                                    res.status(401).json({ message: "There is no abstract found! Check your PDF file and upload again!" });
+                                }
+                            })
+                            .catch(error => {
+                                res.status(401).json({ message: "Something went wrong!" });
+                                console.error('Error extracting text from PDF', error);
+                            });
+                    }
+                }
+            }
+        }
+
+    });
+});
 
 // ###################################################################################################################################################################################
 // #####################################################################  PROTECTED SIDE  ############################################################################################
@@ -166,6 +271,32 @@ app.post('/api/login', (req, res) => {
         });
     }
 });
+
+// ####################################################################################################################################################################################
+// ###########################################################      DOCUMENT UPLOAD AND RESPONSE      ###################################################################################
+// ####################################################################################################################################################################################
+// app.post('/plagiarize/document', verifyToken, (req, res) => {
+//     const { filename, id } = req.body;
+
+//     // validate
+//     const validationRules = [
+//         { validator: validator.isLength, options: { min: 1, max: 50 } }
+//     ]
+
+//     const sanitizeFileName = sanitizeAndValidate(filename, validationRules);
+//     const dataId = sanitizeAndValidate(id, validationRules);
+
+const filenamePath = 's.pdf';
+// const filenamePath = path.join('document upload', sanitizeFileName);
+
+processFile(filenamePath, (err, processedArray) => {
+    if (err) {
+        return res.status(401).send('Error processing file');
+    }
+
+    console.log(processedArray);
+});
+// });
 
 // ###################################################################################################################################################################################
 // #####################################################################  FETCH USER DATA  ############################################################################################
@@ -545,7 +676,7 @@ app.post('/api/add-courses', verifyToken, (req, res) => {
                         } else {
                             // insert notification
                             const insertNot = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
-                            db.query(insertNot, [sanitizeUserId, "Department", `You've successfully added ${courseDataName}`, currentDate], (error, results) => {
+                            db.query(insertNot, [sanitizeUserId, "Course", `You've successfully added ${courseDataName}`, currentDate], (error, results) => {
                                 if (error) {
                                     res.status(401).json({ message: "Server side error!" });
                                 } else {
@@ -585,14 +716,14 @@ app.post('/api/edit-courses', verifyToken, (req, res) => {
                 res.status(401).json({ message: "Server side error!" });
             } else {
                 if (results.length > 0) {
-                    res.status(401).json({ message: "Department is already exist!" });
+                    res.status(401).json({ message: "Course is already exist!" });
                 } else {
                     const updateCourses = `UPDATE courses SET course = ?, status = ? WHERE id = ?`;
                     db.query(updateCourses, [editCourseDataName, editCourseDataStatus, editCourseDataId], (error, results) => {
                         if (error) {
                             res.status(401).json({ message: "Server side error!" });
                         } else {
-                            res.status(200).json({ message: `Department has been successfully updated!` });
+                            res.status(200).json({ message: `Course has been successfully updated!` });
                         }
                     });
                 }
@@ -630,6 +761,148 @@ app.post('/api/delete-courses', verifyToken, (req, res) => {
                         res.status(401).json({ message: "Server side error!" });
                     } else {
                         res.status(200).json({ message: `${deleteCoursesName} has been successfully deleted!` });
+                    }
+                });
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH SCHOOL YEAR  ############################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-school-year', verifyToken, (req, res) => {
+    const getSchoolYear = `SELECT * FROM school_year WHERE isDelete = ?`;
+    db.query(getSchoolYear, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No school year found!" });
+            }
+        }
+    });
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  ADD SCHOOL YEAR  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/add-school-year', verifyToken, (req, res) => {
+    const { schollYearData, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const syName = sanitizeAndValidate(schollYearData.name, validationRules);
+    const syStatus = sanitizeAndValidate(schollYearData.status, validationRules);
+
+    if (!sanitizeUserId || !syName || !syStatus) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const select = `SELECT * FROM school_year WHERE school_year = ? AND isDelete = ?`;
+        db.query(select, [syName, "not"], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "School year is already exist!" });
+                } else {
+                    const addCourse = `INSERT INTO school_year (school_year, status, date) VALUES (?, ?, ?)`;
+                    db.query(addCourse, [syName, syStatus, currentDate], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            // insert notification
+                            const insertNot = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                            db.query(insertNot, [sanitizeUserId, "School Year", `You've successfully added ${syName}`, currentDate], (error, results) => {
+                                if (error) {
+                                    res.status(401).json({ message: "Server side error!" });
+                                } else {
+                                    res.status(200).json({ message: `${syName} has been successfully added!` });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  EDIT SCHOOL YEAR  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/edit-school-year', verifyToken, (req, res) => {
+    const { editSchoolYearData } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const editId = (editSchoolYearData.id).toString();
+
+    const editSYId = sanitizeAndValidate(editId, validationRules);
+    const editSY = sanitizeAndValidate(editSchoolYearData.name, validationRules);
+    const editSYStatus = sanitizeAndValidate(editSchoolYearData.status, validationRules);
+
+    if (!editSYId || !editSY || !editSYStatus) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const select = `SELECT * FROM school_year WHERE school_year = ? AND isDelete = ? AND id != ?`;
+        db.query(select, [editSY, "not", editSYId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "School year is already exist!" });
+                } else {
+                    const updateCourses = `UPDATE school_year SET school_year = ?, status = ? WHERE id = ?`;
+                    db.query(updateCourses, [editSY, editSYStatus, editSYId], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            res.status(200).json({ message: `School year has been successfully updated!` });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  DELETE SCHOOL YEAR  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/delete-school-year', verifyToken, (req, res) => {
+    const { deleteSchoolYear } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+    const deleteId = (deleteSchoolYear.id).toString();
+    const deleteSYId = sanitizeAndValidate(deleteId, validationRules);
+    const deleteSY = sanitizeAndValidate(deleteSchoolYear.name, validationRules);
+
+    if (!deleteSYId || !deleteSY) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const deleteC = `UPDATE school_year SET isDelete = ? WHERE id = ?`;
+        db.query(deleteC, ["Deleted", deleteSYId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                // insert notification
+                const insert = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                db.query(insert, [deleteSYId, "Delete School Year", `You've successfully deleted the ${deleteSY}`, currentDate], (error, results) => {
+                    if (error) {
+                        res.status(401).json({ message: "Server side error!" });
+                    } else {
+                        res.status(200).json({ message: `${deleteSY} has been successfully deleted!` });
                     }
                 });
             }

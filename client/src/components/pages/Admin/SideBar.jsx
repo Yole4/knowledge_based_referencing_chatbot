@@ -7,6 +7,7 @@ import { FaThList, FaUsers, FaUsersCog } from "react-icons/fa";
 import { RiNewspaperLine } from "react-icons/ri";
 import { FiArchive } from "react-icons/fi";
 import { IoSettingsOutline } from "react-icons/io5";
+import { MdDateRange } from "react-icons/md";
 
 // images
 import givenImage from '../../assets/images/given image.png';
@@ -142,6 +143,14 @@ function SideBar() {
                                     <i className="nav-icon"><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Courses
+                                    </p>
+                                </a>
+                            </li>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/school-year')}>
+                                <a className={location.pathname === '/school-year' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                                    <i className="nav-icon"><MdDateRange /></i>
+                                    <p style={{ marginLeft: '10px' }}>
+                                        School Year
                                     </p>
                                 </a>
                             </li>

@@ -11,12 +11,13 @@ import Home from "./components/pages/Home";
 import UsersList from "./components/pages/Admin/body/UsersList";
 import Settings from "./components/pages/Admin/body/Settings";
 import Undefine from "./components/pages/404/Undefine";
+import SchoolYear from "./components/pages/Admin/body/SchoolYear";
 
 // universal page
 import Projects from "./components/pages/universal page/Projects";
 import Welcome from "./components/pages/universal page/Welcome";
 import AboutUs from "./components/pages/universal page/AboutUs";
-import SubmitProject from "./components/pages/universal page/SubmitProject";
+import SubmitProject from "./components/pages/Admin/body/SubmitProject";
 
 // chatbot
 import Chatbot from "./components/pages/chatbot/Chatbot";
@@ -33,7 +34,7 @@ function Main() {
   const location = useLocation();
   // const isLogin = location.pathname === '/';
   const isUniversal = location.pathname === '/' || location.pathname === '/projects' || location.pathname === '/about-us' || location.pathname === '/submit-project';
-  const isAdmin = location.pathname === '/dashboard' || location.pathname === '/archive-list' || location.pathname === '/student-list' || location.pathname === '/users-list' || location.pathname === '/department-list' || location.pathname === "/settings" || location.pathname === '/curriculumn-list';
+  const isAdmin = location.pathname === '/dashboard' || location.pathname === '/archive-list' || location.pathname === '/student-list' || location.pathname === '/users-list' || location.pathname === '/department-list' || location.pathname === "/settings" || location.pathname === '/curriculumn-list' || location.pathname === "/school-year";
 
   return (
     <>
@@ -59,6 +60,7 @@ function Main() {
         <Route path="/curriculumn-list" element={<CurriculumnList />} />
         <Route path="/users-list" element={<UsersList />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/school-year" element={<SchoolYear />} />
 
         {/* Home */}
         <Route path="/" element={<Welcome />} />

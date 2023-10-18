@@ -498,7 +498,7 @@ function Home() {
                                     <a href="#" className={location.pathname === '/about-us' ? 'nav-link active' : 'nav-link'}>About Us</a>
                                 </li>
 
-                                {isLogin && (
+                                {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
                                     <li className="nav-item" onClick={() => navigate('/submit-project')}>
                                         <a href="#" className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</a>
                                     </li>
@@ -694,7 +694,7 @@ function Home() {
                                     <a className={location.pathname === '/about-us' ? 'nav-link hover-side' : 'nav-link'}><BiSolidUserVoice size={20} style={{ marginTop: '-3px' }} /> About Us</a>
                                 </li>
 
-                                {isLogin && (
+                                {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
                                     <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/submit-project')}>
                                         <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
                                     </li>

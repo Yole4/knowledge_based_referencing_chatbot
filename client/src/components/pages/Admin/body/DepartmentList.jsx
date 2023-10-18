@@ -276,7 +276,7 @@ function DepartmentList() {
                             <div className="card-header">
                                 <h3 className="card-title">List of Department</h3>
                                 <div className="card-tools">
-                                    <a href="#" className="btn btn-flat btn-sm btn-primary" onClick={() => setIsAddDepartment(true)}><span className="fas fa-plus" />  Add New Department</a>
+                                    <a href="#" className="btn btn-flat btn-sm btn-primary" onClick={() => setIsAddDepartment(true)}><span className="fas fa-plus" />  Add New <span className='department-text'>Department</span></a>
                                 </div>
                             </div>
                             <div className="card-body">

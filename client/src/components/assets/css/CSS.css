@@ -367,6 +367,10 @@
     border-radius: 4px;
 }
 
+.sy-p{
+    display: none;
+}
+
 /* .about-container {
     min-height: 100vh;
 } */
@@ -438,6 +442,10 @@
 @media screen and (max-width: 500px) {
     .explore {
         width: 89%;
+    }
+
+    .department-text{
+        display: none;
     }
 
     .department-modal{

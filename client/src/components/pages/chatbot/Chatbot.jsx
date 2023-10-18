@@ -1,34 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react'
 import '../../assets/css/Chatbot.css';
-// import '../../assets/js/js.js';
+import axios from 'axios';
+
+// backend url
+import BackendUrl from '../backend url/BackendURL';
 
 function Chatbot() {
+
+    const token = localStorage.getItem('token');
+    const backendUrl = BackendUrl();
 
     const [isChatbot, setIsChatbot] = useState(false);
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
-    const [chatbotResponse, setChatbotResponse] = useState("Sorry, I can't assist you today because my programmer is still in the process of enhancing my capabilities. If they make further progress, we can continue the conversation on another day. But in the meantime, if you have any concerns or need assistance, don't forget to keep a smile on your face! Good Luck 😊😉 (Eloy)");
 
-    const handleChat = (e) => {
+    const handleChat = async (e) => {
         e.preventDefault();
 
-        // const user = userInput.trim();
-        // if (!user) return;
-
         setMessages([...messages, { userMessage: userInput, botMessage: "..." }]);
-
-        // Simulate a response after a delay
-        setTimeout(() => {
-            if (userInput.toLowerCase() === "thank you" || userInput.toLowerCase() === "k" || userInput.toLowerCase() === "salamat") {
-                // setChatbotResponse('Your welcome!');
-                setMessages([...messages, { botMessage: "You'r Welcome!", userMessage: userInput }]);
-            }
-            else {
-                setMessages([...messages, { botMessage: chatbotResponse, userMessage: userInput }]);
-            }
-        }, 1000);
-
         setUserInput('');
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/chat-request`, {userInput}, {  
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200){
+                setTimeout(() => {
+                setMessages([...messages, { botMessage: response.data.message, userMessage: userInput }]);
+            }, 1000);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const chatRef = useRef(null);

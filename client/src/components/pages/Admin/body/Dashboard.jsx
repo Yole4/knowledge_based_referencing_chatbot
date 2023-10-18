@@ -8,7 +8,7 @@ import { FiArchive } from "react-icons/fi";
 import { TbArchiveOff } from "react-icons/tb";
 import { useNavigate } from 'react-router-dom';
 import BackendURL from '../../backend url/BackendURL';
-// import { TbArchiveOff } from "react-icons/tb";
+import { MdDateRange } from "react-icons/md";
 
 
 function Dashboard() {
@@ -150,6 +150,31 @@ function Dashboard() {
         fetchCourses();
     }, []);
 
+    // -----------------------------------------  FETCH SCHOOL YEAR -------------------------------------------------
+    const [schoolYearList, setSchoolYearList] = useState([]);
+    const [searchSchoolYear, setSearchSchoolYear] = useState('');
+
+    useEffect(() => {
+        const fetchSchoolYear = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-school-year`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setSchoolYearList(response.data.message);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchSchoolYear();
+    }, []);
+
     return (
         <div className="content-wrapper">
             <div className="content-header">
@@ -192,6 +217,18 @@ function Dashboard() {
                                     <i><RiNewspaperLine /></i>
                                 </div>
                                 <a href="#" className="small-box-footer" onClick={() => navigate('/curriculumn-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
+                            </div>
+                        </div>
+                        <div className="col-lg-3 col-6">
+                            <div className="small-box bg-info">
+                                <div className="inner">
+                                    <h3>{schoolYearList && schoolYearList.filter(item => item.status === 'Active').length}</h3>
+                                    <p>Active School Year</p>
+                                </div>
+                                <div className="icon">
+                                    <i><MdDateRange /></i>
+                                </div>
+                                <a href="#" className="small-box-footer" onClick={() => navigate('/department-list')}>More info <i className="fas fa-arrow-circle-right" /></a>
                             </div>
                         </div>
                         <div className="col-lg-3 col-6">
