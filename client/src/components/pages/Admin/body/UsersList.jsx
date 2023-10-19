@@ -8,7 +8,7 @@ import BackendURL from '../../backend url/BackendURL';
 import givenImage from '../../../assets/images/given image.png';
 
 // react icons
-import { BiSearch } from "react-icons/bi";
+import { ImSearch } from "react-icons/im";
 
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +18,6 @@ function UsersList() {
     const navigate = useNavigate();
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
-    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
     const [userChecker, setUserChecker] = useState(false);
 
     // -------------- Loading List ----------
@@ -26,6 +25,7 @@ function UsersList() {
     const [errorMessage, setErrorMessage] = useState('');
     const [isError, setIsError] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [onSearch, setOnSearch] = useState(false);
 
     // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
     const [userCredentials, setUserCredentials] = useState(null);
@@ -75,7 +75,7 @@ function UsersList() {
         } else {
             navigate('/');
         }
-    }, [token, autoFetchChecker]);
+    }, [token]);
 
 
     // ------------------------------   FETCH ALL USERS     -----------------------------------
@@ -241,57 +241,67 @@ function UsersList() {
                         </div>
                     </div>
                 </div>
-                <section className="content " style={{ height: 'auto' }}>
+                <section className="content ">
                     <div className="container-fluid">
                         <div className="card card-outline card-primary">
                             <div className="card-header" style={{ display: 'flex' }}>
                                 <h3 className="card-title" style={{ color: 'darkblue', fontWeight: 'bold' }}>List of Students</h3>
-                                <input className="form-control " type="search" placeholder="Search" value={usersAccountSearch} onChange={(e) => setUsersAccountSearch(e.target.value)} style={{ width: '200px', paddingLeft: '28px', position: 'absolute', right: '15px', height: '30px', marginTop: '-5px' }} />
-                                <BiSearch size={20} style={{ position: 'absolute', right: '190px' }} />
+                                <ImSearch size={25} className='search-bar search-right' style={{ marginTop: '0px' }} onClick={() => setOnSearch(onSearch ? false : true)} />
+                                <input onClick={(e) => e.stopPropagation()} placeholder='Search...' value={usersAccountSearch} onChange={(e) => setUsersAccountSearch(e.target.value)} className='search-input' type="text" style={{ marginTop: '27px', display: onSearch ? 'block' : 'none' }} />
                             </div>
-                            <div className="card-body">
+                            <div className="card-body" style={{ height: 'auto' }}>
                                 <div className="container-fluid">
-                                    <div style={{ maxHeight: '70vh', overflow: 'auto' }}>
-                                        <table className="table table-hover table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Avatar</th>
-                                                    <th>Name</th>
-                                                    <th>Username</th>
-                                                    <th>User Type</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {usersAccountToSearch.length === 0 ? (
-                                                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
-                                                        <span>No Student Account found!</span>
-                                                    </div>
-                                                ) : (
-                                                    usersAccountToSearch.map((item, index) => (
-                                                        <tr>
-                                                            <td className="text-center">{index + 1}</td>
-                                                            <td className="text-center"><img src={`${backendUrl}/${item.image}`} style={{ height: '40px', borderRadius: '50%' }} className="img-avatar img-thumbnail p-0 border-2" alt="user_avatar" /></td>
-                                                            <td>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</td>
-                                                            <td><p className="m-0 truncate-1">{item.username}</p></td>
-                                                            <td><p className="m-0">{item.user_type}</p></td>
-                                                            <td align="center">
-                                                                <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                                    Action
-                                                                    <span className="sr-only">Toggle Dropdown</span>
-                                                                </button>
-                                                                <div className="dropdown-menu" role="menu">
-                                                                    <a className="dropdown-item" href="#" onClick={() => handleEdit(item)}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                                    <div className="dropdown-divider" />
-                                                                    <a className="dropdown-item delete_data" href="#" onClick={() => handleDelete(item)}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                )}
-                                            </tbody>
-                                        </table>
+                                    <div className="container-fluid">
+                                        <div style={{ maxHeight: '70vh', overflow: 'auto' }}>
+                                            <table className="table table-hover table-striped">
+                                                <colgroup>
+                                                    <col width="5%" />
+                                                    <col width="15%" />
+                                                    <col width="20%" />
+                                                    <col width="20%" />
+                                                    <col width="10%" />
+                                                    <col width="10%" />
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Avatar</th>
+                                                        <th>Name</th>
+                                                        <th>Username</th>
+                                                        <th>User Type</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {usersAccountToSearch.length === 0 ? (
+                                                        <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
+                                                            <span>No Student Account found!</span>
+                                                        </div>
+                                                    ) : (
+                                                        usersAccountToSearch.map((item, index) => (
+                                                            <tr>
+                                                                <td className="text-center">{index + 1}</td>
+                                                                <td className="text-center"><img src={`${backendUrl}/${item.image}`} style={{ height: '40px', borderRadius: '50%' }} className="img-avatar img-thumbnail p-0 border-2" alt="user_avatar" /></td>
+                                                                <td>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</td>
+                                                                <td><p className="m-0 truncate-1">{item.username}</p></td>
+                                                                <td><p className="m-0">{item.user_type}</p></td>
+                                                                <td align="center">
+                                                                    <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                                                                        Action
+                                                                        <span className="sr-only">Toggle Dropdown</span>
+                                                                    </button>
+                                                                    <div className="dropdown-menu" role="menu">
+                                                                        <a className="dropdown-item" href="#" onClick={() => handleEdit(item)}><span className="fa fa-edit text-primary" /> Edit</a>
+                                                                        <div className="dropdown-divider" />
+                                                                        <a className="dropdown-item delete_data" href="#" onClick={() => handleDelete(item)}><span className="fa fa-trash text-danger" /> Delete</a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

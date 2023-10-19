@@ -165,6 +165,15 @@
 }
 
 /* --------------------- popup modal ----------------------- */
+.chatbot-container{
+    background: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
 .popup {
     position: fixed;
     background: rgba(0, 0, 0, 0.6);
@@ -271,6 +280,13 @@
     color: rgb(136, 132, 132);
 }
 
+.modal-pop-up-chatbot-loading{
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-75%, -50%);
+}
+
 .modal-pop-up-loading {
     position: fixed;
     transform: translate(-50%, -50%);
@@ -371,6 +387,14 @@
     display: none;
 }
 
+.search-width{
+    width: 200px;
+    padding-left: 28px;
+    position: absolute;
+    right: 15px;
+    height: 30px;
+    margin-top: -5px
+}
 /* .about-container {
     min-height: 100vh;
 } */
@@ -437,11 +461,15 @@
     }
 }
 
-/* ---------------------------------- 500px ------------------------------ */
+/* ---------------------------------- 600px ------------------------------ */
 
 @media screen and (max-width: 500px) {
     .explore {
         width: 89%;
+    }
+
+    .search-right{
+        right: 15px;
     }
 
     .department-text{

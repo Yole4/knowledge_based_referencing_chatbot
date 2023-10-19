@@ -134,12 +134,11 @@ body{
     height: 55px;
     line-height: 55px;
     cursor: pointer;
-    visibility: hidden;
 }
 
-.chat-input input:valid ~ span {
+/* .chat-input input:valid ~ span {
     visibility: visible;
-}
+} */
 
 .chatbot-toggler{
     position: fixed;

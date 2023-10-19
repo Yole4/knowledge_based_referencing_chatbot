@@ -13,7 +13,6 @@ function Settings() {
     const navigate = useNavigate();
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
-    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
     const [updateChecker, setUpdateChecker] = useState(false);
 
     // -------------- Loading List ----------
@@ -71,7 +70,7 @@ function Settings() {
         } else {
             navigate('/');
         }
-    }, [token, autoFetchChecker]);
+    }, [token]);
 
     // --------------------------    UPDATE SETTINGS   --------------------------
     const [settings, setSettings] = useState({

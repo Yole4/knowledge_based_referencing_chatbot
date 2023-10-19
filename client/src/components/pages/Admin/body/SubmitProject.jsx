@@ -21,6 +21,10 @@ function SubmitProject() {
             const reader = new FileReader();
 
             reader.onload = (e) => {
+                setSubmitThesisAndCapstone({
+                    ...submitThesisAndCapstone,
+                    bannerImage: selectedImage,
+                });
                 setImagePreview(e.target.result);
             };
 
@@ -86,8 +90,17 @@ function SubmitProject() {
 
     // ------------------------------------------- HANDLE SUBMIT ----------------------------------------------
     const [archiveFile, setArchiveFile] = useState(null);
-    const [foundAbstract, setFoundAbstract] = useState('');
-    const [pageNumber, setPageNumber] = useState(null);
+    const [submitThesisAndCapstone, setSubmitThesisAndCapstone] = useState({
+        foundAbstract: '',
+        pageNumber: '',
+        fileName: '',
+        department: '',
+        course: '',
+        schoolYear: '',
+        projectTitle: '',
+        members: '',
+        bannerImage: null
+    });
 
     // ------- get the abstract -----------
     useEffect(() => {
@@ -98,19 +111,22 @@ function SubmitProject() {
                 data.append('archiveFile', archiveFile);
 
                 try {
-                    const response = await axios.post(`${backendUrl}/api/submit-archive`, data, {
+                    const response = await axios.post(`${backendUrl}/api/scan-document`, data, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
                     });
                     if (response.status === 200) {
-                        setFoundAbstract(response.data.foundAbstract);
-                        setPageNumber(response.data.pageNumber);
+                        setSubmitThesisAndCapstone((prev) => ({ ...prev, foundAbstract: response.data.foundAbstract }));
+                        setSubmitThesisAndCapstone((prev) => ({ ...prev, pageNumber: response.data.pageNumber }));
+                        setSubmitThesisAndCapstone((prev) => ({ ...prev, fileName: response.data.fileName }));
                         setIsLoading(false);
                     }
                 } catch (error) {
                     setIsLoading(false);
-                    setFoundAbstract('');
+                    setSubmitThesisAndCapstone((prev) => ({ ...prev, foundAbstract: '' }));
+                    setSubmitThesisAndCapstone((prev) => ({ ...prev, pageNumber: '' }));
+                    setSubmitThesisAndCapstone((prev) => ({ ...prev, fileName: '' }));
                     console.log("error: ", error);
                     if (error.response && error.response.status === 401) {
                         console.log(error.response.data.message);
@@ -123,7 +139,67 @@ function SubmitProject() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
+        if (submitThesisAndCapstone.pageNumber !== '' && submitThesisAndCapstone.foundAbstract !== '' && submitThesisAndCapstone.fileName !== '') {
+
+            const submitData = new FormData();
+            submitData.append('userId', (userCredentials.id).toString());
+            for (const key in submitThesisAndCapstone) {
+                if (submitThesisAndCapstone[key] !== null) {
+                    submitData.append(key, submitThesisAndCapstone[key]);
+                }
+            }
+
+            try {
+                const response = await axios.post(`${backendUrl}/api/submit-archive-file`, submitData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setErrorMessage(response.data.message);
+                    setIsSuccess(true);
+
+                    setSubmitThesisAndCapstone({
+                        foundAbstract: '',
+                        pageNumber: '',
+                        fileName: '',
+                        department: '',
+                        course: '',
+                        schoolYear: '',
+                        projectTitle: '',
+                        members: '',
+                        bannerImage: null
+                    });
+
+                    setTimeout(() => {
+                        setIsSuccess(false);
+                    }, 5000);
+                }
+            } catch (error) {
+                setIsLoading(false);
+                if (error.response && error.response.status === 401) {
+                    setErrorMessage(error.response.data.message);
+                    setIsError(true);
+
+                    setTimeout(() => {
+                        setIsError(false);
+                    }, 5000);
+                } else {
+                    console.log('Error: ', error);
+                }
+            }
+        } else {
+            setIsLoading(false);
+            setErrorMessage('No Abstract found on your PDF file! Check your PDF file and upload again!');
+            setIsError(true);
+
+            setTimeout(() => {
+                setIsError(false);
+            }, 5000);
+        }
     };
 
     // -----------------------------------------  FETCH DEPARTMENT -------------------------------------------------
@@ -219,7 +295,7 @@ function SubmitProject() {
                                                 <div className="col-lg-12">
                                                     <div className="form-group">
                                                         <label htmlFor="year" className="control-label text-navy">Department</label>
-                                                        <select id="year" className="form-control form-control-border" required>
+                                                        <select id="year" className="form-control form-control-border" value={submitThesisAndCapstone.department} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, department: e.target.value }))} required>
                                                             <option value="" selected disabled>Select Department</option>
                                                             {departmentList && departmentList.map(item => (
                                                                 <option key={item.id} value={item.name}>{item.name}</option>
@@ -232,7 +308,7 @@ function SubmitProject() {
                                                 <div className="col-lg-12">
                                                     <div className="form-group">
                                                         <label htmlFor="year" className="control-label text-navy">Course</label>
-                                                        <select id="year" className="form-control form-control-border" required>
+                                                        <select id="year" className="form-control form-control-border" value={submitThesisAndCapstone.course} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, course: e.target.value }))} required>
                                                             <option value="" selected disabled>Select Course</option>
                                                             {coursesList && coursesList.map(item => (
                                                                 <option key={item.id} value={item.course}>{item.course}</option>
@@ -246,7 +322,7 @@ function SubmitProject() {
                                                     <div className="form-group">
                                                         <label htmlFor="title" className="control-label text-navy">Project
                                                             Title</label>
-                                                        <input type="text" placeholder='Project Title...' className="form-control form-control-border" />
+                                                        <input type="text" placeholder='Project Title...' value={submitThesisAndCapstone.projectTitle} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, projectTitle: e.target.value }))} className="form-control form-control-border" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -254,7 +330,7 @@ function SubmitProject() {
                                                 <div className="col-lg-12">
                                                     <div className="form-group">
                                                         <label htmlFor="year" className="control-label text-navy">School Year</label>
-                                                        <select id="year" className="form-control form-control-border" required >
+                                                        <select id="year" className="form-control form-control-border" value={submitThesisAndCapstone.schoolYear} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, schoolYear: e.target.value }))} required >
                                                             <option value="" selected disabled>Select School Year</option>
                                                             {schoolYearList && schoolYearList.map(item => (
                                                                 <option key={item.id} value={item.school_year}>{item.school_year}</option>
@@ -268,7 +344,7 @@ function SubmitProject() {
                                                     <div className="form-group">
                                                         <label htmlFor="members" className="control-label text-navy">Project
                                                             Members</label>
-                                                        <input type="text" placeholder="e.g. Mr. Programmer," className="form-control form-control-border summernote-list-only" required />
+                                                        <input type="text" placeholder="e.g. Mr. Programmer," value={submitThesisAndCapstone.members} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, members: e.target.value }))} className="form-control form-control-border summernote-list-only" required />
                                                     </div>
                                                 </div>
                                             </div>
@@ -293,11 +369,11 @@ function SubmitProject() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row" style={{ display: foundAbstract ? 'block' : 'none' }}>
+                                            <div class="row" style={{ display: submitThesisAndCapstone.foundAbstract ? 'block' : 'none' }}>
                                                 <div class="col-lg-12">
                                                     <div class="form-group">
                                                         <label for="abstract" class="control-label text-navy">Abstract</label>
-                                                        <textarea rows="15" value={foundAbstract} placeholder="abstract" class="form-control form-control-border summernote" required></textarea>
+                                                        <textarea rows="15" value={submitThesisAndCapstone.foundAbstract} placeholder="abstract" class="form-control form-control-border summernote"></textarea>
                                                     </div>
                                                 </div>
                                             </div>

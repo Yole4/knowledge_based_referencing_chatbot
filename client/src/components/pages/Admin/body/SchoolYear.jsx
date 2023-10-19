@@ -14,7 +14,6 @@ function SchoolYear() {
     const [isDelete, setIsDelete] = useState(false);
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
-    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
     const [addSchoolYearChecker, setAddSchoolYearChecker] = useState(false);
 
     // -------------- Loading List ----------
@@ -71,7 +70,7 @@ function SchoolYear() {
         } else {
             navigate('/');
         }
-    }, [token, autoFetchChecker]);
+    }, [token]);
 
     // -----------------------------------------  ADD SCHOOL YEAR -------------------------------------------------  
     const [schollYearData, setSchoolYearData] = useState({

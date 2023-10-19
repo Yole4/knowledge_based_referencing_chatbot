@@ -14,7 +14,6 @@ function DepartmentList() {
     const [isDelete, setIsDelete] = useState(false);
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
-    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
     const [addDepartmentChecker, setAddDepartmentChecker] = useState(false);
 
     // -------------- Loading List ----------
@@ -71,7 +70,7 @@ function DepartmentList() {
         } else {
             navigate('/');
         }
-    }, [token, autoFetchChecker]);
+    }, [token]);
 
     // -----------------------------------------  ADD DEPARTMENT -------------------------------------------------  
     const [departmentData, setDepartmentData] = useState({

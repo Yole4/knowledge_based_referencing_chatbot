@@ -14,7 +14,6 @@ function CurriculumnList() {
     const [isDelete, setIsDelete] = useState(false);
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
-    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
     const [addCoursesChecker, setAddCoursesChecker] = useState(false);
 
     // -------------- Loading List ----------
@@ -71,7 +70,7 @@ function CurriculumnList() {
         } else {
             navigate('/');
         }
-    }, [token, autoFetchChecker]);
+    }, [token]);
 
     // -----------------------------------------  ADD Courses -------------------------------------------------  
     const [courseData, setCoursesData] = useState({

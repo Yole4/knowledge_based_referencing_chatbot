@@ -16,9 +16,6 @@ function Dashboard() {
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
 
-    // --------------------    MOUNT AFTER EXECUTION   ----------------------
-    const [autoFetchChecker, setAutoFetchChecker] = useState(false);
-
     // -------------- Loading List ----------
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -73,7 +70,7 @@ function Dashboard() {
         } else {
             navigate('/');
         }
-    }, [token, autoFetchChecker]);
+    }, [token]);
 
     // ------------------------------   FETCH ALL USERS     -----------------------------------
     const [usersAccount, setUsersAccount] = useState([]);

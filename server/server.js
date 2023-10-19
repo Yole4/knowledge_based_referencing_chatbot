@@ -17,12 +17,14 @@ const db = require('./utils/database/DatabaseConnection'); // database
 const { verifyToken } = require('./utils/auth/AuthVerify'); // verify token
 const getCurrentFormattedDate = require('./utils/current date/CurrentData');
 
-// import document checker
-// const { processFile } = require('./utils/scan document/ScanDocument');
+// import document Scanner
+const { processFile } = require('./utils/scan document/ScanDocument');
 // import naive bayes
 const { createChatbot } = require('./utils/scan document/NaiveBayes');
 // import double hashing
 const { createHashTable } = require('./utils/scan document/DoubleHashing');
+// import bad words
+const { BadWords } = require('./utils/scan document/BadWords');
 
 const app = express();
 
@@ -47,92 +49,111 @@ app.post('/api/chat-request', verifyToken, (req, res) => {
     }
 
     const chatRequest = createChatbot();
+    const badWords = BadWords();
 
-    const chat = chatRequest(userInput);
+    let isChatBotResponse = false;
 
-    if (chat) {
-        res.status(200).json({ message: chat });
+    // check if the user input contains bad words
+    const checkUserInput = badWords.map((item) => {
+        const userInputArray = userInput.split(' ');
+
+        const mapUserInput = userInputArray.map(userInputItem => {
+            if (item.toLowerCase() === userInputItem.toLowerCase()) {
+                isChatBotResponse = true;
+            }
+        });
+    });
+
+    if (isChatBotResponse) {
+        res.status(200).json({ message: "Sorry, But I'm unable to provide or discuss content that includes inappropriate or offensive language." });
     } else {
-        res.status(403).json('403');
+        const chat = chatRequest(userInput);
+
+        if (chat) {
+            res.status(200).json({ message: chat });
+        } else {
+            res.status(403).json('403');
+        }
     }
+
 });
 
 // ###################################################################################################################################################################################
 // #####################################################################  SCAN DOCUMENT  ############################################################################################
 // ###################################################################################################################################################################################
-// const documentUpload = multer({
-//     dest: 'assets/archive files/',
-// });
+const documentUpload = multer({
+    dest: 'assets/archive files/',
+});
 
-// app.post('/api/submit-archive', verifyToken, documentUpload.single('archiveFile'), (req, res) => {
-//     const originalFileName = req.file.originalname;
+app.post('/api/scan-document', verifyToken, documentUpload.single('archiveFile'), (req, res) => {
+    const originalFileName = req.file.originalname;
 
-//     const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
-//     const uniqueFilePath = `assets/archive files/${uniqueFileName}`;
+    const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+    const uniqueFilePath = `assets/archive files/${uniqueFileName}`;
 
-//     fs.rename(req.file.path, uniqueFilePath, (err) => {
-//         if (err) {
-//             res.status(401).json({ message: "Error moving the upload file!" });
-//         }
+    fs.rename(req.file.path, uniqueFilePath, (err) => {
+        if (err) {
+            res.status(401).json({ message: "Error moving the upload file!" });
+        }
 
-//         else {
-//             const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
-//             if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
-//                 return res.status(401).send({ message: "Invalid File Name!" });
-//             }
-//             else {
-//                 if (req.file.size > 5242880) {
-//                     res.status(401).json({ message: "File is too large!" });
-//                 }
-//                 else {
-//                     // Check if the uploaded file has a PDF or DOCX extension
-//                     const mimeType = mime.lookup(sanitizedFileName);
-//                     if (mimeType !== 'application/pdf') {
-//                         res.status(401).json({ message: "Invalid file type! Accepted file PDF and Docx extension." })
-//                     }
-//                     else {
-//                         let isFound = false;
-//                         let foundPage = 0, foundAbstract = '';
+        else {
+            const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+            if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                return res.status(401).send({ message: "Invalid File Name!" });
+            }
+            else {
+                if (req.file.size > 5242880) {
+                    res.status(401).json({ message: "File is too large!" });
+                }
+                else {
+                    // Check if the uploaded file has a PDF or DOCX extension
+                    const mimeType = mime.lookup(sanitizedFileName);
+                    if (mimeType !== 'application/pdf') {
+                        res.status(401).json({ message: "Invalid file type! Accepted file PDF and Docx extension." })
+                    }
+                    else {
+                        let isFound = false;
+                        let foundPage = 0, foundAbstract = '';
 
-//                         processFile(uniqueFilePath)
-//                             .then(pageTexts => {
-//                                 pageTexts.forEach((pageText, pageNum) => {
-//                                     const pageNumber = pageNum;
-//                                     const contentEveryPage = pageText.replace(/\s+/g, ' ');
+                        processFile(uniqueFilePath)
+                            .then(pageTexts => {
+                                pageTexts.forEach((pageText, pageNum) => {
+                                    const pageNumber = pageNum;
+                                    const contentEveryPage = pageText.replace(/\s+/g, ' ');
 
-//                                     if ((contentEveryPage).toLowerCase().includes("abstract")) {
-//                                         foundPage = pageNumber;
-//                                         foundAbstract = contentEveryPage;
-//                                         isFound = true;
-//                                         return;
-//                                     }
-//                                 });
+                                    if ((contentEveryPage).toLowerCase().includes("abstract")) {
+                                        foundPage = pageNumber;
+                                        foundAbstract = contentEveryPage;
+                                        isFound = true;
+                                        return;
+                                    }
+                                });
 
-//                                 if (isFound) {
-//                                     const splitFoundAbstract = foundAbstract.split(/Abstract/i).pop();
-//                                     // console.log("\n",splitFoundAbstract, foundPage);
-//                                     res.status(200).json({ foundAbstract: splitFoundAbstract, pageNumber: foundPage, fileName: uniqueFilePath });
-//                                 } else {
-//                                     // Remove the file
-//                                     fs.unlink(uniqueFilePath, (err) => {
-//                                         if (err) {
-//                                             console.error('Error deleting file:', err);
-//                                         }
-//                                     });
-//                                     res.status(401).json({ message: "There is no abstract found! Check your PDF file and upload again!" });
-//                                 }
-//                             })
-//                             .catch(error => {
-//                                 res.status(401).json({ message: "Something went wrong!" });
-//                                 console.error('Error extracting text from PDF', error);
-//                             });
-//                     }
-//                 }
-//             }
-//         }
+                                if (isFound) {
+                                    const splitFoundAbstract = foundAbstract.split(/Abstract/i).pop();
+                                    // console.log("\n",splitFoundAbstract, foundPage);
+                                    res.status(200).json({ foundAbstract: splitFoundAbstract, pageNumber: foundPage + 1, fileName: uniqueFilePath });
+                                } else {
+                                    // Remove the file
+                                    fs.unlink(uniqueFilePath, (err) => {
+                                        if (err) {
+                                            console.error('Error deleting file:', err);
+                                        }
+                                    });
+                                    res.status(401).json({ message: "There is no abstract found! Check your PDF file and upload again!" });
+                                }
+                            })
+                            .catch(error => {
+                                res.status(401).json({ message: "Something went wrong!" });
+                                console.error('Error extracting text from PDF', error);
+                            });
+                    }
+                }
+            }
+        }
 
-//     });
-// });
+    });
+});
 
 // ###################################################################################################################################################################################
 // #####################################################################  PROTECTED SIDE  ############################################################################################
@@ -273,19 +294,168 @@ app.post('/api/login', (req, res) => {
 });
 
 // ####################################################################################################################################################################################
-// ###########################################################      DOCUMENT UPLOAD AND RESPONSE      ###################################################################################
+// ###########################################################      SUBMIT THESIS AND CAPS      ###################################################################################
 // ####################################################################################################################################################################################
-// app.post('/plagiarize/document', verifyToken, (req, res) => {
-//     const { filename, id } = req.body;
+const uploadBannerImage = multer({
+    dest: 'assets/banner image/',
+});
 
-//     // validate
+app.post('/api/submit-archive-file', verifyToken, uploadBannerImage.single('bannerImage'), (req, res) => {
+    const { foundAbstract, pageNumber, fileName, department, course, schoolYear, projectTitle, members, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1 } },
+    ];
+
+    const submitFoundAbstract = sanitizeAndValidate(foundAbstract, validationRules);
+    const submitPageNumber = sanitizeAndValidate(pageNumber, validationRules);
+    const submitFileName = sanitizeAndValidate(fileName, validationRules);
+    const submitDepartment = sanitizeAndValidate(department, validationRules);
+    const submitCourse = sanitizeAndValidate(course, validationRules);
+    const submitSchoolYear = sanitizeAndValidate(schoolYear, validationRules);
+    const submitProjectTitle = sanitizeAndValidate(projectTitle, validationRules);
+    const submitMembers = sanitizeAndValidate(members, validationRules);
+    const sanitizeId = sanitizeAndValidate(userId, validationRules);
+
+    if (!submitFoundAbstract || !submitPageNumber || !submitFileName || !submitDepartment || !submitCourse || !submitSchoolYear || !submitProjectTitle || !submitMembers || !sanitizeId) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const originalFileName = req.file.originalname;
+        const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+        const uniqueFilePath = `assets/banner image/${uniqueFileName}`;
+
+        const typeMime = mime.lookup(originalFileName);
+
+        if ((typeMime === 'image/png') || (typeMime === 'image/jpeg')) {
+            fs.rename(req.file.path, uniqueFilePath, (err) => {
+                if (err) {
+                    res.status(401).json({ message: "Error to upload file" });
+                } else {
+                    const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+                    if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                        return res.status(401).send({ message: "Invalid File Name!" });
+                    }
+                    else {
+                        const insertNew = `INSERT INTO archive_files (abstract, page_number, file_path, department, course, school_year, project_title, members, image_banner, date) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+                        db.query(insertNew,[submitFoundAbstract, submitPageNumber, submitFileName, submitDepartment, submitCourse, submitSchoolYear, submitProjectTitle, submitMembers, uniqueFilePath, currentDate], (error, results) => {
+                            if (error) {
+                                res.status(401).json({message: "Server side error!"});
+                            }else{
+                                // insert notification
+                                const insertNotification = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ? ,?)`;
+                                db.query(insertNotification, [sanitizeId, "Add Project", `You've successfully added ${submitProjectTitle} to archive`, currentDate], (error, results) => {
+                                    if (error){
+                                        res.status(401).json({message: "Server side error!"});
+                                    }else{
+                                        res.status(200).json({message: `${submitProjectTitle} has been successfully added!`});
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        else {
+            res.status(401).json({ message: "Invalid Image Type!" });
+        }
+    }
+
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH ARCHIVE FILE  ############################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-archive-files', verifyToken, (req, res) => {
+    const getArchive = `SELECT * FROM archive_files WHERE isDelete = ?`;
+    db.query(getArchive, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No Archive found!" });
+            }
+        }
+    });
+});
+
+// // ###################################################################################################################################################################################
+// // #####################################################################  EDIT ARCHIVE FILE  ############################################################################################
+// // ###################################################################################################################################################################################
+// app.post('/api/edit-archive-file', verifyToken, (req, res) => {
+//     const { editCourseData } = req.body;
+
 //     const validationRules = [
-//         { validator: validator.isLength, options: { min: 1, max: 50 } }
-//     ]
+//         { validator: validator.isLength, options: { min: 1, max: 255 } },
+//     ];
 
-//     const sanitizeFileName = sanitizeAndValidate(filename, validationRules);
-//     const dataId = sanitizeAndValidate(id, validationRules);
+//     const editId = (editCourseData.id).toString();
 
+//     const editCourseDataId = sanitizeAndValidate(editId, validationRules);
+//     const editCourseDataName = sanitizeAndValidate(editCourseData.name, validationRules);
+//     const editCourseDataStatus = sanitizeAndValidate(editCourseData.status, validationRules);
+
+//     if (!editCourseDataId || !editCourseDataName || !editCourseDataStatus) {
+//         res.status(401).json({ message: "Invalid Input!" });
+//     } else {
+//         const select = `SELECT * FROM courses WHERE course = ? AND isDelete = ? AND id != ?`;
+//         db.query(select, [editCourseDataName, "not", editCourseDataId], (error, results) => {
+//             if (error) {
+//                 res.status(401).json({ message: "Server side error!" });
+//             } else {
+//                 if (results.length > 0) {
+//                     res.status(401).json({ message: "Course is already exist!" });
+//                 } else {
+//                     const updateCourses = `UPDATE courses SET course = ?, status = ? WHERE id = ?`;
+//                     db.query(updateCourses, [editCourseDataName, editCourseDataStatus, editCourseDataId], (error, results) => {
+//                         if (error) {
+//                             res.status(401).json({ message: "Server side error!" });
+//                         } else {
+//                             res.status(200).json({ message: `Course has been successfully updated!` });
+//                         }
+//                     });
+//                 }
+//             }
+//         });
+//     }
+
+// });
+
+// // ###################################################################################################################################################################################
+// // #####################################################################  DELETE CAPS AND THESIS  ############################################################################################
+// // ###################################################################################################################################################################################
+// app.post('/api/delete-archive-file', verifyToken, (req, res) => {
+//     const { deleteCourses } = req.body;
+
+//     const validationRules = [
+//         { validator: validator.isLength, options: { min: 1, max: 50 } },
+//     ];
+//     const deleteId = (deleteCourses.id).toString();
+//     const deleteCoursesId = sanitizeAndValidate(deleteId, validationRules);
+//     const deleteCoursesName = sanitizeAndValidate(deleteCourses.name, validationRules);
+
+//     if (!deleteCoursesId || !deleteCoursesName) {
+//         res.status(401).json({ message: "Invalid Input!" });
+//     } else {
+//         const deleteC = `UPDATE courses SET isDelete = ? WHERE id = ?`;
+//         db.query(deleteC, ["Deleted", deleteCoursesId], (error, results) => {
+//             if (error) {
+//                 res.status(401).json({ message: "Server side error!" });
+//             } else {
+//                 // insert notification
+//                 const insert = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+//                 db.query(insert, [deleteCoursesId, "Delete Course", `You've successfully deleted the ${deleteCoursesName}`, currentDate], (error, results) => {
+//                     if (error) {
+//                         res.status(401).json({ message: "Server side error!" });
+//                     } else {
+//                         res.status(200).json({ message: `${deleteCoursesName} has been successfully deleted!` });
+//                     }
+//                 });
+//             }
+//         });
+//     }
 // });
 
 // ###################################################################################################################################################################################
