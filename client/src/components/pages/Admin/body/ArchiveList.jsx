@@ -284,7 +284,7 @@ function ArchiveList() {
                                                                         Action
                                                                     </button>
                                                                     <div class="dropdown-menu" role="menu">
-                                                                        <a class="dropdown-item" style={{ cursor: 'pointer' }}><span class="fa fa-external-link-alt text-gray"></span> View</a>
+                                                                        <a class="dropdown-item" onClick={() => navigate(`/view-project/${1000 + item.id}`)} style={{ cursor: 'pointer' }}><span class="fa fa-external-link-alt text-gray"></span> View</a>
                                                                         <div class="dropdown-divider"></div>
                                                                         <a class="dropdown-item update_status" style={{ cursor: 'pointer' }} onClick={() => buttonEditArchive(item)}><span class="fa fa-check text-dark"></span> Update Status</a>
                                                                         <div class="dropdown-divider"></div>
@@ -307,62 +307,70 @@ function ArchiveList() {
             </div>
 
             {/* ==============  EDIT ARCHIVE ================== */}
-            <div className="popup" style={{ display: isEditArchive ? 'block' : 'none' }}>
-                <div className='department-modal' style={{ animation: isEditArchive ? 'animateCenter 0.3s linear' : '' }}>
-                    <h5>Edit Status</h5>
-                    <hr />
-                    <div className="container-fluid">
-                        <form onSubmit={handleEditArchive}>
-                            <div className="form-group" style={{ marginBottom: '30px' }}>
-                                <label htmlFor className="control-label">Status</label>
-                                <select name="status" id="status" className="form-control form-control-border" value={editArchiveData.status} onChange={(e) => setEditArchiveData((prev) => ({ ...prev, status: e.target.value }))} required>
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="Published">Published</option>
-                                    <option value="UnPublish">UnPublish</option>
-                                </select>
-                            </div>
-                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditArchive(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Update</button>
-                            </div>
-                        </form>
+            {isEditArchive && (
+                <div className="popup">
+                    <div className='department-modal' style={{ animation: isEditArchive ? 'animateCenter 0.3s linear' : '' }}>
+                        <h5>Edit Status</h5>
+                        <hr />
+                        <div className="container-fluid">
+                            <form onSubmit={handleEditArchive}>
+                                <div className="form-group" style={{ marginBottom: '30px' }}>
+                                    <label htmlFor className="control-label">Status</label>
+                                    <select name="status" id="status" className="form-control form-control-border" value={editArchiveData.status} onChange={(e) => setEditArchiveData((prev) => ({ ...prev, status: e.target.value }))} required>
+                                        <option value="" selected disabled>Select Status</option>
+                                        <option value="Published">Published</option>
+                                        <option value="UnPublish">UnPublish</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditArchive(false)}>Cancel</button>
+                                    <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Update</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* -----------------------DELETE CONFIRMATION---------------------- */}
-            <div className="popup" style={{ visibility: isDelete ? 'visible' : 'hidden' }}>
-                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            {isDelete && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-                    <div className="popup-edit">
-                        <h5>Delete?</h5>
-                    </div>
-                    <hr />
-                    <div className='form-div'>
-                        <span>Are you sure you wan't to Delete {editArchiveData.projectTitle}?</span>
-                    </div>
+                        <div className="popup-edit">
+                            <h5>Delete?</h5>
+                        </div>
+                        <hr />
+                        <div className='form-div'>
+                            <span>Are you sure you wan't to Delete {editArchiveData.projectTitle}?</span>
+                        </div>
 
-                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={handleDeleteArchive}>Delete</button>
+                        <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={handleDeleteArchive}>Delete</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Loading div */}
-            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                <div>
-                    <h5>{errorMessage}</h5>
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     )
 }

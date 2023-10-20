@@ -185,12 +185,14 @@ function ViewProject() {
             </section >
 
             {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
         </>
     )

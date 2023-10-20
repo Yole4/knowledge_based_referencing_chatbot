@@ -18,7 +18,7 @@ const { verifyToken } = require('./utils/auth/AuthVerify'); // verify token
 const getCurrentFormattedDate = require('./utils/current date/CurrentData');
 
 // import document Scanner
-// const { processFile } = require('./utils/scan document/ScanDocument');
+const { processFile } = require('./utils/scan document/ScanDocument');
 // import naive bayes
 const { createChatbot } = require('./utils/scan document/NaiveBayes');
 // import double hashing
@@ -48,8 +48,8 @@ app.post('/api/chat-request', verifyToken, (req, res) => {
         res.status(404).json('404');
     }
 
-    const chatRequest = createChatbot();
     const badWords = BadWords();
+    const chatRequest = createChatbot();
 
     let isChatBotResponse = false;
 
@@ -81,79 +81,82 @@ app.post('/api/chat-request', verifyToken, (req, res) => {
 // ###################################################################################################################################################################################
 // #####################################################################  SCAN DOCUMENT  ############################################################################################
 // ###################################################################################################################################################################################
-// const documentUpload = multer({
-//     dest: 'assets/archive files/',
-// });
+const documentUpload = multer({
+    dest: 'assets/archive files/',
+});
 
-// app.post('/api/scan-document', verifyToken, documentUpload.single('archiveFile'), (req, res) => {
-//     const originalFileName = req.file.originalname;
+app.post('/api/scan-document', verifyToken, documentUpload.single('archiveFile'), (req, res) => {
+    const originalFileName = req.file.originalname;
 
-//     const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
-//     const uniqueFilePath = `assets/archive files/${uniqueFileName}`;
+    const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+    const uniqueFilePath = `assets/archive files/${uniqueFileName}`;
 
-//     fs.rename(req.file.path, uniqueFilePath, (err) => {
-//         if (err) {
-//             res.status(401).json({ message: "Error moving the upload file!" });
-//         }
+    fs.rename(req.file.path, uniqueFilePath, (err) => {
+        if (err) {
+            res.status(401).json({ message: "Error moving the upload file!" });
+        }
 
-//         else {
-//             const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
-//             if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
-//                 return res.status(401).send({ message: "Invalid File Name!" });
-//             }
-//             else {
-//                 if (req.file.size > 5242880) {
-//                     res.status(401).json({ message: "File is too large!" });
-//                 }
-//                 else {
-//                     // Check if the uploaded file has a PDF or DOCX extension
-//                     const mimeType = mime.lookup(sanitizedFileName);
-//                     if (mimeType !== 'application/pdf') {
-//                         res.status(401).json({ message: "Invalid file type! Accepted file PDF and Docx extension." })
-//                     }
-//                     else {
-//                         let isFound = false;
-//                         let foundPage = 0, foundAbstract = '';
+        else {
+            const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+            if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                return res.status(401).send({ message: "Invalid File Name!" });
+            }
+            else {
+                if (req.file.size > 5242880) {
+                    res.status(401).json({ message: "File is too large!" });
+                }
+                else {
+                    // Check if the uploaded file has a PDF or DOCX extension
+                    const mimeType = mime.lookup(sanitizedFileName);
+                    if (mimeType !== 'application/pdf') {
+                        res.status(401).json({ message: "Invalid file type! Accept only PDF File!" })
+                    }
+                    else {
 
-//                         processFile(uniqueFilePath)
-//                             .then(pageTexts => {
-//                                 pageTexts.forEach((pageText, pageNum) => {
-//                                     const pageNumber = pageNum;
-//                                     const contentEveryPage = pageText.replace(/\s+/g, ' ');
+                        processFile(uniqueFilePath)
+                            .then(pageTexts => {
+                                
+                                let isFound = false;
+                                let foundPage = [], foundAbstract = [];
 
-//                                     if ((contentEveryPage).toLowerCase().includes("abstract")) {
-//                                         foundPage = pageNumber;
-//                                         foundAbstract = contentEveryPage;
-//                                         isFound = true;
-//                                         return;
-//                                     }
-//                                 });
+                                pageTexts.forEach((pageText, pageNum) => {
+                                    const pageNumber = pageNum;
+                                    const contentEveryPage = pageText.replace(/\s+/g, ' ');
 
-//                                 if (isFound) {
-//                                     const splitFoundAbstract = foundAbstract.split(/Abstract/i);
-//                                     // console.log("\n",splitFoundAbstract, foundPage);
-//                                     res.status(200).json({ foundAbstract: splitFoundAbstract[1], pageNumber: foundPage + 1, fileName: uniqueFilePath });
-//                                 } else {
-//                                     // Remove the file
-//                                     fs.unlink(uniqueFilePath, (err) => {
-//                                         if (err) {
-//                                             console.error('Error deleting file:', err);
-//                                         }
-//                                     });
-//                                     res.status(401).json({ message: "There is no abstract found! Check your PDF file and upload again!" });
-//                                 }
-//                             })
-//                             .catch(error => {
-//                                 res.status(401).json({ message: "Something went wrong!" });
-//                                 console.error('Error extracting text from PDF', error);
-//                             });
-//                     }
-//                 }
-//             }
-//         }
+                                    if ((contentEveryPage).toLowerCase().includes("abstract")) {
+                                        foundPage.push(pageNumber);
+                                        foundAbstract.push(contentEveryPage);
+                                        isFound = true;
+                                        return true;
+                                    }
+                                });
 
-//     });
-// });
+                                if (isFound) {
+                                    const splitFoundAbstract = foundAbstract[0].split(/abstract/i);
+
+                                    // console.log("\n",splitFoundAbstract, foundPage);
+                                    res.status(200).json({ foundAbstract: splitFoundAbstract[1], pageNumber: foundPage[0] + 1, fileName: uniqueFilePath });
+                                } else {
+                                    // Remove the file
+                                    fs.unlink(uniqueFilePath, (err) => {
+                                        if (err) {
+                                            console.error('Error deleting file:', err);
+                                        }
+                                    });
+                                    res.status(401).json({ message: "There is no abstract found! Check your PDF file and upload again!" });
+                                }
+                            })
+                            .catch(error => {
+                                res.status(401).json({ message: "Something went wrong!" });
+                                console.error('Error extracting text from PDF', error);
+                            });
+                    }
+                }
+            }
+        }
+
+    });
+});
 
 // ###################################################################################################################################################################################
 // #####################################################################  PROTECTED SIDE  ############################################################################################
@@ -393,8 +396,8 @@ app.get('/api/admin-each-files/public/:id', verifyToken, (req, res) => {
     if (!sanitizeId) {
         res.status(401).json({ message: "Something went wrong on project id!" });
     } else {
-        const getArchive = `SELECT * FROM archive_files WHERE isDelete = ? AND id = ? AND status = ?`;
-        db.query(getArchive, ["not", sanitizeId, "Published"], (error, results) => {
+        const getArchive = `SELECT * FROM archive_files WHERE isDelete = ? AND id = ?`;
+        db.query(getArchive, ["not", sanitizeId], (error, results) => {
             if (error) {
                 res.status(401).json({ message: "Server side error!" });
             } else {

@@ -351,94 +351,104 @@ function SchoolYear() {
             </div>
 
             {/* ------------------  ADD SCHOOL YEAR  --------------------------- */}
-            <div className="popup" style={{ display: isAddSchoolYear ? 'block' : 'none' }}>
-                <div className='department-modal' style={{ animation: isAddSchoolYear ? 'animateCenter 0.3s linear' : '' }}>
-                    <h5>Add New School Year</h5>
-                    <hr />
-                    <div className="container-fluid">
-                        <form onSubmit={handleAddSchoolYear}>
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">School Year</label>
-                                <input type="text" className="form-control form-control-border" value={schollYearData.name} onChange={(e) => setSchoolYearData((prev) => ({ ...prev, name: e.target.value }))} placeholder="School Year" required />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: '30px' }}>
-                                <label htmlFor className="control-label">Status</label>
-                                <select name="status" id="status" className="form-control form-control-border" value={schollYearData.status} onChange={(e) => setSchoolYearData((prev) => ({ ...prev, status: e.target.value }))} required>
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsAddSchoolYear(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Add</button>
-                            </div>
-                        </form>
+            {isAddSchoolYear && (
+                <div className="popup">
+                    <div className='department-modal' style={{ animation: isAddSchoolYear ? 'animateCenter 0.3s linear' : '' }}>
+                        <h5>Add New School Year</h5>
+                        <hr />
+                        <div className="container-fluid">
+                            <form onSubmit={handleAddSchoolYear}>
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">School Year</label>
+                                    <input type="text" className="form-control form-control-border" value={schollYearData.name} onChange={(e) => setSchoolYearData((prev) => ({ ...prev, name: e.target.value }))} placeholder="School Year" required />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '30px' }}>
+                                    <label htmlFor className="control-label">Status</label>
+                                    <select name="status" id="status" className="form-control form-control-border" value={schollYearData.status} onChange={(e) => setSchoolYearData((prev) => ({ ...prev, status: e.target.value }))} required>
+                                        <option value="" selected disabled>Select Status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsAddSchoolYear(false)}>Cancel</button>
+                                    <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Add</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* -----------------   EDIT SCHOOL YEAR -------------------- */}
-            <div className="popup" style={{ display: isEditSchoolYear ? 'block' : 'none' }}>
-                <div className='department-modal' style={{ animation: isEditSchoolYear ? 'animateCenter 0.3s linear' : '' }}>
-                    <h5>Edit School Year</h5>
-                    <hr />
-                    <div className="container-fluid">
-                        <form action id="department-form">
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">School Year</label>
-                                <input type="text" className="form-control form-control-border" value={editSchoolYearData.name} onChange={(e) => setEditSchoolYearData((prev) => ({ ...prev, name: e.target.value }))} placeholder="School Year" required />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: '30px' }}>
-                                <label htmlFor className="control-label">Status</label>
-                                <select name="status" id="status" className="form-control form-control-border" required value={editSchoolYearData.status} onChange={(e) => setEditSchoolYearData((prev) => ({ ...prev, status: e.target.value }))}>
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditSchoolYear(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
-                            </div>
-                        </form>
+            {isEditSchoolYear && (
+                <div className="popup">
+                    <div className='department-modal' style={{ animation: isEditSchoolYear ? 'animateCenter 0.3s linear' : '' }}>
+                        <h5>Edit School Year</h5>
+                        <hr />
+                        <div className="container-fluid">
+                            <form action id="department-form">
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">School Year</label>
+                                    <input type="text" className="form-control form-control-border" value={editSchoolYearData.name} onChange={(e) => setEditSchoolYearData((prev) => ({ ...prev, name: e.target.value }))} placeholder="School Year" required />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '30px' }}>
+                                    <label htmlFor className="control-label">Status</label>
+                                    <select name="status" id="status" className="form-control form-control-border" required value={editSchoolYearData.status} onChange={(e) => setEditSchoolYearData((prev) => ({ ...prev, status: e.target.value }))}>
+                                        <option value="" selected disabled>Select Status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditSchoolYear(false)}>Cancel</button>
+                                    <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* -----------------------DELETE CONFIRMATION---------------------- */}
-            <div className="popup" style={{ visibility: isDelete ? 'visible' : 'hidden' }}>
-                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            {isDelete && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-                    <div className="popup-edit">
-                        <h5>Delete?</h5>
-                    </div>
-                    <hr />
-                    <div className='form-div'>
-                        <span>Are you sure you wan't to Delete {`${deleteSchoolYear.name}`}?</span>
-                    </div>
+                        <div className="popup-edit">
+                            <h5>Delete?</h5>
+                        </div>
+                        <hr />
+                        <div className='form-div'>
+                            <span>Are you sure you wan't to Delete {`${deleteSchoolYear.name}`}?</span>
+                        </div>
 
-                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                        <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Loading div */}
-            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                <div>
-                    <h5>{errorMessage}</h5>
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     )
 }

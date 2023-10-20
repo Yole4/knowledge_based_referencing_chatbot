@@ -414,10 +414,10 @@ function Home() {
                                         <div style={{ height: '400px', overflow: 'auto' }}>
                                             {myNotifications && myNotifications.reverse().map(item => (
                                                 <div key={item.id} className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: item.seen === 0 ? 'rgba(131, 131, 131, 0.20)' : '' }}>
-                                                    <div style={{display: 'flex'}}>
-                                                        <i className="fas fa-bell mr-2" style={{color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px'}}/><p style={{ marginLeft: '10px' }}>{item.content}</p>
+                                                    <div style={{ display: 'flex' }}>
+                                                        <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>{item.content}</p>
                                                     </div>
-                                                    <div style={{marginLeft: '10px'}}>
+                                                    <div style={{ marginLeft: '10px' }}>
                                                         <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>{item.date}</p>
                                                     </div>
                                                 </div>
@@ -466,7 +466,7 @@ function Home() {
                 </nav>
                 <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0', marginTop: '0', zIndex: '50' }}>
                     <div className="container">
-                        <div onClick={() => navigate('/')} className="navbar-brand" style={{cursor: 'pointer'}}>
+                        <div onClick={() => navigate('/')} className="navbar-brand" style={{ cursor: 'pointer' }}>
                             <img src={logo} alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
                             <span>{settings && settings.systemShortName}</span>
                         </div>
@@ -477,10 +477,10 @@ function Home() {
                             {/* Left navbar links */}
                             {/* <ul className="navbar-nav responsive-header"> */}
                             <ul className="navbar-nav navbar-header">
-                                <li className="nav-item" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+                                <li className="nav-item" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
                                     <span className={location.pathname === '/' ? 'nav-link active' : 'nav-link'}>Home</span>
                                 </li>
-                                <li className="nav-item" onClick={() => navigate('/projects')} style={{cursor: 'pointer'}}>
+                                <li className="nav-item" onClick={() => navigate('/projects')} style={{ cursor: 'pointer' }}>
                                     <span className={location.pathname === '/projects' || location.pathname.startsWith('/view-project/') ? 'nav-link active' : 'nav-link'}>Projects</span>
                                 </li>
                                 <li className="nav-item dropdown">
@@ -538,12 +538,12 @@ function Home() {
                                         </li>
                                     </ul>
                                 </li>
-                                <li className="nav-item" onClick={() => navigate('/about-us')} style={{cursor: 'pointer'}}>
+                                <li className="nav-item" onClick={() => navigate('/about-us')} style={{ cursor: 'pointer' }}>
                                     <span className={location.pathname === '/about-us' ? 'nav-link active' : 'nav-link'}>About Us</span>
                                 </li>
 
                                 {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
-                                    <li className="nav-item" onClick={() => navigate('/submit-project')} style={{cursor: 'pointer'}}>
+                                    <li className="nav-item" onClick={() => navigate('/submit-project')} style={{ cursor: 'pointer' }}>
                                         <span className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</span>
                                     </li>
                                 )}
@@ -559,294 +559,311 @@ function Home() {
                 </nav>
             </div >
 
-            <div onClick={() => setIsOpenLogin(false)} className='popup' style={{ visibility: isOpenLogin && !isOpenRegister ? 'visible' : 'hidden' }} >
+            {isOpenLogin && !isOpenRegister && (
+                <div onClick={() => setIsOpenLogin(false)} className='popup'>
 
-                {/* Register page */}
-                <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenLogin ? 'dropBottom .3s linear' : '' }} >
-                    <div style={{ textAlign: 'center' }}>
-                        <h3>Login</h3><br />
-                    </div>
-                    <div className="modal-close" onClick={() => setIsOpenLogin(false)}>
-                        <AiOutlineCloseCircle size={30} />
-                    </div>
-
-                    <form onSubmit={handleLogin}>
-                        <div className='form-div'>
-                            <label htmlFor="">Username</label>
-                            <input type="text" className='form-control' value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Username' required />
+                    {/* Register page */}
+                    <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenLogin ? 'dropBottom .3s linear' : '' }} >
+                        <div style={{ textAlign: 'center' }}>
+                            <h3>Login</h3><br />
+                        </div>
+                        <div className="modal-close" onClick={() => setIsOpenLogin(false)}>
+                            <AiOutlineCloseCircle size={30} />
                         </div>
 
-                        <div style={{ marginTop: '20px' }}>
-                            <label htmlFor="">Password</label>
-                            <input type="password" className='form-control' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='*********' required />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" />
-                        </div>
-
-                    </form>
-                    <div style={{ marginTop: '10px', textAlign: 'center' }} className='forgot-password'>
-                        <span>Forgot Password?</span>
-                    </div>
-
-                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                        <span>Don't Have Account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenRegister(true); setIsOpenLogin(false) }} >Register</a></span>
-                    </div>
-                </div>
-            </div>
-
-            <div onClick={() => setIsOpenRegister(false)} className='popup' style={{ visibility: isOpenRegister && !isOpenLogin ? 'visible' : 'hidden' }} >
-
-                {/* Register page */}
-                <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenRegister ? 'dropBottom .3s linear' : '' }} >
-                    <div style={{ textAlign: 'center' }}>
-                        <h3>Register</h3><br />
-                    </div>
-                    <div className="modal-close" onClick={() => setIsOpenRegister(false)}>
-                        <AiOutlineCloseCircle size={30} />
-                    </div>
-
-                    <form onSubmit={handleRegister}>
-                        <div className='form-div'>
-                            <label htmlFor="">First Name</label>
-                            <input type="text" value={registerData.firstName} onChange={(e) => setRegisterData((prev) => ({ ...prev, firstName: e.target.value }))} className='form-control' placeholder='First Name' required />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <label htmlFor="">Middle Name (Optional)</label>
-                            <input type="text" value={registerData.middleName} onChange={(e) => setRegisterData((prev) => ({ ...prev, middleName: e.target.value }))} className='form-control' placeholder='Middle Name' />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <label htmlFor="">Last Name</label>
-                            <input type="text" className='form-control' value={registerData.lastName} onChange={(e) => setRegisterData((prev) => ({ ...prev, lastName: e.target.value }))} placeholder='Last Name' required />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <label htmlFor="">Username</label>
-                            <input type="text" className='form-control' value={registerData.username} onChange={(e) => setRegisterData((prev) => ({ ...prev, username: e.target.value }))} placeholder='Username' required />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <label htmlFor="">Password</label>
-                            <input type="password" className='form-control' value={registerData.password} onChange={(e) => setRegisterData((prev) => ({ ...prev, password: e.target.value }))} placeholder='*********' required />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <label htmlFor="">Confirm Password</label>
-                            <input type="password" className='form-control' value={registerData.confirmPassword} onChange={(e) => setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))} placeholder='*********' required />
-                        </div>
-
-                        <div style={{ marginTop: '20px' }}>
-                            <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" />
-                        </div>
-
-                    </form>
-
-                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                        <span>Already have account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenLogin(true); setIsOpenRegister(false) }} >Login</a></span>
-                    </div>
-                </div>
-            </div>
-
-            <div onClick={() => { setMenuBar(false); setOnSearch(false) }} className='popup' style={{ visibility: menuBar ? 'visible' : 'hidden' }} >
-                <aside className="main-sidebar sidebar-dark-primary elevation-4 right-bar-body" onClick={(e) => e.stopPropagation()} style={{ animation: menuBar ? 'slideLeft 0.3s linear' : 'slideRight 0.3s linear' }}>
-                    {/* Brand Logo */}
-                    <span className="brand-link span-cursor" style={{ width: '190px' }}>
-                        <img src={logo} alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
-                        <span className="brand-text font-weight-light">{isLogin ? userCredentials && userCredentials.user_type : "JRMSU"}</span>
-                    </span>
-
-                    {/* Sidebar */}
-                    <div className="sidebar" style={{ height: '100vh', overflow: 'auto' }}>
-                        {/* Sidebar user (optional) */}
-
-                        {isLogin && (
-                            <div className="user-panel mt-3 pb-3 mb-3 d-flex" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}>
-                                <div className="image">
-                                    <img style={{ width: 34, height: 34 }} src={userCredentials && (userCredentials.image).length > 0 ? `${backendUrl}/${userCredentials.image}` : givenImage} className="img-profile rounded-circle" />
-                                </div>
-                                <div className="info">
-                                    <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</a>
-                                </div>
+                        <form onSubmit={handleLogin}>
+                            <div className='form-div'>
+                                <label htmlFor="">Username</label>
+                                <input type="text" className='form-control' value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Username' required />
                             </div>
-                        )}
 
-                        {/* Sidebar Menu */}
-                        <nav className="mt-2" style={{ marginLeft: '10px' }}>
-                            <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style={{ paddingRight: '15px' }}>
-                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-                                    <a className={location.pathname === '/' ? 'nav-link hover-side' : 'nav-link'}><AiTwotoneHome size={20} style={{ marginTop: '-3px' }} /> Home</a>
-                                </li>
+                            <div style={{ marginTop: '20px' }}>
+                                <label htmlFor="">Password</label>
+                                <input type="password" className='form-control' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='*********' required />
+                            </div>
 
-                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/projects')}>
-                                    <a className={location.pathname === '/projects' ? 'nav-link hover-side' : 'nav-link'}><TbBulbFilled size={20} style={{ marginTop: '-3px' }} /> Projects</a>
-                                </li>
+                            <div style={{ marginTop: '20px' }}>
+                                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" />
+                            </div>
 
-                                <li className=" dropdown" style={{ cursor: 'pointer' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/department' ? 'hover-side' : ''}>
-                                        <a ><FaThList size={17} style={{ marginTop: '-3px' }} /> Department</a><span><RiArrowDownSLine size={25} /></span>
-                                        {/* <span><RiArrowLeftSLine size={25} /></span> */}
-                                    </div>
-                                    <ul className="nav nav-pills nav-sidebar flex-column">
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                            <a className='nav-link nav-home'>
-                                                {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                <p >
-                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Arts And Sciences
-                                                </p>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                            <a className='nav-link nav-home'>
-                                                {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                <p >
-                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Business Management And Accountancy
-                                                </p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
+                        </form>
+                        <div style={{ marginTop: '10px', textAlign: 'center' }} className='forgot-password'>
+                            <span>Forgot Password?</span>
+                        </div>
 
-                                <li className=" dropdown" style={{ cursor: 'pointer' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/courses' ? 'hover-side' : ''}>
-                                        <a ><SiCoursera size={20} style={{ marginTop: '-3px' }} /> Courses</a><span><RiArrowDownSLine size={25} /></span>
-                                        {/* <span><RiArrowLeftSLine size={25} /></span> */}
-                                    </div>
-                                    <ul className="nav nav-pills nav-sidebar flex-column">
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                            <a className='nav-link nav-home'>
-                                                {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                <p >
-                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> Bachelor Of Science In Computer Science
-                                                </p>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                            <a className='nav-link nav-home'>
-                                                {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                <p >
-                                                    <GoDotFill size={17} style={{ marginTop: '-3px' }} /> BSMA
-                                                </p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/about-us')}>
-                                    <a className={location.pathname === '/about-us' ? 'nav-link hover-side' : 'nav-link'}><BiSolidUserVoice size={20} style={{ marginTop: '-3px' }} /> About Us</a>
-                                </li>
-
-                                {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
-                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/submit-project')}>
-                                        <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
-                                    </li>
-                                )}
-                            </ul>
-                        </nav>
+                        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                            <span>Don't Have Account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenRegister(true); setIsOpenLogin(false) }} >Register</a></span>
+                        </div>
                     </div>
-                </aside>
-            </div>
+                </div>
+            )}
+
+            {/* Register page */}
+            {isOpenRegister && !isOpenLogin && (
+                <div onClick={() => setIsOpenRegister(false)} className='popup'>
+
+                    {/* Register page */}
+                    <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenRegister ? 'dropBottom .3s linear' : '' }} >
+                        <div style={{ textAlign: 'center' }}>
+                            <h3>Register</h3><br />
+                        </div>
+                        <div className="modal-close" onClick={() => setIsOpenRegister(false)}>
+                            <AiOutlineCloseCircle size={30} />
+                        </div>
+
+                        <form onSubmit={handleRegister}>
+                            <div className='form-div'>
+                                <label htmlFor="">First Name</label>
+                                <input type="text" value={registerData.firstName} onChange={(e) => setRegisterData((prev) => ({ ...prev, firstName: e.target.value }))} className='form-control' placeholder='First Name' required />
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <label htmlFor="">Middle Name (Optional)</label>
+                                <input type="text" value={registerData.middleName} onChange={(e) => setRegisterData((prev) => ({ ...prev, middleName: e.target.value }))} className='form-control' placeholder='Middle Name' />
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <label htmlFor="">Last Name</label>
+                                <input type="text" className='form-control' value={registerData.lastName} onChange={(e) => setRegisterData((prev) => ({ ...prev, lastName: e.target.value }))} placeholder='Last Name' required />
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <label htmlFor="">Username</label>
+                                <input type="text" className='form-control' value={registerData.username} onChange={(e) => setRegisterData((prev) => ({ ...prev, username: e.target.value }))} placeholder='Username' required />
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <label htmlFor="">Password</label>
+                                <input type="password" className='form-control' value={registerData.password} onChange={(e) => setRegisterData((prev) => ({ ...prev, password: e.target.value }))} placeholder='*********' required />
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <label htmlFor="">Confirm Password</label>
+                                <input type="password" className='form-control' value={registerData.confirmPassword} onChange={(e) => setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))} placeholder='*********' required />
+                            </div>
+
+                            <div style={{ marginTop: '20px' }}>
+                                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" />
+                            </div>
+
+                        </form>
+
+                        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                            <span>Already have account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenLogin(true); setIsOpenRegister(false) }} >Login</a></span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {menuBar && (
+                <div onClick={() => { setMenuBar(false); setOnSearch(false) }} className='popup' >
+                    <aside className="main-sidebar sidebar-dark-primary elevation-4 right-bar-body" onClick={(e) => e.stopPropagation()} style={{ animation: menuBar ? 'slideLeft 0.3s linear' : 'slideRight 0.3s linear' }}>
+                        {/* Brand Logo */}
+                        <span className="brand-link span-cursor" style={{ width: '190px' }}>
+                            <img src={logo} alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
+                            <span className="brand-text font-weight-light">{isLogin ? userCredentials && userCredentials.user_type : "JRMSU"}</span>
+                        </span>
+
+                        {/* Sidebar */}
+                        <div className="sidebar" style={{ height: '100vh', overflow: 'auto' }}>
+                            {/* Sidebar user (optional) */}
+
+                            {isLogin && (
+                                <div className="user-panel mt-3 pb-3 mb-3 d-flex" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}>
+                                    <div className="image">
+                                        <img style={{ width: 34, height: 34 }} src={userCredentials && (userCredentials.image).length > 0 ? `${backendUrl}/${userCredentials.image}` : givenImage} className="img-profile rounded-circle" />
+                                    </div>
+                                    <div className="info">
+                                        <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</a>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Sidebar Menu */}
+                            <nav className="mt-2" style={{ marginLeft: '10px' }}>
+                                <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style={{ paddingRight: '15px' }}>
+                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
+                                        <a className={location.pathname === '/' ? 'nav-link hover-side' : 'nav-link'}><AiTwotoneHome size={20} style={{ marginTop: '-3px' }} /> Home</a>
+                                    </li>
+
+                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/projects')}>
+                                        <a className={location.pathname === '/projects' ? 'nav-link hover-side' : 'nav-link'}><TbBulbFilled size={20} style={{ marginTop: '-3px' }} /> Projects</a>
+                                    </li>
+
+                                    <li className=" dropdown" style={{ cursor: 'pointer' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/department' ? 'hover-side' : ''}>
+                                            <a ><FaThList size={17} style={{ marginTop: '-3px' }} /> Department</a><span><RiArrowDownSLine size={25} /></span>
+                                            {/* <span><RiArrowLeftSLine size={25} /></span> */}
+                                        </div>
+                                        <ul className="nav nav-pills nav-sidebar flex-column">
+                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                                <a className='nav-link nav-home'>
+                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                    <p >
+                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Arts And Sciences
+                                                    </p>
+                                                </a>
+                                            </li>
+                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                                <a className='nav-link nav-home'>
+                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                    <p >
+                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Business Management And Accountancy
+                                                    </p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <li className=" dropdown" style={{ cursor: 'pointer' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/courses' ? 'hover-side' : ''}>
+                                            <a ><SiCoursera size={20} style={{ marginTop: '-3px' }} /> Courses</a><span><RiArrowDownSLine size={25} /></span>
+                                            {/* <span><RiArrowLeftSLine size={25} /></span> */}
+                                        </div>
+                                        <ul className="nav nav-pills nav-sidebar flex-column">
+                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                                <a className='nav-link nav-home'>
+                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                    <p >
+                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> Bachelor Of Science In Computer Science
+                                                    </p>
+                                                </a>
+                                            </li>
+                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                                <a className='nav-link nav-home'>
+                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                    <p >
+                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> BSMA
+                                                    </p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/about-us')}>
+                                        <a className={location.pathname === '/about-us' ? 'nav-link hover-side' : 'nav-link'}><BiSolidUserVoice size={20} style={{ marginTop: '-3px' }} /> About Us</a>
+                                    </li>
+
+                                    {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
+                                        <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/submit-project')}>
+                                            <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
+                                        </li>
+                                    )}
+                                </ul>
+                            </nav>
+                        </div>
+                    </aside>
+                </div>
+            )}
 
             {/* Change Password */}
-            <div className="popup" style={{ visibility: isChangePassword ? 'visible' : 'hidden' }}>
-                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            {isChangePassword && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-                    <div className="popup-edit">
-                        <span>Change Password</span>
+                        <div className="popup-edit">
+                            <span>Change Password</span>
+                        </div>
+                        <hr />
+                        <form onSubmit={handleChagePassword}>
+                            <div className='form-div'>
+                                <label htmlFor="">Username</label>
+                                <input type="text" value={changePass.username} onChange={(e) => setChangePass((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
+                            </div>
+
+                            <div style={{ marginTop: '15px' }}>
+                                <label htmlFor="">Current Password</label>
+                                <input type="password" value={changePass.currentPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, currentPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                            </div>
+
+                            <div style={{ marginTop: '15px' }}>
+                                <label htmlFor="">New Password</label>
+                                <input type="password" value={changePass.newPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                            </div>
+
+                            <div style={{ marginTop: '15px' }}>
+                                <label htmlFor="">Confirm Password</label>
+                                <input type="password" value={changePass.confirmPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                            </div>
+
+                            <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsChangePassword(false)}>Cancel</button>
+                                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                            </div>
+                        </form>
                     </div>
-                    <hr />
-                    <form onSubmit={handleChagePassword}>
+                </div>
+            )}
+
+            {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
+            {isLogout && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+                        <div className="popup-edit">
+                            <h5>Logout?</h5>
+                        </div>
+                        <hr />
                         <div className='form-div'>
-                            <label htmlFor="">Username</label>
-                            <input type="text" value={changePass.username} onChange={(e) => setChangePass((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
-                        </div>
-
-                        <div style={{ marginTop: '15px' }}>
-                            <label htmlFor="">Current Password</label>
-                            <input type="password" value={changePass.currentPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, currentPassword: e.target.value }))} className='form-control' placeholder='*********' required />
-                        </div>
-
-                        <div style={{ marginTop: '15px' }}>
-                            <label htmlFor="">New Password</label>
-                            <input type="password" value={changePass.newPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
-                        </div>
-
-                        <div style={{ marginTop: '15px' }}>
-                            <label htmlFor="">Confirm Password</label>
-                            <input type="password" value={changePass.confirmPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                            <span>Are you sure you wan't to logout?</span>
                         </div>
 
                         <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsChangePassword(false)}>Cancel</button>
-                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false); window.location.reload() }}>Yes</button>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
-            <div className="popup" style={{ visibility: isLogout ? 'visible' : 'hidden' }}>
-                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
-
-                    <div className="popup-edit">
-                        <h5>Logout?</h5>
-                    </div>
-                    <hr />
-                    <div className='form-div'>
-                        <span>Are you sure you wan't to logout?</span>
-                    </div>
-
-                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false); window.location.reload() }}>Yes</button>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* --------   PROFILE ---------- */}
-            <div className="popup" onClick={() => setIsProfile(false)} style={{ visibility: isProfile ? 'visible' : 'hidden' }}>
-                <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProfile ? 'dropBottom .3s linear' : '' }}>
-                    <div className="modal-close" onClick={() => setIsProfile(false)}>
-                        <AiOutlineCloseCircle size={30} />
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <img src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
-                        <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
-                            <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
-                            <input type="file" id="uploadPhoto" onChange={(e) => setAutoImage(e.target.files[0])} style={{ display: 'none' }} />
-                        </label>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div>
-                            <h2 style={{ fontSize: '20px' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</h2>
+            {isProfile && (
+                <div className="popup" onClick={() => setIsProfile(false)}>
+                    <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProfile ? 'dropBottom .3s linear' : '' }}>
+                        <div className="modal-close" onClick={() => setIsProfile(false)}>
+                            <AiOutlineCloseCircle size={30} />
                         </div>
-                        <div style={{ marginTop: '10px' }}>
-                            <span>{userCredentials && userCredentials.user_type}</span>
-                        </div><br />
-                    </div>
-                    <hr />
-                    <div className="form-control" style={{ textAlign: 'center' }}>
-                        <span>Other profile view</span>
+                        <div style={{ textAlign: 'center' }}>
+                            <img src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
+                            <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
+                                <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
+                                <input type="file" id="uploadPhoto" onChange={(e) => setAutoImage(e.target.files[0])} style={{ display: 'none' }} />
+                            </label>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                            <div>
+                                <h2 style={{ fontSize: '20px' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</h2>
+                            </div>
+                            <div style={{ marginTop: '10px' }}>
+                                <span>{userCredentials && userCredentials.user_type}</span>
+                            </div><br />
+                        </div>
+                        <hr />
+                        <div className="form-control" style={{ textAlign: 'center' }}>
+                            <span>Other profile view</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Loading div */}
-            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                <div>
-                    <h5>{errorMessage}</h5>
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     );
 }

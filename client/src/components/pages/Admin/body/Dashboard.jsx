@@ -313,19 +313,23 @@ function Dashboard() {
                 </section>
 
                 {/* fetching data screen */}
-                <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                    <div className="modal-pop-up-loading">
-                        <div className="modal-pop-up-loading-spiner"></div>
-                        <p>Loading...</p>
+                {isLoading && (
+                    <div className="popup">
+                        <div className="modal-pop-up-loading">
+                            <div className="modal-pop-up-loading-spiner"></div>
+                            <p>Loading...</p>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Loading div */}
-                <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                    <div>
-                        <h5>{errorMessage}</h5>
+                {isError || isSuccess && (
+                    <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                        <div>
+                            <h5>{errorMessage}</h5>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </>
     )

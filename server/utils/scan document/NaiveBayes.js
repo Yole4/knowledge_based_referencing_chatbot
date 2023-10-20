@@ -68,7 +68,7 @@ function createChatbot() {
             case 'time':
                 return `The current date time is ${currentDate}.`;
             case 'joke':
-                return 'Why don’t scientists trust atoms? Because they make up everything!';
+                return "How do you know you're in love with a programmer? When they make your heart race, even without semicolons.!";
             case 'help':
                 return "Of course, I'd be happy to help.What do you need assistance with?";
             case 'farewell':

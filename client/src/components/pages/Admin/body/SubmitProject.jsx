@@ -42,6 +42,7 @@ function SubmitProject() {
     const [errorMessage, setErrorMessage] = useState('');
     const [isError, setIsError] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isAlert, setIsAlert] = useState(false);
 
     // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
     const [userCredentials, setUserCredentials] = useState(null);
@@ -134,7 +135,7 @@ function SubmitProject() {
                     setSubmitThesisAndCapstone((prev) => ({ ...prev, fileName: '' }));
                     console.log("error: ", error);
                     if (error.response && error.response.status === 401) {
-                        console.log(error.response.data.message);
+                        setIsAlert(true);
                     }
                 }
             };
@@ -288,7 +289,7 @@ function SubmitProject() {
             {userCredentials && Object.keys(userCredentials).length > 0 && (
                 <Chatbot />
             )}
-            
+
             <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0' }}>
                 {/* Main content */}
                 <section className="content ">
@@ -385,14 +386,16 @@ function SubmitProject() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row" style={{ display: submitThesisAndCapstone.foundAbstract ? 'block' : 'none' }}>
-                                                <div class="col-lg-12">
-                                                    <div class="form-group">
-                                                        <label for="abstract" class="control-label text-navy">Abstract</label>
-                                                        <textarea rows="15" value={submitThesisAndCapstone.foundAbstract} placeholder="abstract" class="form-control form-control-border summernote"></textarea>
+                                            {submitThesisAndCapstone.foundAbstract && (
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <label for="abstract" class="control-label text-navy">Abstract</label>
+                                                            <textarea rows="15" value={submitThesisAndCapstone.foundAbstract} placeholder="abstract" class="form-control form-control-border summernote"></textarea>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            )}
                                             <div className="row">
                                                 <div className="col-lg-12">
                                                     <div className="form-group text-center" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -410,20 +413,44 @@ function SubmitProject() {
                 </section>
             </div>
 
-            {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {/* -----------------------NO ABSTRACT ALERT   ---------------------- */}
+            {isAlert && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isAlert ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+                        <div className="popup-edit">
+                            <h5>Alert!</h5>
+                        </div>
+                        <hr />
+                        <div className='form-div'>
+                            <span>No Abstract Found! Please check your PDF file and upload again!</span>
+                        </div>
+
+                        <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                            <button className='btn btn-primary' type='submit' style={{ width: '100%' }} onClick={() => setIsAlert(false)}>Ok</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
+
+            {/* fetching data screen */}
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            )}
 
             {/* Loading div */}
-            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                <div>
-                    <h5>{errorMessage}</h5>
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     )
 }

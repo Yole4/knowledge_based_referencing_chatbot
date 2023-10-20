@@ -293,7 +293,7 @@ function UsersList() {
                                                         usersAccountToSearch.map((item, index) => (
                                                             <tr>
                                                                 <td className="text-center">{index + 1}</td>
-                                                                <td className="text-center"><img src={`${backendUrl}/${item.image}`} style={{ height: '40px', borderRadius: '50%' }} className="img-avatar img-thumbnail p-0 border-2" alt="user_avatar" /></td>
+                                                                <td className="text-center"><img src={`${backendUrl}/${item.image}`} style={{ height: '40px', width: '40px', borderRadius: '50%' }} className="img-avatar img-thumbnail p-0 border-2" alt="user_avatar" /></td>
                                                                 <td>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</td>
                                                                 <td><p className="m-0 truncate-1">{item.username}</p></td>
                                                                 <td><p className="m-0">{item.user_type}</p></td>
@@ -323,78 +323,86 @@ function UsersList() {
             </div>
 
             {/* -----------------   EDIT User -------------------- */}
-            <div className="popup" style={{ display: isEditUser ? 'block' : 'none' }}>
-                <div className='department-modal' style={{ animation: isEditUser ? 'animateCenter 0.3s linear' : '' }}>
-                    <h5>Edit User</h5>
-                    <hr />
-                    <div className="container-fluid">
-                        <form action id="department-form">
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">First Name</label>
-                                <input type="text" className="form-control form-control-border" value={editUserData.firstName} onChange={(e) => setEditUserData((prev) => ({ ...prev, firstName: e.target.value }))} placeholder="First Name" required />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">Middle Name (Optional)</label>
-                                <input type="text" className="form-control form-control-border" value={editUserData.middleName} onChange={(e) => setEditUserData((prev) => ({ ...prev, middleName: e.target.value }))} placeholder="Middle Name" required />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">Last Name</label>
-                                <input type="text" className="form-control form-control-border" value={editUserData.lastName} onChange={(e) => setEditUserData((prev) => ({ ...prev, lastName: e.target.value }))} placeholder="Last Name" required />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">Username</label>
-                                <input type="text" className="form-control form-control-border" value={editUserData.username} onChange={(e) => setEditUserData((prev) => ({ ...prev, username: e.target.value }))} placeholder="Username" required />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: '30px' }}>
-                                <label htmlFor className="control-label">User Type</label>
-                                <select name="status" id="status" className="form-control form-control-border" value={editUserData.userType} onChange={(e) => setEditUserData((prev) => ({ ...prev, userType: e.target.value }))} required>
-                                    <option value="" selected disabled>Select User Type</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Student">Student</option>
-                                </select>
-                            </div>
-                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditUser(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
-                            </div>
-                        </form>
+            {isEditUser && (
+                <div className="popup">
+                    <div className='department-modal' style={{ animation: isEditUser ? 'animateCenter 0.3s linear' : '' }}>
+                        <h5>Edit User</h5>
+                        <hr />
+                        <div className="container-fluid">
+                            <form action id="department-form">
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">First Name</label>
+                                    <input type="text" className="form-control form-control-border" value={editUserData.firstName} onChange={(e) => setEditUserData((prev) => ({ ...prev, firstName: e.target.value }))} placeholder="First Name" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Middle Name (Optional)</label>
+                                    <input type="text" className="form-control form-control-border" value={editUserData.middleName} onChange={(e) => setEditUserData((prev) => ({ ...prev, middleName: e.target.value }))} placeholder="Middle Name" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Last Name</label>
+                                    <input type="text" className="form-control form-control-border" value={editUserData.lastName} onChange={(e) => setEditUserData((prev) => ({ ...prev, lastName: e.target.value }))} placeholder="Last Name" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Username</label>
+                                    <input type="text" className="form-control form-control-border" value={editUserData.username} onChange={(e) => setEditUserData((prev) => ({ ...prev, username: e.target.value }))} placeholder="Username" required />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '30px' }}>
+                                    <label htmlFor className="control-label">User Type</label>
+                                    <select name="status" id="status" className="form-control form-control-border" value={editUserData.userType} onChange={(e) => setEditUserData((prev) => ({ ...prev, userType: e.target.value }))} required>
+                                        <option value="" selected disabled>Select User Type</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="Student">Student</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditUser(false)}>Cancel</button>
+                                    <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* -----------------------DELETE CONFIRMATION---------------------- */}
-            <div className="popup" style={{ visibility: isDelete ? 'visible' : 'hidden' }}>
-                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            {isDelete && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-                    <div className="popup-edit">
-                        <h5>Delete?</h5>
-                    </div>
-                    <hr />
-                    <div className='form-div'>
-                        <span>Are you sure you wan't to Delete {`${deleteUser.firstName} ${deleteUser.middleName} ${deleteUser.lastName}`}?</span>
-                    </div>
+                        <div className="popup-edit">
+                            <h5>Delete?</h5>
+                        </div>
+                        <hr />
+                        <div className='form-div'>
+                            <span>Are you sure you wan't to Delete {`${deleteUser.firstName} ${deleteUser.middleName} ${deleteUser.lastName}`}?</span>
+                        </div>
 
-                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                        <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Loading div */}
-            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                <div>
-                    <h5>{errorMessage}</h5>
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     )
 }

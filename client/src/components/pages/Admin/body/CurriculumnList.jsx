@@ -352,98 +352,108 @@ function CurriculumnList() {
             </div>
 
             {/* ------------------  ADD COURSE  --------------------------- */}
-            <div className="popup" style={{ display: isAddCourses ? 'block' : 'none' }}>
-                <div className='department-modal' style={{ animation: isAddCourses ? 'animateCenter 0.3s linear' : '' }}>
-                    <h5>Add New Course</h5>
-                    <hr />
-                    <div className="container-fluid">
-                        <form onSubmit={handleAddCourse}>
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">Course</label>
-                                <input type="text" className="form-control form-control-border" value={courseData.name} onChange={(e) => setCoursesData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Bachelor of Science in Computer Science" required />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">Acronym</label>
-                                <input type="text" className="form-control form-control-border" value={courseData.acronym} onChange={(e) => setCoursesData((prev) => ({ ...prev, acronym: e.target.value }))} placeholder="e.g. BSCS" required />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: '30px' }}>
-                                <label htmlFor className="control-label">Status</label>
-                                <select name="status" id="status" className="form-control form-control-border" value={courseData.status} onChange={(e) => setCoursesData((prev) => ({ ...prev, status: e.target.value }))} required>
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsAddCourses(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Add</button>
-                            </div>
-                        </form>
+            {isAddCourses && (
+                <div className="popup">
+                    <div className='department-modal' style={{ animation: isAddCourses ? 'animateCenter 0.3s linear' : '' }}>
+                        <h5>Add New Course</h5>
+                        <hr />
+                        <div className="container-fluid">
+                            <form onSubmit={handleAddCourse}>
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Course</label>
+                                    <input type="text" className="form-control form-control-border" value={courseData.name} onChange={(e) => setCoursesData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Bachelor of Science in Computer Science" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Acronym</label>
+                                    <input type="text" className="form-control form-control-border" value={courseData.acronym} onChange={(e) => setCoursesData((prev) => ({ ...prev, acronym: e.target.value }))} placeholder="e.g. BSCS" required />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '30px' }}>
+                                    <label htmlFor className="control-label">Status</label>
+                                    <select name="status" id="status" className="form-control form-control-border" value={courseData.status} onChange={(e) => setCoursesData((prev) => ({ ...prev, status: e.target.value }))} required>
+                                        <option value="" selected disabled>Select Status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsAddCourses(false)}>Cancel</button>
+                                    <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Add</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* -----------------   EDIT COURSES -------------------- */}
-            <div className="popup" style={{ display: isEditCourses ? 'block' : 'none' }}>
-                <div className='department-modal' style={{ animation: isEditCourses ? 'animateCenter 0.3s linear' : '' }}>
-                    <h5>Edit Course</h5>
-                    <hr />
-                    <div className="container-fluid">
-                        <form action id="department-form">
-                            <div className="form-group">
-                                <label htmlFor="name" className="control-label">Course</label>
-                                <input type="text" className="form-control form-control-border" value={editCourseData.name} onChange={(e) => setEditCourseData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Course Name" required />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: '30px' }}>
-                                <label htmlFor className="control-label">Status</label>
-                                <select name="status" id="status" className="form-control form-control-border" required value={editCourseData.status} onChange={(e) => setEditCourseData((prev) => ({ ...prev, status: e.target.value }))}>
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditCourses(false)}>Cancel</button>
-                                <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
-                            </div>
-                        </form>
+            {isEditCourses && (
+                <div className="popup">
+                    <div className='department-modal' style={{ animation: isEditCourses ? 'animateCenter 0.3s linear' : '' }}>
+                        <h5>Edit Course</h5>
+                        <hr />
+                        <div className="container-fluid">
+                            <form action id="department-form">
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Course</label>
+                                    <input type="text" className="form-control form-control-border" value={editCourseData.name} onChange={(e) => setEditCourseData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Course Name" required />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '30px' }}>
+                                    <label htmlFor className="control-label">Status</label>
+                                    <select name="status" id="status" className="form-control form-control-border" required value={editCourseData.status} onChange={(e) => setEditCourseData((prev) => ({ ...prev, status: e.target.value }))}>
+                                        <option value="" selected disabled>Select Status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsEditCourses(false)}>Cancel</button>
+                                    <button className='btn btn-primary' style={{ width: '100px' }} type='submit' onClick={buttonEdit}>Save</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* -----------------------DELETE CONFIRMATION---------------------- */}
-            <div className="popup" style={{ visibility: isDelete ? 'visible' : 'hidden' }}>
-                <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            {isDelete && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isDelete ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-                    <div className="popup-edit">
-                        <h5>Delete?</h5>
-                    </div>
-                    <hr />
-                    <div className='form-div'>
-                        <span>Are you sure you wan't to Delete {`${deleteCourses.name}`}?</span>
-                    </div>
+                        <div className="popup-edit">
+                            <h5>Delete?</h5>
+                        </div>
+                        <hr />
+                        <div className='form-div'>
+                            <span>Are you sure you wan't to Delete {`${deleteCourses.name}`}?</span>
+                        </div>
 
-                    <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                        <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                        <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                            <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={buttonDelete}>Delete</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* fetching data screen */}
-            <div className="popup" style={{ display: isLoading ? 'block' : 'none' }}>
-                <div className="modal-pop-up-loading">
-                    <div className="modal-pop-up-loading-spiner"></div>
-                    <p>Loading...</p>
+            {isLoading && (
+                <div className="popup">
+                    <div className="modal-pop-up-loading">
+                        <div className="modal-pop-up-loading-spiner"></div>
+                        <p>Loading...</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Loading div */}
-            <div className='error-respond' style={{ display: isError || isSuccess ? 'block' : 'none', backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                <div>
-                    <h5>{errorMessage}</h5>
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     )
 }

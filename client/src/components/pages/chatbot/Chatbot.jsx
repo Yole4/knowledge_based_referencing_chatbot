@@ -113,40 +113,44 @@ function Chatbot() {
                         <span className="material-symbols-outlined">mode_comment</span>
                     )}
                 </button>
-                <div className="chatbot" style={{ zIndex: '200', display: isChatbot ? 'block' : 'none', animation: isChatbot ? 'chatbotAnimate 0.5s linear' : '' }}>
-                    <header className='bg-navy'>
-                        <h2>TCAS Chatbot</h2>
-                        <span onClick={() => setIsChatbot(false)} className="material-symbols-outlined">close</span>
-                    </header>
-                    <ul className="chatbox" ref={chatRef}>
-                        <li className="chat incoming">
-                            <span className="material-symbols-outlined">smart_toy</span>
-                            <p>Hi {userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`} 👋 How can I help you today?</p>
-                        </li>
-                        {messages && messages.map(item => (
-                            <>
-                                <li className='chat outgoing' key={item.id}><p>{item.userMessage}</p></li>
-                                <li className='chat incoming' key={item.id}><span className="material-symbols-outlined">smart_toy</span><p>{item.botMessage}</p></li>
-                            </>
-                        ))}
-                    </ul>
-                    <div className="chat-input">
-                        <form onSubmit={handleChat}>
-                            <input placeholder="Enter a message..." value={userInput} onChange={(e) => setUserInput(e.target.value)} />
-                            {disableChat ? (
-                                <span id="send-btn" className="material-symbols-outlined"><span style={{ fontSize: '35px' }}>...</span></span>
-                            ) : (
-                                <span id="send-btn" className="material-symbols-outlined"><button style={{ background: 'transparent', padding: '0', border: '0px solid white' }} type='submit'>Send</button></span>
-                            )}
-                        </form>
-                    </div>
-
-                    <div className="chatbot-container" style={{ display: isLoading ? 'block' : 'none' }}>
-                        <div className="modal-pop-up-chatbot-loading">
-                            <div className="modal-pop-up-loading-spiner"></div>
+                {isChatbot && (
+                    <div className="chatbot" style={{ zIndex: '200', animation: isChatbot ? 'chatbotAnimate 0.5s linear' : '' }}>
+                        <header className='bg-navy'>
+                            <h2>TCAS Chatbot</h2>
+                            <span onClick={() => setIsChatbot(false)} className="material-symbols-outlined">close</span>
+                        </header>
+                        <ul className="chatbox" ref={chatRef}>
+                            <li className="chat incoming">
+                                <span className="material-symbols-outlined">smart_toy</span>
+                                <p>Hi {userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`} 👋 How can I help you today?</p>
+                            </li>
+                            {messages && messages.map(item => (
+                                <>
+                                    <li className='chat outgoing' key={item.id}><p>{item.userMessage}</p></li>
+                                    <li className='chat incoming' key={item.id}><span className="material-symbols-outlined">smart_toy</span><p>{item.botMessage}</p></li>
+                                </>
+                            ))}
+                        </ul>
+                        <div className="chat-input">
+                            <form onSubmit={handleChat}>
+                                <input placeholder="Enter a message..." value={userInput} onChange={(e) => setUserInput(e.target.value)} />
+                                {disableChat ? (
+                                    <span id="send-btn" className="material-symbols-outlined"><span style={{ fontSize: '35px' }}>...</span></span>
+                                ) : (
+                                    <span id="send-btn" className="material-symbols-outlined"><button style={{ background: 'transparent', padding: '0', border: '0px solid white' }} type='submit'>Send</button></span>
+                                )}
+                            </form>
                         </div>
+
+                        {isLoading && (
+                            <div className="chatbot-container">
+                                <div className="modal-pop-up-chatbot-loading">
+                                    <div className="modal-pop-up-loading-spiner"></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </div>
+                )}
             </div>
 
         </>
