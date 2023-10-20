@@ -3,6 +3,9 @@ import '../assets/css/CSS.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// require useAuth
+// import { useAuth } from '../../auth/Auth';
+
 //images
 import logo from '../assets/images/logo.png';
 import givenImage from '../assets/images/given image.png';
@@ -24,6 +27,7 @@ import { VscDeviceCamera } from 'react-icons/vsc';
 import BackendURL from './backend url/BackendURL';
 
 function Home() {
+    // const { dispatch } = useAuth(); // auth provider
     const navigate = useNavigate();
     const location = useLocation();
     const backendUrl = BackendURL(); // backend url
@@ -39,6 +43,7 @@ function Home() {
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
     const [autoFetchChecker, setAutoFetchChecker] = useState(false);
+    const [autoFetchNotification, setAutoFetchNotification] = useState(false);
 
     // -------------- Loading List ----------
     const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +74,8 @@ function Home() {
                 setIsOpenLogin(false);
                 setUsername('');
                 setPassword('');
+                navigate('/');
+                // dispatch({ type: "LOGIN", payload: response.data.token });
 
                 setTimeout(() => {
                     setIsSuccess(false);
@@ -168,6 +175,7 @@ function Home() {
                                 if (response.status === 200) {
                                     setUserCredentials(response.data.message[0]);
                                     setChangePass((prev) => ({ ...prev, username: response.data.message[0].username }));
+                                    setAutoFetchNotification(autoFetchNotification ? false : true);
                                     setIsLoading(false);
                                     setIsLogin(true);
                                 }
@@ -339,6 +347,34 @@ function Home() {
         fetchSettings();
     }, []);
 
+    // ------------------------- FETCH NOTIFICATIONS -------------------------------------
+    const [myNotifications, setMyNotifications] = useState([]);
+
+    useEffect(() => {
+        if (userCredentials) {
+            const getNotification = async () => {
+                setIsLoading(true);
+                const userId = userCredentials && (userCredentials.id).toString();
+
+                try {
+                    const response = await axios.post(`${backendUrl}/api/fetch-notifications`, { userId }, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.status === 200) {
+                        setMyNotifications(response.data.message);
+                        setIsLoading(false);
+                    }
+                } catch (error) {
+                    console.log('error!');
+                    setIsLoading(false);
+                }
+            };
+            getNotification();
+        }
+    }, [autoFetchNotification]);
+
     return (
         <>
             <div className="wrapper" onClick={() => setOnSearch(false)}>
@@ -369,15 +405,23 @@ function Home() {
                                 <li className="nav-item dropdown">
                                     <a className="nav-link" data-toggle="dropdown" href="#">
                                         <i className="far fa-bell" />
-                                        <span className="badge badge-warning navbar-badge">1</span>
+                                        <span className="badge badge-warning navbar-badge">{myNotifications && myNotifications.length}</span>
                                     </a>
                                     <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                                        <span className="dropdown-item dropdown-header">1 Notification</span>
+                                        <span className="dropdown-item dropdown-header">{myNotifications && myNotifications.length} Notification</span>
 
 
-                                        <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
-                                            <i className="fas fa-bell mr-2" style={{ position: 'absolute', fontSize: '15px', marginTop: '5px', marginLeft: '-5px', color: 'rgba(80, 66, 66, 0.935)' }} /><p style={{ marginLeft: '22px' }}>This is the notification message </p>
-                                            <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>date</p>
+                                        <div style={{ height: '400px', overflow: 'auto' }}>
+                                            {myNotifications && myNotifications.reverse().map(item => (
+                                                <div key={item.id} className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: item.seen === 0 ? 'rgba(131, 131, 131, 0.20)' : '' }}>
+                                                    <div style={{display: 'flex'}}>
+                                                        <i className="fas fa-bell mr-2" style={{color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px'}}/><p style={{ marginLeft: '10px' }}>{item.content}</p>
+                                                    </div>
+                                                    <div style={{marginLeft: '10px'}}>
+                                                        <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>{item.date}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
 
                                         <div className="dropdown-divider" />
@@ -422,10 +466,10 @@ function Home() {
                 </nav>
                 <nav className="main-header navbar navbar-expand navbar-light border-0 navbar-light text-sm" id="top-Nav" style={{ marginLeft: '0', marginTop: '0', zIndex: '50' }}>
                     <div className="container">
-                        <a href="#" onClick={() => navigate('/')} className="navbar-brand">
+                        <div onClick={() => navigate('/')} className="navbar-brand" style={{cursor: 'pointer'}}>
                             <img src={logo} alt="Site Logo" className="brand-image img-circle elevation-3" style={{ opacity: '.8', height: '40px', marginRight: '10px' }} />
                             <span>{settings && settings.systemShortName}</span>
-                        </a>
+                        </div>
                         <button className="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon" />
                         </button>
@@ -433,11 +477,11 @@ function Home() {
                             {/* Left navbar links */}
                             {/* <ul className="navbar-nav responsive-header"> */}
                             <ul className="navbar-nav navbar-header">
-                                <li className="nav-item" onClick={() => navigate('/')}>
-                                    <a href="#" className={location.pathname === '/' ? 'nav-link active' : 'nav-link'}>Home</a>
+                                <li className="nav-item" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+                                    <span className={location.pathname === '/' ? 'nav-link active' : 'nav-link'}>Home</span>
                                 </li>
-                                <li className="nav-item" onClick={() => navigate('/projects')}>
-                                    <a href="#" className={location.pathname === '/projects' ? 'nav-link active' : 'nav-link'}>Projects</a>
+                                <li className="nav-item" onClick={() => navigate('/projects')} style={{cursor: 'pointer'}}>
+                                    <span className={location.pathname === '/projects' || location.pathname.startsWith('/view-project/') ? 'nav-link active' : 'nav-link'}>Projects</span>
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className={location.pathname === '/department' ? 'nav-link dropdown-toggle active' : 'nav-link dropdown-toggle'} >Department</a>
@@ -494,13 +538,13 @@ function Home() {
                                         </li>
                                     </ul>
                                 </li>
-                                <li className="nav-item" onClick={() => navigate('/about-us')}>
-                                    <a href="#" className={location.pathname === '/about-us' ? 'nav-link active' : 'nav-link'}>About Us</a>
+                                <li className="nav-item" onClick={() => navigate('/about-us')} style={{cursor: 'pointer'}}>
+                                    <span className={location.pathname === '/about-us' ? 'nav-link active' : 'nav-link'}>About Us</span>
                                 </li>
 
                                 {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
-                                    <li className="nav-item" onClick={() => navigate('/submit-project')}>
-                                        <a href="#" className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</a>
+                                    <li className="nav-item" onClick={() => navigate('/submit-project')} style={{cursor: 'pointer'}}>
+                                        <span className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</span>
                                     </li>
                                 )}
                             </ul>
@@ -756,7 +800,7 @@ function Home() {
 
                     <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
                         <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false) }}>Yes</button>
+                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false); window.location.reload() }}>Yes</button>
                     </div>
                 </div>
             </div>

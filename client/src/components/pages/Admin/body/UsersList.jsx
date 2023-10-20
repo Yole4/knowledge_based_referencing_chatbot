@@ -12,6 +12,12 @@ import { ImSearch } from "react-icons/im";
 
 import { useNavigate } from 'react-router-dom';
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function UsersList() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -231,6 +237,12 @@ function UsersList() {
 
     return (
         <>
+            <SideBar />
+            <Header />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">

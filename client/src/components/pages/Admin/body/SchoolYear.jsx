@@ -4,6 +4,12 @@ import BackendURL from '../../backend url/BackendURL';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+//chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function SchoolYear() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -222,8 +228,10 @@ function SchoolYear() {
         e.preventDefault();
         setIsLoading(true);
 
+        const userId = (userCredentials.id).toString();
+
         try {
-            const response = await axios.post(`${backendUrl}/api/delete-school-year`, { deleteSchoolYear }, {
+            const response = await axios.post(`${backendUrl}/api/delete-school-year`, { deleteSchoolYear, userId }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -258,6 +266,12 @@ function SchoolYear() {
 
     return (
         <>
+            <SideBar />
+            <Header />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">

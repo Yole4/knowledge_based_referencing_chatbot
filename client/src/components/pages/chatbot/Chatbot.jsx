@@ -18,6 +18,7 @@ function Chatbot() {
 
     // loading
     const [isLoading, setIsLoading] = useState(false);
+    const [disableChat, setDisableChat] = useState(false);
 
     // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
     const [userCredentials, setUserCredentials] = useState(null);
@@ -44,13 +45,8 @@ function Chatbot() {
                                     }
                                 });
                                 if (response.status === 200) {
-                                    if (response.data.message[0].user_type !== "Admin") {
-                                        navigate('/');
-                                    }
-                                    else {
-                                        setUserCredentials(response.data.message[0]);
-                                        setIsLoading(false);
-                                    }
+                                    setUserCredentials(response.data.message[0]);
+                                    setIsLoading(false);
                                 }
                             } catch (error) {
                                 setIsLoading(false);
@@ -72,7 +68,8 @@ function Chatbot() {
     const handleChat = async (e) => {
         e.preventDefault();
 
-        if (userInput) {
+        if (userInput && !disableChat) {
+            setDisableChat(true);
             setMessages([...messages, { userMessage: userInput, botMessage: "..." }]);
             setUserInput('');
 
@@ -85,11 +82,14 @@ function Chatbot() {
 
                 if (response.status === 200) {
                     setTimeout(() => {
+                        setDisableChat(false);
                         setMessages([...messages, { botMessage: response.data.message, userMessage: userInput }]);
                     }, 1000);
                 }
             } catch (error) {
+                setDisableChat(false);
                 console.log(error);
+                setMessages([...messages, { userMessage: userInput, botMessage: "Something went wrong!" }]);
             }
         }
     };
@@ -121,7 +121,7 @@ function Chatbot() {
                     <ul className="chatbox" ref={chatRef}>
                         <li className="chat incoming">
                             <span className="material-symbols-outlined">smart_toy</span>
-                            <p>Hi {userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`} 👋<br />How can I help you today?</p>
+                            <p>Hi {userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`} 👋 How can I help you today?</p>
                         </li>
                         {messages && messages.map(item => (
                             <>
@@ -133,11 +133,15 @@ function Chatbot() {
                     <div className="chat-input">
                         <form onSubmit={handleChat}>
                             <input placeholder="Enter a message..." value={userInput} onChange={(e) => setUserInput(e.target.value)} />
-                            <span id="send-btn" className="material-symbols-outlined"><button style={{ background: 'transparent', padding: '0', border: '0px solid white' }} type='submit'>Send</button></span>
+                            {disableChat ? (
+                                <span id="send-btn" className="material-symbols-outlined"><span style={{ fontSize: '35px' }}>...</span></span>
+                            ) : (
+                                <span id="send-btn" className="material-symbols-outlined"><button style={{ background: 'transparent', padding: '0', border: '0px solid white' }} type='submit'>Send</button></span>
+                            )}
                         </form>
                     </div>
 
-                    <div className="chatbot-container" style={{display: isLoading ? 'block' : 'none'}}>
+                    <div className="chatbot-container" style={{ display: isLoading ? 'block' : 'none' }}>
                         <div className="modal-pop-up-chatbot-loading">
                             <div className="modal-pop-up-loading-spiner"></div>
                         </div>

@@ -7,12 +7,24 @@ import BackendURL from '../../backend url/BackendURL';
 // icon list
 import { BiSearch } from "react-icons/bi";
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function StudentList() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
 
     return (
         <>
+            <SideBar />
+            <Header />
+            {/* {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )} */}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">
@@ -43,8 +55,7 @@ function StudentList() {
                                                         <th>#</th>
                                                         <th>Avatar</th>
                                                         <th>Name</th>
-                                                        <th>Email</th>
-                                                        <th>Status</th>
+                                                        <th>Project Title</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>

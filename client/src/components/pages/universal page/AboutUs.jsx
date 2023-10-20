@@ -2,12 +2,61 @@ import React, { useEffect, useState } from 'react'
 import BackendURL from '../backend url/BackendURL';
 import axios from 'axios';
 
+// require home
+import Home from '../Home';
+// chatbot
+import Chatbot from '../chatbot/Chatbot';
+
 function AboutUs() {
     const backendUrl = BackendURL();
+    const token = localStorage.getItem('token');
 
+    // -------------- Loading List ----------
+    const [isLoading, setIsLoading] = useState(false);
+
+    // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
+    const [userCredentials, setUserCredentials] = useState(null);
+    // get the credentials
+    useEffect(() => {
+        if (token) {
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await axios.get(`${backendUrl}/api/protected`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        const userId = (response.data.user.id).toString();
+
+                        const fetchUserCredentials = async () => {
+                            try {
+                                const response = await axios.post(`${backendUrl}/api/fetch-user`, { userId }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                if (response.status === 200) {
+                                    setUserCredentials(response.data.message[0]);
+                                    setIsLoading(false);
+                                }
+                            } catch (error) {
+                                setIsLoading(false);
+                            }
+                        }
+                        fetchUserCredentials();
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                }
+            }
+            fetchData();
+        }
+    }, [token]);
 
     // --------------------------    FETCH SETTINGS   --------------------------
-    const [isLoading, setIsLoading] = useState(false);
     const [settings, setSettings] = useState({
         systemName: '',
         systemShortName: '',
@@ -51,6 +100,11 @@ function AboutUs() {
 
     return (
         <>
+            <Home />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper pt-5 about-container" style={{ color: 'black', marginLeft: '0' }}>
                 {/* Main content */}
                 <section className="content ">

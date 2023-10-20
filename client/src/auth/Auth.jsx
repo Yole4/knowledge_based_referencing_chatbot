@@ -1,39 +1,41 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import BackendURL from '../components/pages/backend url/BackendURL';
+import React, { createContext, useReducer, useContext } from "react";
 
-function Auth() {
-    const backendUrl = BackendURL();
-    const token = localStorage.getItem('token');
-    const [authenticated, setAuthenticated] = useState(null);
+const AuthContext = createContext();
 
-    useEffect(() => {
-        if (token) {
-            const checkToken = async () => {
-                try {
-                    const response = await axios.get(`${backendUrl}/api/protected`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+const initialState = {
+  user: null,
+  isAuthenticated: false,
+};
 
-                    if (response.status === 200) {
-                        setAuthenticated(true);
-                    } else {
-                        setAuthenticated(false);
-                    }
-                } catch (error) {
-                    setAuthenticated(false);
-                }
-            };
-            checkToken();
-        }
-        else{
-            setAuthenticated(false);
-        }
-    }, [backendUrl, token]);
+const authReducer = (state, action) => {
+  switch (action.type) {
+    case "LOGIN":
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: true,
+      };
+    case "LOGOUT":
+      return {
+        ...state,
+        user: null,
+        isAuthenticated: false,
+      };
+    default:
+      return state;
+  }
+};
 
-    return authenticated;
-}
+export const Auth = ({ children }) => {
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
-export default Auth;
+  return (
+    <AuthContext.Provider value={{ state, dispatch }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

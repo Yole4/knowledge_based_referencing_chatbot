@@ -6,6 +6,12 @@ import BackendURL from '../../backend url/BackendURL';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function ArchiveList() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -106,8 +112,117 @@ function ArchiveList() {
         item.status.toLowerCase().includes(searchArchive.toLocaleLowerCase())
     );
 
+    // --------------------------- EDIT AND DELETE ARCHIVE FILE ------------------------------
+    const [editArchiveData, setEditArchiveData] = useState({
+        id: '',
+        status: '',
+        projectTitle: ''
+    });
+
+    const buttonEditArchive = async (item) => {
+        setEditArchiveData({
+            id: item.id,
+            status: item.status,
+            projectTitle: item.project_title
+        });
+        setIsEditArchive(true)
+    }
+
+    const buttonDeleteArchive = async (item) => {
+        setEditArchiveData({
+            id: item.id,
+            status: item.status,
+            projectTitle: item.project_title
+        });
+        setIsDelete(true)
+    };
+
+    // edit
+    const handleEditArchive = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(`${backendUrl}/api/edit-archive-file`, { editArchiveData }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setIsLoading(false);
+                setEditArchiveChecker(editArchiveChecker ? false : true);
+                setIsEditArchive(false);
+
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
+    // delete
+    const handleDeleteArchive = async (e) => {
+        e.preventDefault();
+
+        const userId = (userCredentials.id).toString();
+        try {
+            const response = await axios.post(`${backendUrl}/api/delete-archive-file`, { editArchiveData, userId }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setIsLoading(false);
+                setEditArchiveChecker(editArchiveChecker ? false : true);
+                setIsDelete(false);
+
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    };
+
     return (
         <>
+            <SideBar />
+            <Header />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">
@@ -123,8 +238,8 @@ function ArchiveList() {
                         <div className="card card-outline card-primary">
                             <div className="card-header" style={{ display: 'flex' }}>
                                 <h3 className="card-title" style={{ color: 'darkblue', fontWeight: 'bold' }}>List of Thesis & Capstone Archives</h3>
-                                <ImSearch size={25} className='search-bar search-right' style={{marginTop: '0px'}} onClick={() => setOnSearch(onSearch ? false : true)} />
-                                <input onClick={(e) => e.stopPropagation()} placeholder='Search...' value={searchArchive} onChange={(e) => setSearchArchive(e.target.value)} className='search-input' type="text" style={{marginTop: '27px', display: onSearch ? 'block' : 'none'}}/>
+                                <ImSearch size={25} className='search-bar search-right' style={{ marginTop: '0px' }} onClick={() => setOnSearch(onSearch ? false : true)} />
+                                <input onClick={(e) => e.stopPropagation()} placeholder='Search...' value={searchArchive} onChange={(e) => setSearchArchive(e.target.value)} className='search-input' type="text" style={{ marginTop: '27px', display: onSearch ? 'block' : 'none' }} />
                             </div>
                             <div className="card-body" style={{ height: 'auto' }}>
                                 <div className="container-fluid">
@@ -162,18 +277,18 @@ function ArchiveList() {
                                                                 <td>{item.project_title}</td>
                                                                 <td>{item.course}</td>
                                                                 <td class="text-center">
-                                                                    <span class='badge badge-success badge-pill'>{item.status}</span>
+                                                                    <span class='badge badge-success badge-pill' style={{ background: item.status === "Published" ? '' : 'red' }}>{item.status}</span>
                                                                 </td>
                                                                 <td align="center">
                                                                     <button type="button" class="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
                                                                         Action
                                                                     </button>
                                                                     <div class="dropdown-menu" role="menu">
-                                                                        <a class="dropdown-item" href="http://localhost/otas//?page=view_archive&id=3" target="_blank"><span class="fa fa-external-link-alt text-gray"></span> View</a>
+                                                                        <a class="dropdown-item" style={{ cursor: 'pointer' }}><span class="fa fa-external-link-alt text-gray"></span> View</a>
                                                                         <div class="dropdown-divider"></div>
-                                                                        <a class="dropdown-item update_status" onClick={() => setIsEditArchive(true)}><span class="fa fa-check text-dark"></span> Update Status</a>
+                                                                        <a class="dropdown-item update_status" style={{ cursor: 'pointer' }} onClick={() => buttonEditArchive(item)}><span class="fa fa-check text-dark"></span> Update Status</a>
                                                                         <div class="dropdown-divider"></div>
-                                                                        <a class="dropdown-item delete_data" onClick={() => setIsDelete(true)}><span class="fa fa-trash text-danger"></span> Delete</a>
+                                                                        <a class="dropdown-item delete_data" style={{ cursor: 'pointer' }} onClick={() => buttonDeleteArchive(item)}><span class="fa fa-trash text-danger"></span> Delete</a>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -197,10 +312,10 @@ function ArchiveList() {
                     <h5>Edit Status</h5>
                     <hr />
                     <div className="container-fluid">
-                        <form >
+                        <form onSubmit={handleEditArchive}>
                             <div className="form-group" style={{ marginBottom: '30px' }}>
                                 <label htmlFor className="control-label">Status</label>
-                                <select name="status" id="status" className="form-control form-control-border" required>
+                                <select name="status" id="status" className="form-control form-control-border" value={editArchiveData.status} onChange={(e) => setEditArchiveData((prev) => ({ ...prev, status: e.target.value }))} required>
                                     <option value="" selected disabled>Select Status</option>
                                     <option value="Published">Published</option>
                                     <option value="UnPublish">UnPublish</option>
@@ -224,12 +339,12 @@ function ArchiveList() {
                     </div>
                     <hr />
                     <div className='form-div'>
-                        <span>Are you sure you wan't to Delete (project name)?</span>
+                        <span>Are you sure you wan't to Delete {editArchiveData.projectTitle}?</span>
                     </div>
 
                     <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
                         <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsDelete(false)}>Cancel</button>
-                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Delete</button>
+                        <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={handleDeleteArchive}>Delete</button>
                     </div>
                 </div>
             </div>

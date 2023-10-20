@@ -4,6 +4,12 @@ import BackendURL from '../../backend url/BackendURL';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function DepartmentList() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -75,7 +81,8 @@ function DepartmentList() {
     // -----------------------------------------  ADD DEPARTMENT -------------------------------------------------  
     const [departmentData, setDepartmentData] = useState({
         name: '',
-        status: ''
+        status: '',
+        description: ''
     });
 
     const handleAddDepartment = async (e) => {
@@ -222,8 +229,10 @@ function DepartmentList() {
         e.preventDefault();
         setIsLoading(true);
 
+        const userId = (userCredentials.id).toString();
+
         try {
-            const response = await axios.post(`${backendUrl}/api/delete-department`, { deleteDepartment }, {
+            const response = await axios.post(`${backendUrl}/api/delete-department`, { deleteDepartment, userId }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -258,6 +267,12 @@ function DepartmentList() {
 
     return (
         <>
+            <SideBar />
+            <Header />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">
@@ -346,6 +361,10 @@ function DepartmentList() {
                             <div className="form-group">
                                 <label htmlFor="name" className="control-label">Name</label>
                                 <input type="text" className="form-control form-control-border" value={departmentData.name} onChange={(e) => setDepartmentData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Department Name" required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="name" className="control-label">Description</label>
+                                <input type="text" className="form-control form-control-border" value={departmentData.description} onChange={(e) => setDepartmentData((prev) => ({ ...prev, description: e.target.value }))} placeholder="Description" required />
                             </div>
                             <div className="form-group" style={{ marginBottom: '30px' }}>
                                 <label htmlFor className="control-label">Status</label>

@@ -7,6 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import jose from '../../../assets/images/jose.jpg';
 import logo from '../../../assets/images/logo.png';
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function Settings() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -243,6 +249,12 @@ function Settings() {
 
     return (
         <>
+            <SideBar />
+            <Header />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">

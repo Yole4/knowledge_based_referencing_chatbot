@@ -4,6 +4,12 @@ import BackendURL from '../../backend url/BackendURL';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// require header and sidebar
+import SideBar from '../SideBar';
+import Header from '../Header';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function CurriculumnList() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -75,7 +81,8 @@ function CurriculumnList() {
     // -----------------------------------------  ADD Courses -------------------------------------------------  
     const [courseData, setCoursesData] = useState({
         name: '',
-        status: ''
+        status: '',
+        acronym: ''
     });
 
     const handleAddCourse = async (e) => {
@@ -222,8 +229,10 @@ function CurriculumnList() {
         e.preventDefault();
         setIsLoading(true);
 
+        const userId = (userCredentials.id).toString();
+
         try {
-            const response = await axios.post(`${backendUrl}/api/delete-courses`, { deleteCourses }, {
+            const response = await axios.post(`${backendUrl}/api/delete-courses`, { deleteCourses, userId }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -258,6 +267,12 @@ function CurriculumnList() {
 
     return (
         <>
+            <SideBar />
+            <Header />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+
             <div className="content-wrapper">
                 <div className="content-header">
                     <div className="container-fluid">
@@ -345,7 +360,11 @@ function CurriculumnList() {
                         <form onSubmit={handleAddCourse}>
                             <div className="form-group">
                                 <label htmlFor="name" className="control-label">Course</label>
-                                <input type="text" className="form-control form-control-border" value={courseData.name} onChange={(e) => setCoursesData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Course Name" required />
+                                <input type="text" className="form-control form-control-border" value={courseData.name} onChange={(e) => setCoursesData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Bachelor of Science in Computer Science" required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="name" className="control-label">Acronym</label>
+                                <input type="text" className="form-control form-control-border" value={courseData.acronym} onChange={(e) => setCoursesData((prev) => ({ ...prev, acronym: e.target.value }))} placeholder="e.g. BSCS" required />
                             </div>
                             <div className="form-group" style={{ marginBottom: '30px' }}>
                                 <label htmlFor className="control-label">Status</label>

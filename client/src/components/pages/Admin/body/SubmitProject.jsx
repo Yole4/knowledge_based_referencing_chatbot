@@ -6,6 +6,11 @@ import BackendURL from '../../backend url/BackendURL';
 import givenImage from '../../../assets/images/given image.png';
 import { useNavigate } from 'react-router-dom';
 
+// import home
+import Home from '../../Home';
+// chatbot
+import Chatbot from '../../chatbot/Chatbot';
+
 function SubmitProject() {
     const backendUrl = BackendURL();
     const token = localStorage.getItem('token');
@@ -279,6 +284,11 @@ function SubmitProject() {
 
     return (
         <>
+            <Home />
+            {userCredentials && Object.keys(userCredentials).length > 0 && (
+                <Chatbot />
+            )}
+            
             <div className="content-wrapper pt-5" style={{ color: 'black', marginLeft: '0' }}>
                 {/* Main content */}
                 <section className="content ">
@@ -298,7 +308,9 @@ function SubmitProject() {
                                                         <select id="year" className="form-control form-control-border" value={submitThesisAndCapstone.department} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, department: e.target.value }))} required>
                                                             <option value="" selected disabled>Select Department</option>
                                                             {departmentList && departmentList.map(item => (
-                                                                <option key={item.id} value={item.name}>{item.name}</option>
+                                                                (item.status === "Active" && (
+                                                                    <option key={item.id} value={item.name}>{item.name}</option>
+                                                                ))
                                                             ))}
                                                         </select>
                                                     </div>
@@ -311,7 +323,9 @@ function SubmitProject() {
                                                         <select id="year" className="form-control form-control-border" value={submitThesisAndCapstone.course} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, course: e.target.value }))} required>
                                                             <option value="" selected disabled>Select Course</option>
                                                             {coursesList && coursesList.map(item => (
-                                                                <option key={item.id} value={item.course}>{item.course}</option>
+                                                                (item.status === "Active" && (
+                                                                    <option key={item.id} value={item.course}>{item.course}</option>
+                                                                ))
                                                             ))}
                                                         </select>
                                                     </div>
@@ -333,7 +347,9 @@ function SubmitProject() {
                                                         <select id="year" className="form-control form-control-border" value={submitThesisAndCapstone.schoolYear} onChange={(e) => setSubmitThesisAndCapstone((prev) => ({ ...prev, schoolYear: e.target.value }))} required >
                                                             <option value="" selected disabled>Select School Year</option>
                                                             {schoolYearList && schoolYearList.map(item => (
-                                                                <option key={item.id} value={item.school_year}>{item.school_year}</option>
+                                                                (item.status === "Active" && (
+                                                                    <option key={item.id} value={item.school_year}>{item.school_year}</option>
+                                                                ))
                                                             ))}
                                                         </select>
                                                     </div>
