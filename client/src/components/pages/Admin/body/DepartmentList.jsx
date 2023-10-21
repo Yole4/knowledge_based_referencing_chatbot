@@ -157,7 +157,7 @@ function DepartmentList() {
 
     const departmentToSearch = departmentList.filter(item =>
         item.name.toLowerCase().includes(searchDepartment.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchDepartment.toLocaleLowerCase())
+        item.status.toLowerCase().includes(searchDepartment.toLowerCase())
     );
 
     // ------------------------------- EDIT AND DELETE DEPARTMENT --------------------------------

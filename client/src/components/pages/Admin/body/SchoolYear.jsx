@@ -156,7 +156,7 @@ function SchoolYear() {
 
     const schoolYearToSearch = schoolYearList.filter(item =>
         item.school_year.toLowerCase().includes(searchSchoolYear.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchSchoolYear.toLocaleLowerCase())
+        item.status.toLowerCase().includes(searchSchoolYear.toLowerCase())
     );
 
     // ------------------------------- EDIT AND DELETE SCHOOL YEAR --------------------------------

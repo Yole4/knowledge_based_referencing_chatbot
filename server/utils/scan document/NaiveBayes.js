@@ -47,6 +47,7 @@ function createChatbot() {
         { input: 'What is Capstone?', output: 'tcas-capstone' },
         { input: 'What is Repository?', output: 'tcas-repository' },
         { input: 'What is Metadata?', output: 'tcas-metadata' },
+        { input: 'What is your knowledge?', output: 'tcas-knowledge' },
     ];
 
     // Add training data from the array
@@ -91,6 +92,8 @@ function createChatbot() {
                 return "Inference engine is a component of knowledge-based systems responsible for applying rules and drawing conclusions based on the information stored in the knowledge base. It plays a central role in decision-making processes.";
             case 'task':
                 return 'Certainly, I can help you set a reminder. Please specify the time and details.';
+            case 'tcas-knowledge':
+                return "My current knowledge as of now are limited to understanding research-related terms, specifically in the context of my project titled 'Thesis and Capstone Archiving System with an Integrated Knowledge-Based Referencing Chatbot,' and providing simple greetings. I'm still a work in progress, but in the future, I aim to offer a broader range of knowledge and assistance based on the documents uploaded to my system.";
             case 'tcas-double':
                 return 'The double hashing technique is a method for addressing collisions and improving the efficiency of searching in data structures, particularly hash tables. It involves using two hash functions to determine the location for storing and retrieving data.';
             case 'tcas-info':

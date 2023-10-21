@@ -108,8 +108,8 @@ function ArchiveList() {
 
     const archiveToSearch = archiveList.filter(item =>
         item.project_title.toLowerCase().includes(searchArchive.toLowerCase()) ||
-        item.course.toLowerCase().includes(searchArchive.toLocaleLowerCase()) ||
-        item.status.toLowerCase().includes(searchArchive.toLocaleLowerCase())
+        item.course.toLowerCase().includes(searchArchive.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchArchive.toLowerCase())
     );
 
     // --------------------------- EDIT AND DELETE ARCHIVE FILE ------------------------------

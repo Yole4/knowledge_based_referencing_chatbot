@@ -196,6 +196,31 @@ function Dashboard() {
         fetchArchives();
     }, []);
 
+    // ----------------------------------- FETCH ALL REQUEST USER -----------------------------------------
+    const [requestedUsers, setRequestedUsers] = useState([]);
+
+    useEffect(() => {
+        const fetchRequest = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-request-user`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setRequestedUsers(response.data.message);
+                }
+            } catch (error) {
+                console.log(error);
+                setIsLoading(false);
+            }
+        };
+        fetchRequest();
+    }, []);
+
     return (
         <>
             <SideBar />
@@ -262,8 +287,8 @@ function Dashboard() {
                             <div className="col-lg-3 col-6">
                                 <div className="small-box bg-warning">
                                     <div className="inner">
-                                        <h3>0</h3>
-                                        <p>Request User</p>
+                                        <h3>{requestedUsers && requestedUsers.filter(item => item.status === 'Pending').length}</h3>
+                                        <p>Pending Request User</p>
                                     </div>
                                     <div className="icon">
                                         <i><FaUsers /></i>
@@ -286,7 +311,7 @@ function Dashboard() {
                             <div className="col-lg-3 col-6">
                                 <div className="small-box bg-danger">
                                     <div className="inner">
-                                        <h3>{archiveList && archiveList.filter(item => item.status === 'UnPublished').length}</h3>
+                                        <h3>{archiveList && archiveList.filter(item => item.status === 'UnPublish').length}</h3>
                                         <p>UnPublish Projects</p>
                                     </div>
                                     <div className="icon">

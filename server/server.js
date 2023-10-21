@@ -44,6 +44,8 @@ const currentDate = getCurrentFormattedDate();
 app.post('/api/chat-request', verifyToken, (req, res) => {
     const { userInput } = req.body;
 
+    console.log(getCurrentFormattedDate());
+
     if (!userInput) {
         res.status(404).json('404');
     }
@@ -115,7 +117,7 @@ app.post('/api/chat-request', verifyToken, (req, res) => {
 
 //                         processFile(uniqueFilePath)
 //                             .then(pageTexts => {
-                                
+
 //                                 let isFound = false;
 //                                 let foundPage = [], foundAbstract = [];
 
@@ -459,9 +461,9 @@ app.get('/api/fetch-each-files/public/:id', (req, res) => {
     }
 });
 
-// // ###################################################################################################################################################################################
-// // #####################################################################  EDIT ARCHIVE FILE  ############################################################################################
-// // ###################################################################################################################################################################################
+// ###################################################################################################################################################################################
+// #####################################################################  EDIT ARCHIVE FILE  ############################################################################################
+// ###################################################################################################################################################################################
 app.post('/api/edit-archive-file', verifyToken, (req, res) => {
     const { editArchiveData } = req.body;
 
@@ -490,6 +492,157 @@ app.post('/api/edit-archive-file', verifyToken, (req, res) => {
             }
         });
     }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  SEND REQUEST TO VIEW DOCUMENT  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/user-request-document', verifyToken, (req, res) => {
+    const { archiveId, userId, fullname, projectTitle } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1 } },
+    ];
+
+    const project_id = archiveId.toString();
+    const sanitizeArchiveId = sanitizeAndValidate(project_id, validationRules);
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const sanitizeFullName = sanitizeAndValidate(fullname, validationRules);
+    const sanitizeProjectTitle = sanitizeAndValidate(projectTitle, validationRules);
+
+    if (!sanitizeArchiveId || !sanitizeUserId) {
+        res.status(401).json({ message: "Invalid Input!" });
+    }
+    else {
+        // insert to request
+        const insertRequest = `INSERT INTO user_file_request (user_request_id, project_id, isDelete, date) VALUES (?, ?, ?, ?)`;
+        db.query(insertRequest, [sanitizeUserId, sanitizeArchiveId, "not", currentDate], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                // insert notification
+                const insertNotification = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                db.query(insertNotification, ["1", "Request Document", `${sanitizeFullName} requested to view the document of ${sanitizeProjectTitle}`, currentDate], (error, results) => {
+                    if (error) {
+                        res.status(401).json({ message: "Server side error!" });
+                    } else {
+                        res.status(200).json({ message: "Request send successfully!" });
+                    }
+                });
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH ALL REQUEST USER  #################################################################################
+// ###################################################################################################################################################################################
+app.get('/api/fetch-request-user', verifyToken, (req, res) => {
+    const getRequest = `
+        SELECT users.id, users.image, users.first_name, users.middle_name, users.last_name, user_file_request.*, archive_files.project_title
+        FROM user_file_request
+        INNER JOIN users ON user_file_request.user_request_id = users.id
+        INNER JOIN archive_files ON user_file_request.project_id = archive_files.id
+        WHERE user_file_request.isDelete = ?`;
+    db.query(getRequest, ["not"], (error, results) => {
+        if (error) {
+            res.status(500).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(404).json({ message: "No request found!" });
+            }
+        }
+    });
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  ACCEPT USER REQUEST  #################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/accept-request', verifyToken, (req, res) => {
+    const {userId, acceptId, userRequestId, currentStatus, fullname, projectTitle} = req.body;
+    
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const sanitizeAcceptId = sanitizeAndValidate(acceptId, validationRules);
+    const sanitizeUserRequestId = sanitizeAndValidate(userRequestId, validationRules);
+    const sanitizeCurrentStatus = sanitizeAndValidate(currentStatus, validationRules);
+    const sanitizeFullname = sanitizeAndValidate(fullname, validationRules);
+    const sanitizeProjectTitle = sanitizeAndValidate(projectTitle, validationRules);
+
+    if (!sanitizeUserId || !sanitizeAcceptId || !sanitizeUserRequestId){
+        res.status(401).json({message: "Invalid Input!"});
+    }else{
+        // update status
+        const acceptStatus = `UPDATE user_file_request SET status = ? WHERE id = ?`;
+        db.query(acceptStatus, [sanitizeCurrentStatus, sanitizeAcceptId], (error, resulsts) => {
+            if (error) {
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                // insert notification for the admin
+                let admiNContent = '', userContent = '', successMessage = '';
+                if (sanitizeCurrentStatus === "Approved"){
+                    successMessage = `${sanitizeProjectTitle} has been approved`;
+                    userContent = `Your request on ${sanitizeProjectTitle} was been approved by the admin!`;
+                    admiNContent = `You have approved ${sanitizeFullname} to view the document on the ${sanitizeProjectTitle}.`
+                }else{
+                    admiNContent = `You have been set the status of ${sanitizeFullname} to Pending`;
+                    userContent = `Your request on ${sanitizeProjectTitle} was been Disapproved by Admin`;
+                    successMessage = `${sanitizeProjectTitle} has been successfully set to Pending`;
+                }
+                const insertNotification = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                db.query(insertNotification, [sanitizeUserId, "Request Document", admiNContent, currentDate], (error, results) => {
+                    if (error) {
+                        res.status(401).json({message: "Server side error!"});
+                    }else{
+                        // insert notification for the user
+                        const insertNotUser = `INSERT INTO notifications (user_id, notification_type, content, date) VALUES (?, ?, ?, ?)`;
+                        db.query(insertNotUser, [sanitizeUserRequestId, "User Request", userContent, currentDate], (error, results) => {
+                            if (error) {
+                                res.status(401).json({message: "Server side error!"});
+                            }else{
+                                // success message
+                                res.status(200).json({message: successMessage});
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+});
+
+// ###################################################################################################################################################################################
+// #####################################################################  FETCH USER REQUEST STATUS  ############################################################################################
+// ###################################################################################################################################################################################
+app.post('/api/fetch-request-status', verifyToken, (req, res) => {
+    const { userId, archiveId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1 } },
+    ];
+
+    const projectId = archiveId.toString();
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const sanitizeProjectId = sanitizeAndValidate(projectId, validationRules);
+
+    // fetch
+    const fetchStatus = `SELECT * FROM user_file_request WHERE user_request_id = ? AND project_id = ? AND isDelete = ?`;
+    db.query(fetchStatus, [sanitizeUserId, sanitizeProjectId, "not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No request yet!" });
+            }
+        }
+    });
 });
 
 // // ###################################################################################################################################################################################

@@ -22,6 +22,9 @@ function ViewProject() {
 
     // -------------- Loading List ----------
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isError, setIsError] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     // -----------------------------------------   GET USER CREDENTIALS -------------------------------------------------  
     const [userCredentials, setUserCredentials] = useState(null);
@@ -110,6 +113,74 @@ function ViewProject() {
         }
     }, [userCredentials]);
 
+    // -----------------------------------------   REQUEST TO VIEW DOCUMENT ---------------------------------------------------
+    const [requestChecker, setRequestChecker] = useState(false);
+    
+    const requestToViewDocument = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const userId = userCredentials && (userCredentials.id).toString();
+        const fullname = userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`;
+        const projectTitle = archiveList.project_title;
+        try {
+            const response = await axios.post(`${backendUrl}/api/user-request-document`, { archiveId, userId, fullname, projectTitle }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                setRequestChecker(requestChecker ? false : true);
+                setIsLoading(false);
+                setErrorMessage(response.data.message);
+                setIsSuccess(true);
+
+                setTimeout(() => {
+                    setIsSuccess(false);
+                }, 5000);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(error.response.data.message);
+                setIsError(true);
+
+                setTimeout(() => {
+                    setIsError(false);
+                }, 5000);
+            } else {
+                console.log('Error: ', error);
+            }
+        }
+    }
+
+    // --------------------------------------   FETCH REQUEST STATUS    ------------------------------------------------
+    const [requestData, setRequestData] = useState([]);
+
+    useEffect(() => {
+        if (userCredentials && userCredentials.id !== null) {
+
+            const userId = (userCredentials.id).toString();
+
+            const fetchStatus = async () => {
+                try {
+                    const response = await axios.post(`${backendUrl}/api/fetch-request-status`, { userId, archiveId }, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        setRequestData(response.data.message[0]);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            fetchStatus();
+        }
+    }, [userCredentials, requestChecker]);
 
     return (
         <>
@@ -156,7 +227,7 @@ function ViewProject() {
                                                 </div>
                                             </fieldset>
                                             <fieldset>
-                                                {userCredentials && userCredentials.user_type === "Admin" ? (
+                                                {userCredentials && userCredentials.user_type === "Admin" || requestData && requestData.status === "Approved" ? (
                                                     <>
                                                         <legend className="text-navy">Project Document:</legend>
                                                         <div className="pl-4">
@@ -164,9 +235,16 @@ function ViewProject() {
                                                         </div>
                                                     </>
                                                 ) : userCredentials && userCredentials.user_type === "Student" ? (
-                                                    <div style={{ textAlign: 'center', margin: '10px' }}>
-                                                        <button style={{ padding: '10px' }} className='btn btn-primary' onClick={() => alert('Access request not yet!')}>Request To View Document</button>
-                                                    </div>
+                                                    (requestData && requestData.status === "Pending" ? (
+                                                        <div style={{ textAlign: 'center', margin: '10px' }}>
+                                                            {/* <button style={{ padding: '10px' }} className='btn btn-danger'>Requested</button> */}
+                                                            <span style={{padding: '10px', background: 'red', color: '#fff', borderRadius: '3px'}}>Requested</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div style={{ textAlign: 'center', margin: '10px' }}>
+                                                            <button style={{ padding: '10px' }} className='btn btn-primary' onClick={requestToViewDocument}>Request To View Document</button>
+                                                        </div>
+                                                    ))
                                                 ) : (
                                                     <div style={{ textAlign: 'center', margin: '10px' }}>
                                                         <button style={{ padding: '10px' }} className='btn btn-primary' onClick={() => alert('You need to login for you to request!')}>Request To View Document</button>
@@ -190,6 +268,15 @@ function ViewProject() {
                     <div className="modal-pop-up-loading">
                         <div className="modal-pop-up-loading-spiner"></div>
                         <p>Loading...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading div */}
+            {isError || isSuccess && (
+                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
+                    <div>
+                        <h5>{errorMessage}</h5>
                     </div>
                 </div>
             )}

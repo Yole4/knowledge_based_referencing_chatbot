@@ -157,7 +157,7 @@ function CurriculumnList() {
 
     const coursesToSearch = coursesList.filter(item =>
         item.course.toLowerCase().includes(searchCourses.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchCourses.toLocaleLowerCase())
+        item.status.toLowerCase().includes(searchCourses.toLowerCase())
     );
 
     // ------------------------------- EDIT AND DELETE COURSES --------------------------------

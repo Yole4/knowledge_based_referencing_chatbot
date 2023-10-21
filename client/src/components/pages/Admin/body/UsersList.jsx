@@ -111,7 +111,7 @@ function UsersList() {
 
     const usersAccountToSearch = usersAccount.filter(item =>
         item.first_name.toLowerCase().includes(usersAccountSearch.toLowerCase()) ||
-        item.middle_name.toLowerCase().includes(usersAccountSearch.toLocaleLowerCase()) ||
+        item.middle_name.toLowerCase().includes(usersAccountSearch.toLowerCase()) ||
         item.last_name.toLowerCase().includes(usersAccountSearch.toLowerCase()) ||
         item.username.toLowerCase().includes(usersAccountSearch.toLowerCase())
     );

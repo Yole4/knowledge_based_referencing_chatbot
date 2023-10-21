@@ -114,7 +114,7 @@ function Chatbot() {
                     )}
                 </button>
                 {isChatbot && (
-                    <div className="chatbot" style={{ zIndex: '200', animation: isChatbot ? 'chatbotAnimate 0.5s linear' : '' }}>
+                    <div className="chatbot" style={{ zIndex: '1100', animation: isChatbot ? 'chatbotAnimate 0.5s linear' : '' }}>
                         <header className='bg-navy'>
                             <h2>TCAS Chatbot</h2>
                             <span onClick={() => setIsChatbot(false)} className="material-symbols-outlined">close</span>

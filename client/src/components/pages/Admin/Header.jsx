@@ -252,9 +252,9 @@ function Header() {
                             <span className="dropdown-item dropdown-header">{myNotifications && myNotifications.length} Notification</span>
 
 
-                            <div style={{ height: '400px', overflow: 'auto' }}>
+                            <div style={{ maxHeight: '400px', overflow: 'auto' }}>
                                 {myNotifications && myNotifications.reverse().map(item => (
-                                    <div key={item.id} className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: item.seen === 0 ? 'rgba(131, 131, 131, 0.20)' : '' }}>
+                                    <div key={item.id} className='dropdown-item other' onClick={() => item.notification_type === "Request Document" && navigate('/student-list')} style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: item.seen === 0 ? 'rgba(131, 131, 131, 0.20)' : '' }}>
                                         <div style={{ display: 'flex' }}>
                                             <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>{item.content}</p>
                                         </div>
