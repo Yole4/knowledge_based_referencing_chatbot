@@ -23,7 +23,6 @@ import SearchResults from "./components/pages/universal page/SearchResults";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import { Auth } from "./auth/Auth";
 
-console.log(ProtectedRoute);
 function App() {
   return (
     <>
