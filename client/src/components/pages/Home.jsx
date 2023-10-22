@@ -14,7 +14,7 @@ import givenImage from '../assets/images/given image.png';
 import { AiOutlineCloseCircle, AiTwotoneHome } from 'react-icons/ai';
 import { IoMenuSharp } from 'react-icons/io5';
 import { ImSearch } from 'react-icons/im';
-import { RiArrowDownSLine, RiArrowLeftSLine } from 'react-icons/ri';
+import { RiArrowDownSLine, RiArrowUpSLine } from 'react-icons/ri';
 import { TbBulbFilled } from 'react-icons/tb';
 import { FaThList } from 'react-icons/fa';
 import { SiCoursera } from 'react-icons/si';
@@ -40,6 +40,8 @@ function Home() {
     const [isChangePassword, setIsChangePassword] = useState(false); // change password modal
     const [isProfile, setIsProfile] = useState(false); // profile modal
     const [isLogout, setIsLogout] = useState(false);
+    const [isDepartment, setIsDepartment] = useState(false);
+    const [isCourse, setIsCourse] = useState(false);
 
     // --------------------    MOUNT AFTER EXECUTION   ----------------------
     const [autoFetchChecker, setAutoFetchChecker] = useState(false);
@@ -375,6 +377,53 @@ function Home() {
         }
     }, [autoFetchNotification]);
 
+    // -----------------------------------------  FETCH DEPARTMENT -------------------------------------------------
+    const [departmentList, setDepartmentList] = useState([]);
+
+    useEffect(() => {
+        const fetchDepartment = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-department`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setDepartmentList(response.data.message);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchDepartment();
+    }, []);
+
+    // -----------------------------------------  FETCH COURSES -------------------------------------------------
+    const [coursesList, setCoursesList] = useState([]);
+    useEffect(() => {
+        const fetchCourses = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${backendUrl}/api/fetch-courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setCoursesList(response.data.message);
+                }
+            } catch (error) {
+                setIsLoading(false);
+            }
+        }
+        fetchCourses();
+    }, []);
+
     return (
         <>
             <div className="wrapper" onClick={() => setOnSearch(false)}>
@@ -486,56 +535,32 @@ function Home() {
                                 <li className="nav-item dropdown">
                                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className={location.pathname === '/department' ? 'nav-link dropdown-toggle active' : 'nav-link dropdown-toggle'} >Department</a>
                                     <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=3" className="dropdown-item">College Of Arts And Sciences</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=4" className="dropdown-item">College Of Business Management And Accountancy</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=5" className="dropdown-item">College Of Computer Studies</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=2" className="dropdown-item">College Of Education</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=6" className="dropdown-item">College Of Engineering</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=1" className="dropdown-item">College Of Industrial Technology</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=7" className="dropdown-item">ColLege Of Maritime</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_department&id=8" className="dropdown-item">College Of Nursing And Allied Services</a>
-                                        </li>
+                                        {departmentList && departmentList.map(item => (
+                                            item.status === "Active" && (
+                                                <>
+                                                    <li key={item.id}>
+                                                    {/* <li key={item.id} onClick={() => navigate('/projects', {state: {type: 'Department', id: item.id}})}> */}
+                                                        <a href="" className="dropdown-item">{item.name}</a>
+                                                    </li>
+                                                    <li className="dropdown-divider" />
+                                                </>
+                                            )
+                                        ))}
                                     </ul>
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" className={location.pathname === '/courses' ? 'nav-link dropdown-toggle active' : 'nav-link dropdown-toggle'}>Courses</a>
                                     <ul aria-labelledby="dropdownSubMenu1" className="dropdown-menu border-0 shadow" style={{ left: 0, right: 'inherit' }}>
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=3" className="dropdown-item">BEEd</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=7" className="dropdown-item">BS Computer Engineering</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=5" className="dropdown-item">BSBA</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=6" className="dropdown-item">BSCE</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=2" className="dropdown-item">BSCS</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=4" className="dropdown-item">BSEd</a>
-                                        </li><li className="dropdown-divider" />
-                                        <li>
-                                            <a href="./?page=projects_per_curriculum&id=1" className="dropdown-item">BSIS</a>
-                                        </li>
+                                        {coursesList && coursesList.map(item => (
+                                            item.status === "Active" && (
+                                                <>
+                                                    <li key={item.id}>
+                                                        <a href="./?page=projects_per_department&id=3" className="dropdown-item">{item.course}</a>
+                                                    </li>
+                                                    <li className="dropdown-divider" />
+                                                </>
+                                            )
+                                        ))}
                                     </ul>
                                 </li>
                                 <li className="nav-item" onClick={() => navigate('/about-us')} style={{ cursor: 'pointer' }}>
@@ -691,53 +716,61 @@ function Home() {
                                     </li>
 
                                     <li className=" dropdown" style={{ cursor: 'pointer' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/department' ? 'hover-side' : ''}>
-                                            <a ><FaThList size={17} style={{ marginTop: '-3px' }} /> Department</a><span><RiArrowDownSLine size={25} /></span>
-                                            {/* <span><RiArrowLeftSLine size={25} /></span> */}
+                                        <div onClick={() => setIsDepartment(isDepartment ? false : true)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '20px', padding: '7px' }} className={location.pathname === '/department' ? 'hover-side' : ''}>
+                                            <a ><FaThList size={17} style={{ marginTop: '-3px' }} /> Department</a>
+                                            {isDepartment ? (
+                                                <span><RiArrowUpSLine size={25} /></span>
+                                            ) : (
+                                                <span><RiArrowDownSLine size={25} /></span>
+                                            )}
                                         </div>
-                                        <ul className="nav nav-pills nav-sidebar flex-column">
-                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                                <a className='nav-link nav-home'>
-                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                    <p >
-                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Arts And Sciences
-                                                    </p>
-                                                </a>
-                                            </li>
-                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                                <a className='nav-link nav-home'>
-                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                    <p >
-                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> College Of Business Management And Accountancy
-                                                    </p>
-                                                </a>
-                                            </li>
-                                        </ul>
+                                        {isDepartment && (
+                                            <ul className="nav nav-pills nav-sidebar flex-column">
+                                                {departmentList && departmentList.map(item => (
+                                                    item.status === "Active" && (
+                                                        <>
+                                                            <li onClick={() => navigate('/search-results')} key={item.id} className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                                                <a className='nav-link nav-home'>
+                                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                                    <p >
+                                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> {item.name}
+                                                                    </p>
+                                                                </a>
+                                                            </li>
+                                                        </>
+                                                    )
+                                                ))}
+                                            </ul>
+                                        )}
                                     </li>
 
                                     <li className=" dropdown" style={{ cursor: 'pointer' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '15px', padding: '7px' }} className={location.pathname === '/courses' ? 'hover-side' : ''}>
-                                            <a ><SiCoursera size={20} style={{ marginTop: '-3px' }} /> Courses</a><span><RiArrowDownSLine size={25} /></span>
-                                            {/* <span><RiArrowLeftSLine size={25} /></span> */}
+                                        <div onClick={() => setIsCourse(isCourse ? false : true)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', paddingLeft: '20px', padding: '7px' }} className={location.pathname === '/courses' ? 'hover-side' : ''}>
+                                            <a ><SiCoursera size={20} style={{ marginTop: '-3px' }} /> Courses</a>
+                                            {isCourse ? (
+                                                <span><RiArrowUpSLine size={25} /></span>
+                                            ) : (
+                                                <span><RiArrowDownSLine size={25} /></span>
+                                            )}
                                         </div>
-                                        <ul className="nav nav-pills nav-sidebar flex-column">
-                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                                <a className='nav-link nav-home'>
-                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                    <p >
-                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> Bachelor Of Science In Computer Science
-                                                    </p>
-                                                </a>
-                                            </li>
-                                            <li className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
-                                                <a className='nav-link nav-home'>
-                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
-                                                    <p >
-                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> BSMA
-                                                    </p>
-                                                </a>
-                                            </li>
-                                        </ul>
+                                        {isCourse && (
+                                            <ul className="nav nav-pills nav-sidebar flex-column">
+                                                {coursesList && coursesList.map(item => (
+                                                    item.status === "Active" && (
+                                                        <>
+                                                            <li key={item.id} className="nav-item dropdown" style={{ marginLeft: '13px', fontSize: '14px' }}>
+                                                                <a className='nav-link nav-home'>
+                                                                    {/* <i className="nav-icon"><FaUsers /></i> */}
+                                                                    <p >
+                                                                        <GoDotFill size={17} style={{ marginTop: '-3px' }} /> {item.course}
+                                                                    </p>
+                                                                </a>
+                                                            </li>
+                                                        </>
+                                                    )
+                                                ))}
+                                            </ul>
+                                        )}
                                     </li>
 
                                     <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/about-us')}>
@@ -857,12 +890,14 @@ function Home() {
             )}
 
             {/* Loading div */}
-            {isError || isSuccess && (
+            {isError || isSuccess ? (
                 <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
                     <div>
                         <h5>{errorMessage}</h5>
                     </div>
                 </div>
+            ) : (
+                <></>
             )}
         </>
     );

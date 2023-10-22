@@ -266,12 +266,14 @@ function StudentList() {
             )}
 
             {/* Loading div */}
-            {isError || isSuccess && (
+            {isError || isSuccess ? (
                 <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
                     <div>
                         <h5>{errorMessage}</h5>
                     </div>
                 </div>
+            ) : (
+                <></>
             )}
         </>
     )

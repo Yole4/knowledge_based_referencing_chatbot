@@ -17,6 +17,7 @@ import Welcome from "./components/pages/universal page/Welcome";
 import AboutUs from "./components/pages/universal page/AboutUs";
 import SubmitProject from "./components/pages/Admin/body/SubmitProject";
 import ViewProject from "./components/pages/universal page/ViewProject";
+import SearchResults from "./components/pages/universal page/SearchResults";
 
 // protected
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -44,6 +45,7 @@ function App() {
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/submit-project" element={<SubmitProject />} />
             <Route path="/view-project/:id" element={<ViewProject />} />
+            <Route path="/search-results" element={<SearchResults />} />
 
             {/* Chatbot */}
             {/* <Route path="/tcas-chatbot" element={<Chatbot />} />  */}

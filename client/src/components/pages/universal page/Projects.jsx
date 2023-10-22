@@ -97,6 +97,8 @@ function Projects() {
                                 <div className="card card-outline card-primary shadow rounded-0">
                                     <div className="card-body rounded-0">
                                         <h2>Archive List</h2>
+                                        {/* <h2>Archive List <span>College of computing studies</span></h2> */}
+                                        {/* <p><small>Develop creative innovators with the confidence and courage to seize and transform opportunities for the benefit of the society.</small></p> */}
                                         <hr className="bg-navy" />
                                         <div className="list-group">
                                             {archiveList && archiveList.map(item => (
