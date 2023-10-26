@@ -569,7 +569,8 @@ function Home() {
 
                                 {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
                                     <li className="nav-item" onClick={() => navigate('/submit-project')} style={{ cursor: 'pointer' }}>
-                                        <span className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</span>
+                                        {/* <span className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit Thesis/Capstone</span> */}
+                                        <span className={location.pathname === '/submit-project' ? 'nav-link active' : 'nav-link'}>Submit New Project</span>
                                     </li>
                                 )}
                             </ul>
@@ -779,7 +780,8 @@ function Home() {
 
                                     {isLogin && userCredentials && userCredentials.user_type === "Admin" && (
                                         <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/submit-project')}>
-                                            <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a>
+                                            <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit New Document</a>
+                                            {/* <a className={location.pathname === '/submit-project' ? 'nav-link hover-side' : 'nav-link'}><PiUploadBold size={20} style={{ marginTop: '-3px' }} /> Submit Thesis/Capstone</a> */}
                                         </li>
                                     )}
                                 </ul>
