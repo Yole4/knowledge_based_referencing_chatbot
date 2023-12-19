@@ -234,7 +234,8 @@ function StudentList() {
                                                                         <span className="sr-only">Toggle Dropdown</span>
                                                                     </button>
                                                                     <div className="dropdown-menu" role="menu">
-                                                                        <a class="dropdown-item" onClick={() => navigate(`/view-project/${1000 + item.project_id}`)} style={{ cursor: 'pointer' }}><span class="fa fa-external-link-alt text-gray"></span> View</a>
+                                                                    {/* onClick={() => navigate(`/view-project/${1000 + item.project_id}`)} */}
+                                                                        <a class="dropdown-item" target='_blank' href={`http://localhost:3000/view-project/${1000 + item.project_id}`} style={{ cursor: 'pointer' }}><span class="fa fa-external-link-alt text-gray"></span> View</a>
                                                                         <div class="dropdown-divider"></div>
                                                                         <a class="dropdown-item update_status" style={{ cursor: 'pointer' }} onClick={() => handleAccept(item)} ><span class="fa fa-check text-dark"></span>{item.status === "Approved" ? ' Decline' : ' Accept'}</a>
                                                                     </div>
